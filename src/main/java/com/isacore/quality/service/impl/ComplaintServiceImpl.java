@@ -44,14 +44,15 @@ public class ComplaintServiceImpl implements IComplaintService {
 				aux.setNameProduct(p.get().getNameProduct());
 				aux.setUnit(p.get().getUnit());
 				complaint.setProduct(aux);
-				aux.setProviders(this.providerService.findByProductIdVigente(p.get().getIdProduct()));
-				if(aux.getProviders() != null) {
-					for (Provider provider : aux.getProviders()) {
-						if (complaint.getIdProvider() == provider.getIdProvider())
-							complaint.setProvider(provider);
+				if(complaint.getIdProvider() != null){
+					aux.setProviders(this.providerService.findByProductIdVigente(p.get().getIdProduct()));
+					if(aux.getProviders() != null) {
+						for (Provider provider : aux.getProviders()) {
+							if (complaint.getIdProvider().compareTo(provider.getIdProvider()) == 0 )
+								complaint.setProvider(provider);
+						}
 					}
 				}
-				
 				
 				for(Problem pr: complaint.getListProblems()){
 					if(pr.getNameFileP()!=null) {
@@ -85,10 +86,12 @@ public class ComplaintServiceImpl implements IComplaintService {
 			aux.setNameProduct(p.get().getNameProduct());
 			aux.setUnit(p.get().getUnit());
 			com.get().setProduct(aux);
-			aux.setProviders(this.providerService.findByProductIdVigente(p.get().getIdProduct()));
-			for (Provider provider : aux.getProviders()) {
-				if (com.get().getIdProvider() == provider.getIdProvider())
-					com.get().setProvider(provider);
+			if(com.get().getIdProvider() != null){
+				aux.setProviders(this.providerService.findByProductIdVigente(p.get().getIdProduct()));
+				for (Provider provider : aux.getProviders()) {
+					if (com.get().getIdProvider().compareTo(provider.getIdProvider()) == 0)
+						com.get().setProvider(provider);
+				}
 			}
 			return com.get();
 		} else {
