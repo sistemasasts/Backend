@@ -3,6 +3,10 @@ package com.isacore.quality.controller;
 import java.io.IOException;
 import java.util.List;
 
+import com.isacore.quality.model.spp.EstadoSolicitudPP;
+import com.isacore.quality.model.spp.OrdenFlujoPP;
+import com.isacore.quality.model.spp.SolicitudPruebaProcesoDocumento;
+import com.isacore.quality.service.spp.ISolicitudPruebaProcesoDocumentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,16 +31,12 @@ public class SolicitudDocumentoControlador {
 
 	@Autowired
 	private ISolicitudDocumentoService service;
+	@Autowired
+	private ISolicitudPruebaProcesoDocumentoService servicePP;
 	
 	@PostMapping
 	public ResponseEntity<SolicitudDocumento> subirArchivo(@RequestPart("info") String info, @RequestPart("file") MultipartFile file) throws IOException {
 		SolicitudDocumento infoRegister = service.subir(info, file.getBytes(), file.getOriginalFilename(), file.getContentType());
-		return new ResponseEntity<SolicitudDocumento>(infoRegister, HttpStatus.OK);
-	}
-	
-	@PostMapping("/solicitudPruebasProceso")
-	public ResponseEntity<SolicitudDocumento> subirArchivoPruebasProceso(@RequestPart("info") String info, @RequestPart("file") MultipartFile file) throws IOException {
-		SolicitudDocumento infoRegister = service.subirParaSolicitudPruebasProceso(info, file.getBytes(), file.getOriginalFilename(), file.getContentType());
 		return new ResponseEntity<SolicitudDocumento>(infoRegister, HttpStatus.OK);
 	}
 	
@@ -45,30 +45,57 @@ public class SolicitudDocumentoControlador {
 		List<SolicitudDocumento> files = service.buscarPorEstadoYOrdenYSolicitudId(estado, orden, solicitudId);
 		return new ResponseEntity<List<SolicitudDocumento>>(files, HttpStatus.OK);
 	}
-	
-	@GetMapping("/solicitudPruebasProceso/{estado}/{orden}/{solicitudId}")
-	public ResponseEntity<List<SolicitudDocumento>> listarArchivosPruebasProceso(@PathVariable("estado") EstadoSolicitud estado, @PathVariable("orden") OrdenFlujo orden, @PathVariable("solicitudId") Long solicitudId) throws IOException {
-		List<SolicitudDocumento> files = service.buscarPorEstadoYOrdenYSolicitudPruebaProcesoId(estado, orden, solicitudId);
-		return new ResponseEntity<List<SolicitudDocumento>>(files, HttpStatus.OK);
-	}
-	
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> eliminar(@PathVariable("id") Long id) {
 		boolean resultado = service.eliminar(id);
 		return new ResponseEntity<Object>(resultado,HttpStatus.OK);
 	}
-	
+
 	@GetMapping(value="/ver/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	public ResponseEntity<byte[]> ver(@PathVariable("id") Long id) {
 		byte [] data = null;
 		data= service.descargar(id);
 		return new ResponseEntity<byte[]>(data, HttpStatus.CREATED);
 	}
-	
+
 	@GetMapping(value="/comprimido/{historialId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	public ResponseEntity<byte[]> descargarComprimido(@PathVariable("historialId") Long id) {
 		byte [] data = null;
 		data= service.descargarPorHistorialId(id);
 		return new ResponseEntity<byte[]>(data, HttpStatus.OK);
 	}
+
+	@PostMapping("/solicitudPruebasProceso")
+	public ResponseEntity<SolicitudPruebaProcesoDocumento> subirArchivoPruebasProceso(@RequestPart("info") String info, @RequestPart("file") MultipartFile file) throws IOException {
+		SolicitudPruebaProcesoDocumento infoRegister = servicePP.subir(info, file.getBytes(), file.getOriginalFilename(), file.getContentType());
+		return new ResponseEntity<SolicitudPruebaProcesoDocumento>(infoRegister, HttpStatus.OK);
+	}
+	
+	@GetMapping("/solicitudPruebasProceso/{estado}/{orden}/{solicitudId}")
+	public ResponseEntity<List<SolicitudPruebaProcesoDocumento>> listarArchivosPruebasProceso(@PathVariable("estado") EstadoSolicitudPP estado, @PathVariable("orden") OrdenFlujoPP orden, @PathVariable("solicitudId") Long solicitudId) throws IOException {
+		List<SolicitudPruebaProcesoDocumento> files = servicePP.buscarPorEstadoYOrdenYSolicitudId(estado, orden, solicitudId);
+		return new ResponseEntity<List<SolicitudPruebaProcesoDocumento>>(files, HttpStatus.OK);
+	}
+
+	@DeleteMapping("/solicitudPruebasProceso/{id}")
+	public ResponseEntity<Object> eliminarPP(@PathVariable("id") Long id) {
+		boolean resultado = servicePP.eliminar(id);
+		return new ResponseEntity<Object>(resultado,HttpStatus.OK);
+	}
+
+	@GetMapping(value="/solicitudPruebasProceso/ver/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<byte[]> verPP(@PathVariable("id") Long id) {
+		byte [] data = null;
+		data= servicePP.descargar(id);
+		return new ResponseEntity<byte[]>(data, HttpStatus.CREATED);
+	}
+
+	@GetMapping(value="/solicitudPruebasProceso/comprimido/{historialId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<byte[]> descargarComprimidoPP(@PathVariable("historialId") Long id) {
+		byte [] data = null;
+		data= servicePP.descargarPorHistorialId(id);
+		return new ResponseEntity<byte[]>(data, HttpStatus.OK);
+	}
+
 }

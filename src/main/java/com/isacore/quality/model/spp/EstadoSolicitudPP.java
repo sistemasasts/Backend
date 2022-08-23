@@ -1,0 +1,15 @@
+package com.isacore.quality.model.spp;
+
+public enum EstadoSolicitudPP {
+    NUEVO,
+    ENVIADO_REVISION,
+    EN_PROCESO_PRODUCCION,
+    EN_PROCESO_MANTENIMIENTO,
+    EN_PROCESO_CALIDAD,
+    PRUEBA_NO_EJECUTADA,
+    PENDIENTE_APROBACION,
+    ANULADO,
+    RECHAZADO,
+    FINALIZADO,
+
+}

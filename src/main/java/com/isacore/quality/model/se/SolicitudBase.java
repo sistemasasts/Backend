@@ -60,12 +60,6 @@ public abstract class SolicitudBase {
 	
 	private String usuarioAprobador;
 	
-	@Enumerated(EnumType.STRING)
-	private EstadoSolicitud estado;
-	
-	@Transient
-	private OrdenFlujo orden;
-	
 	protected SolicitudBase() {}
 
 	public SolicitudBase(String codigo, String nombreSolicitante) {
@@ -74,20 +68,9 @@ public abstract class SolicitudBase {
 		this.fechaCreacion = LocalDateTime.now();
 		this.creadoPor = nombreSolicitante;
 		this.nombreSolicitante = nombreSolicitante;
-		this.estado = EstadoSolicitud.NUEVO;
 	}
 	
 	public void finalizarSolicitud() {
 		this.fechaFinalizacion = LocalDateTime.now();
-	}
-	
-	public void anular() {
-		this.fechaFinalizacion = LocalDateTime.now();
-		this.estado = EstadoSolicitud.ANULADO;
-	}
-	
-	public void rechazar() {
-		this.fechaFinalizacion = LocalDateTime.now();
-		this.estado = EstadoSolicitud.RECHAZADO;
 	}
 }

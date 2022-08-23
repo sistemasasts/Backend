@@ -1,16 +1,17 @@
-package com.isacore.quality.service.impl.se;
+package com.isacore.quality.service.impl.spp;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacore.quality.exception.ApprobationCriteriaErrorException;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
-import com.isacore.quality.model.se.*;
-import com.isacore.quality.repository.se.ISolicitudDocumentoRepo;
-import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
-import com.isacore.quality.repository.se.ISolicitudHistorialRepo;
+import com.isacore.quality.model.se.SolicitudBase;
+import com.isacore.quality.model.se.SolicitudDocumentoDTO;
+import com.isacore.quality.model.spp.*;
+import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoDocumentoRepo;
+import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoHistorialRepo;
 import com.isacore.quality.repository.spp.ISolicitudPruebasProcesoRepo;
 import com.isacore.quality.service.se.ConfiguracionSolicitud;
-import com.isacore.quality.service.se.ISolicitudDocumentoService;
+import com.isacore.quality.service.spp.ISolicitudPruebaProcesoDocumentoService;
 import com.isacore.util.PassFileToRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,17 +33,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService {
+public class SolicitudPruebaProcesoDocumentoServiceImpl implements ISolicitudPruebaProcesoDocumentoService {
 
-	private static final Log LOG = LogFactory.getLog(SolicitudDocumentoServiceImpl.class);
+	private static final Log LOG = LogFactory.getLog(SolicitudPruebaProcesoDocumentoServiceImpl.class);
 	
 	public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 	
 	@Autowired
-	private ISolicitudDocumentoRepo repo;
-	
-	@Autowired
-	private ISolicitudEnsayoRepo repoSolicitud;
+	private ISolicitudPruebaProcesoDocumentoRepo repo;
 	
 	@Autowired
 	private ISolicitudPruebasProcesoRepo repoSolicitudPruebasProceso;
@@ -51,60 +49,25 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 	private ConfiguracionSolicitud configuracion;
 	
 	@Autowired
-	private ISolicitudHistorialRepo repoHistorial;
+	private ISolicitudPruebaProcesoHistorialRepo repoHistorial;
 	
-	
 	@Override
-	public List<SolicitudDocumento> findAll() {
-		return repo.findAll();
-	}
-
-	@Override
-	public SolicitudDocumento create(SolicitudDocumento obj) {
-		SolicitudDocumento nuevo = new SolicitudDocumento(
-				obj.getSolicitudEnsayo(), 
-				obj.getPath(), 
-				obj.getNombreArchivo(), 
-				obj.getOrdenFlujo());
-		
-		LOG.info(String.format("Documento a guardar %s", nuevo));
-		return repo.save(nuevo);
-	}
-
-	@Override
-	public SolicitudDocumento findById(SolicitudDocumento id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public SolicitudDocumento update(SolicitudDocumento obj) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean delete(String id) {
-		return false;
-	}
-
-	@Override
-	public SolicitudDocumento subir(String jsonDTO, byte[] file, String nombreArchivo, String tipo) {
+	public SolicitudPruebaProcesoDocumento subir(String jsonDTO, byte[] file, String nombreArchivo, String tipo) {
 		try {
-			
+
 			SolicitudDocumentoDTO dto = JSON_MAPPER.readValue(jsonDTO, SolicitudDocumentoDTO.class);
 			if(dto != null) {
-				Optional<SolicitudEnsayo> solicitudOp = repoSolicitud.findById(dto.getIdSolicitud());
+				Optional<SolicitudPruebasProceso> solicitudOp = repoSolicitudPruebasProceso.findById(dto.getIdSolicitud());
 				
 				if(!solicitudOp.isPresent())
 					throw new SolicitudEnsayoErrorException(String.format("Solicitud con id= %s no existe. no es posible subir archivo", dto.getIdSolicitud()));
 					
-					SolicitudEnsayo solicitud = solicitudOp.get();
+					SolicitudPruebasProceso solicitud = solicitudOp.get();
 					try {
 						final String path = crearPathArchivo(solicitud, nombreArchivo);
 						PassFileToRepository.saveLocalFile(path, file);
-						
-						SolicitudDocumento documento = guardarDocumento(solicitud, nombreArchivo, path, dto.getOrden());	
+
+						SolicitudPruebaProcesoDocumento documento = guardarDocumentoSPP(solicitud, nombreArchivo, path, dto.getOrdenPP());
 						
 						LOG.info(String.format("Documento guardado %s", documento));
 						
@@ -121,9 +84,9 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 			throw new ApprobationCriteriaErrorException();
 		}
 	}
-
-	private SolicitudDocumento guardarDocumento(SolicitudEnsayo solicitud, String nombreArchivo, String ruta, OrdenFlujo orden) {
-		SolicitudDocumento nuevo = new SolicitudDocumento(
+	
+	private SolicitudPruebaProcesoDocumento guardarDocumentoSPP(SolicitudPruebasProceso solicitud, String nombreArchivo, String ruta, OrdenFlujoPP orden) {
+		SolicitudPruebaProcesoDocumento nuevo = new SolicitudPruebaProcesoDocumento(
 				solicitud, 
 				ruta, 
 				nombreArchivo, 
@@ -137,7 +100,7 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 	public byte[] descargar(long id) {
 		try {
 			
-			Optional<SolicitudDocumento> documentoOP = repo.findById(id);
+			Optional<SolicitudPruebaProcesoDocumento> documentoOP = repo.findById(id);
 			if(!documentoOP.isPresent())
 				throw new SolicitudEnsayoErrorException("Documento no encontrado");
 			return PassFileToRepository.readLocalFile(documentoOP.get().getPath());
@@ -155,7 +118,6 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 	}
 	
 	private String crearPathArchivo(SolicitudBase solicitudBase, String nombreArchivo) {
-		
 		
 		String path = crearRutaAlmacenamiento(solicitudBase).concat(File.separator).concat(nombreArchivo);
 
@@ -183,29 +145,26 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 	}
 
 	@Override
-	public List<SolicitudDocumento> buscarPorEstadoYOrdenYSolicitudId(EstadoSolicitud estado, OrdenFlujo orden, long solicitudId) {
-			return repo.findByEstadoInAndOrdenFlujoInAndSolicitudEnsayo_Id(Arrays.asList(EstadoSolicitud.NUEVO, estado),Arrays.asList(OrdenFlujo.INGRESO_SOLICITUD, orden), solicitudId);
+	public List<SolicitudPruebaProcesoDocumento> buscarPorEstadoYOrdenYSolicitudId(EstadoSolicitudPP estado, OrdenFlujoPP orden, long solicitudId) {
+			return repo.findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(Arrays.asList(EstadoSolicitudPP.NUEVO, estado),Arrays.asList(OrdenFlujoPP.INGRESO_SOLICITUD, orden), solicitudId);
 	}
 
 	@Override
 	public byte[] descargarPorHistorialId(long historialId) {
-		Optional<SolicitudHistorial> historialOP = repoHistorial.findById(historialId);
+		Optional<SolicitudPruebaProcesoHistorial> historialOP = repoHistorial.findById(historialId);
 		if (historialOP.isPresent()) {
-			SolicitudHistorial historial = historialOP.get();
+			SolicitudPruebaProcesoHistorial historial = historialOP.get();
 
-			List<SolicitudDocumento> archivos = new ArrayList<>();
-			if(historial.getSolicitudEnsayo() != null)
-				archivos = repo.findByEstadoInAndOrdenFlujoInAndSolicitudEnsayo_Id(Arrays.asList(historial.getEstadoSolicitud()),Arrays.asList(historial.getOrden()), historial.getSolicitudEnsayo().getId());
-			else if(historial.getSolicitudPruebasProceso() != null) 
-				archivos = repo.findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(Arrays.asList(historial.getEstadoSolicitud()),Arrays.asList(historial.getOrden()), historial.getSolicitudPruebasProceso().getId());
+			List<SolicitudPruebaProcesoDocumento> archivos = new ArrayList<>();
+			archivos = repo.findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(Arrays.asList(historial.getEstadoSolicitud()),Arrays.asList(historial.getOrden()), historial.getSolicitudPruebasProceso().getId());
 			
 			try {
-				String rutaComprimido = crearRutaComprimido(historial.getSolicitudEnsayo() != null? historial.getSolicitudEnsayo().getCodigo(): historial.getSolicitudPruebasProceso().getCodigo());
+				String rutaComprimido = crearRutaComprimido(historial.getSolicitudPruebasProceso().getCodigo());
 				compressZip(archivos, rutaComprimido);
 				return PassFileToRepository.readLocalFile(rutaComprimido);
 				
 			} catch (Exception e) {
-				LOG.error(String.format("Error al comprimir archivo de la solicitud %s: %s", historial.getSolicitudEnsayo().getId(), e.getMessage()));
+				LOG.error(String.format("Error al comprimir archivo de la solicitud %s: %s", historial.getSolicitudPruebasProceso().getId(), e.getMessage()));
 				throw new SolicitudEnsayoErrorException("Error al momento de descargar los archivos.");
 			}
 		}
@@ -216,10 +175,10 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 		return configuracion.getRutaBase().concat(File.separator).concat(codigoSolicitud).concat(File.separator).concat(codigoSolicitud+".zip");
 	}
 	
-	private void compressZip(List<SolicitudDocumento> archivos, String ruta) throws Exception {
+	private void compressZip(List<SolicitudPruebaProcesoDocumento> archivos, String ruta) throws Exception {
 		// crea un buffer temporal para ir poniendo los archivos a comprimir
 		ZipOutputStream zous = new ZipOutputStream(new FileOutputStream(ruta));
-		for (SolicitudDocumento archivo : archivos) {			
+		for (SolicitudPruebaProcesoDocumento archivo : archivos) {
 			
 			//nombre con el que se va guardar el archivo dentro del zip
 			ZipEntry entrada = new ZipEntry(archivo.getNombreArchivo());
@@ -239,13 +198,4 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 		}
 		zous.close();		
     }
-
-	@Override
-	public void validarInformeSubido(long solicitudId, EstadoSolicitud estado) {
-		boolean existeAdjunto = repo.existsByEstadoAndOrdenFlujoAndSolicitudEnsayo_Id(estado, OrdenFlujo.RESPONDER_SOLICITUD, solicitudId);
-		if(!existeAdjunto)
-			throw new SolicitudEnsayoErrorException("Falta adjuntar el informe respectivo.");
-		
-	}
-
 }

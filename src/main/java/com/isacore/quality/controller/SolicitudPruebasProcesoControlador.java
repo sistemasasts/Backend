@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.isacore.quality.model.se.SolicitudPruebasProceso;
+import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
 
 @RestController

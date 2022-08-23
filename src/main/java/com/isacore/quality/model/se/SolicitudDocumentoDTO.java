@@ -1,9 +1,10 @@
 package com.isacore.quality.model.se;
 
-import java.io.Serializable;
-
+import com.isacore.quality.model.spp.OrdenFlujoPP;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 @SuppressWarnings("serial")
 @Data
@@ -13,5 +14,5 @@ public class SolicitudDocumentoDTO implements Serializable {
 	private long idSolicitud;
 	private OrdenFlujo orden;
 	private TipoSolicitud tipoSolicitud;
-	
+	private OrdenFlujoPP ordenPP;
 }

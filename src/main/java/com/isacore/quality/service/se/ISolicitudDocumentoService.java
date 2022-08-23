@@ -11,8 +11,6 @@ public interface ISolicitudDocumentoService extends CRUD<SolicitudDocumento> {
 
 	SolicitudDocumento subir(String jsonDTO, byte[] file, String nombreArchivo, String tipo);
 	
-	SolicitudDocumento subirParaSolicitudPruebasProceso(String jsonDTO, byte[] file, String nombreArchivo, String tipo);	
-	
 	byte[] descargar(long id);
 	
 	boolean eliminar(long id);
@@ -22,6 +20,5 @@ public interface ISolicitudDocumentoService extends CRUD<SolicitudDocumento> {
 	byte[] descargarPorHistorialId(long historialId);
 	
 	void validarInformeSubido(long solicitudId, EstadoSolicitud estado);
-	
-	List<SolicitudDocumento> buscarPorEstadoYOrdenYSolicitudPruebaProcesoId(EstadoSolicitud estado,OrdenFlujo orden, long solicitudId);
+
 }

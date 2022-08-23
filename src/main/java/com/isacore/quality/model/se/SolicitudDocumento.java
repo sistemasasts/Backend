@@ -1,18 +1,10 @@
 package com.isacore.quality.model.se;
 
-import java.time.LocalDateTime;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -25,9 +17,6 @@ public class SolicitudDocumento {
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	private SolicitudEnsayo solicitudEnsayo;
-	
-	@ManyToOne(fetch = FetchType.EAGER)
-	private SolicitudPruebasProceso solicitudPruebasProceso;
 	
 	private String path;
 	
@@ -50,18 +39,5 @@ public class SolicitudDocumento {
 		this.ordenFlujo = ordenFlujo;
 		this.fechaSubidaArchivo = LocalDateTime.now();
 	}
-	
-	public SolicitudDocumento(SolicitudPruebasProceso solicitudPruebasProceso, String path,	String nombreArchivo, OrdenFlujo ordenFlujo) {
-		super();
-		this.solicitudPruebasProceso = solicitudPruebasProceso;
-		this.path = path;
-		this.estado = solicitudPruebasProceso.getEstado();
-		this.nombreArchivo = nombreArchivo;
-		this.ordenFlujo = ordenFlujo;
-		this.fechaSubidaArchivo = LocalDateTime.now();
-	}
-	
-	
-	
 	
 }

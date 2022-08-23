@@ -1,4 +1,4 @@
-package com.isacore.quality.model.se;
+package com.isacore.quality.model.spp;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -14,40 +14,40 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @Entity
-public class SolicitudHistorial {
+public class SolicitudPruebaProcesoHistorial {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER)
-	private SolicitudEnsayo solicitudEnsayo;
-	
+	private SolicitudPruebasProceso solicitudPruebasProceso;
+
 	@JsonSerialize(using = LocalDateTimeSerialize.class)
 	@JsonDeserialize(using = LocalDateTimeDeserialize.class)
 	private LocalDateTime fechaRegistro;
-	
+
 	@Enumerated(EnumType.STRING)
-	private EstadoSolicitud estadoSolicitud;
-	
+	private EstadoSolicitudPP estadoSolicitud;
+
 	@Enumerated(EnumType.STRING)
-	private OrdenFlujo orden;
-	
+	private OrdenFlujoPP orden;
+
 	private String observacion;
-	
+
 	private String usuarioId;
-	
+
 	private String usuarioNombeCompleto;
-	
+
 	private Boolean mostrar;
-	
+
 	@Transient
 	private Boolean tieneAdjuntos;
 
-	public SolicitudHistorial(SolicitudEnsayo solicitudEnsayo, OrdenFlujo orden, UserImptek usuario, String observacion) {
+	public SolicitudPruebaProcesoHistorial(SolicitudPruebasProceso solicitudE, OrdenFlujoPP orden, UserImptek usuario, String observacion) {
 		super();
-		this.solicitudEnsayo = solicitudEnsayo;
-		this.estadoSolicitud = solicitudEnsayo.getEstado();
+		this.solicitudPruebasProceso = solicitudE;
+		this.estadoSolicitud = solicitudE.getEstado();
 		this.orden = orden;
 		this.observacion = observacion;
 		this.fechaRegistro = LocalDateTime.now();
@@ -55,5 +55,6 @@ public class SolicitudHistorial {
 		this.usuarioNombeCompleto = usuario.getEmployee().getCompleteName();
 		this.mostrar = Boolean.TRUE;
 	}
+	
 	
 }

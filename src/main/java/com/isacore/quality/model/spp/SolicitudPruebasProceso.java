@@ -1,6 +1,7 @@
-package com.isacore.quality.model.se;
+package com.isacore.quality.model.spp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,10 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.isacore.quality.model.se.EstadoSolicitud;
+import com.isacore.quality.model.se.OrdenFlujo;
+import com.isacore.quality.model.se.SolicitudBase;
+import com.isacore.quality.model.se.TipoAprobacionSolicitud;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
 
@@ -50,10 +55,16 @@ public class SolicitudPruebasProceso  extends SolicitudBase {
 	private String observacion;
 	
 	@Enumerated(EnumType.STRING)
-	private TipoAprobacionSolicitud tipoAprobacion;
+	private TipoAprobacionPP tipoAprobacion;
+
+	@Enumerated(EnumType.STRING)
+	private EstadoSolicitudPP estado;
 	
 	@Transient
 	private String observiacionFlujo;
+
+	@Transient
+	private OrdenFlujoPP orden;
 
 	public SolicitudPruebasProceso(String codigo, LocalDate fechaEntrega, String lineaAplicacion, String motivo, String motivoOtro,
 			String materialLineaProceso, String materialLineaProOtro, String descripcionProducto,
@@ -72,17 +83,22 @@ public class SolicitudPruebasProceso  extends SolicitudBase {
 	}
 	
 	public void marcarSolicitudComoEnviada(String usuarioAsignado) {
-		setEstado(EstadoSolicitud.ENVIADO_REVISION);
+		setEstado(EstadoSolicitudPP.ENVIADO_REVISION);
 		setUsuarioAprobador(usuarioAsignado);
 	}
 	
 	public void marcarSolicitudComoValidada(String usuarioAsignado) {
-		setEstado(EstadoSolicitud.EN_PROCESO);
+		setEstado(EstadoSolicitudPP.EN_PROCESO_CALIDAD);
 		setUsuarioGestion(usuarioAsignado);
 	}
 
 	public void marcarSolicitudComoRegresada() {
-		setEstado(EstadoSolicitud.REGRESADO_NOVEDAD_INFORME);
+		setEstado(EstadoSolicitudPP.RECHAZADO);
+	}
+
+	public void anular(){
+		this.setFechaFinalizacion(LocalDateTime.now());
+		this.setEstado(EstadoSolicitudPP.ANULADO);
 	}
 	
 }

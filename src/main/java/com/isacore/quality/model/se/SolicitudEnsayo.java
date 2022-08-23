@@ -3,6 +3,7 @@ package com.isacore.quality.model.se;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -27,6 +28,9 @@ public class SolicitudEnsayo extends SolicitudBase {
 	private String proveedorNombre;
 	
 	private Integer proveedorId;
+
+	@Enumerated(EnumType.STRING)
+	private EstadoSolicitud estado;
 	
 	@JsonSerialize(using = LocalDateSerializeIsa.class)
 	@JsonDeserialize(using = LocalDateDeserializeIsa.class)
@@ -66,6 +70,9 @@ public class SolicitudEnsayo extends SolicitudBase {
 	@Transient
 	private String observacion;
 
+	@Transient
+	private OrdenFlujo orden;
+
 	public SolicitudEnsayo(String codigo, String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String objetivo,
 			PrioridadNivel prioridad, TiempoEntrega tiempoEntrega ,String detalleMaterial, String lineaAplicacion, String uso, BigDecimal cantidad,
 			String unidad, String nombreSolicitante) {
@@ -81,6 +88,7 @@ public class SolicitudEnsayo extends SolicitudBase {
 		this.uso = uso;
 		this.cantidad = cantidad;
 		this.unidad = unidad;
+		this.estado = EstadoSolicitud.NUEVO;
 	}
 	
 	public void marcarSolicitudComoValidada(String usuarioAsignado, int tiempoRespuesta) {
@@ -127,5 +135,15 @@ public class SolicitudEnsayo extends SolicitudBase {
 			return (int) diff.toDays();
 		}
 		return 0;
+	}
+
+	public void anular() {
+		this.setFechaFinalizacion(LocalDateTime.now());
+		this.estado = EstadoSolicitud.ANULADO;
+	}
+
+	public void rechazar() {
+		this.setFechaFinalizacion(LocalDateTime.now());
+		this.estado = EstadoSolicitud.RECHAZADO;
 	}
 }
