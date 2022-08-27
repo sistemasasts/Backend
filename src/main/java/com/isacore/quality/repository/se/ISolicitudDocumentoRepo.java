@@ -17,10 +17,5 @@ public interface ISolicitudDocumentoRepo extends JpaRepository<SolicitudDocument
 	boolean existsByEstadoAndOrdenFlujoAndSolicitudEnsayo_Id(EstadoSolicitud estado, OrdenFlujo orden, long solicitudId);
 	
 	boolean existsByOrdenFlujoAndSolicitudEnsayo_Id(OrdenFlujo orden, long solicitudId);
-	
-	List<SolicitudDocumento> findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(List<EstadoSolicitud> estado, List<OrdenFlujo> orden, long solicitudId);
-	
-	boolean existsByEstadoAndOrdenFlujoAndSolicitudPruebasProceso_Id(EstadoSolicitud estado, OrdenFlujo orden, long solicitudId);
-	
-	boolean existsByOrdenFlujoAndSolicitudPruebasProceso_Id(OrdenFlujo orden, long solicitudId);
+
 }

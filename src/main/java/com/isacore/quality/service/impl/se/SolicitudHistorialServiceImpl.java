@@ -63,12 +63,12 @@ public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService
 		
 	}
 
-	@Override
-	public List<SolicitudHistorial> buscarHistorialPruebasProceso(long solicitudId) {
-		return repo.findBySolicitudPruebasProceso_IdOrderByFechaRegistroAsc(solicitudId).stream().map(x ->{
-			x.setTieneAdjuntos(repoDocumento.existsByEstadoAndOrdenFlujoAndSolicitudPruebasProceso_Id(x.getEstadoSolicitud(), x.getOrden(), solicitudId));
-			return x;
-		}).collect(Collectors.toList());
-	}
+//	@Override
+//	public List<SolicitudHistorial> buscarHistorialPruebasProceso(long solicitudId) {
+//		return repo.findBySolicitudPruebasProceso_IdOrderByFechaRegistroAsc(solicitudId).stream().map(x ->{
+//			x.setTieneAdjuntos(repoDocumento.existsByEstadoAndOrdenFlujoAndSolicitudPruebasProceso_Id(x.getEstadoSolicitud(), x.getOrden(), solicitudId));
+//			return x;
+//		}).collect(Collectors.toList());
+//	}
 
 }

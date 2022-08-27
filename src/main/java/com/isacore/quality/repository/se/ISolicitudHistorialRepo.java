@@ -11,6 +11,5 @@ import com.isacore.quality.model.se.SolicitudHistorial;
 public interface ISolicitudHistorialRepo extends JpaRepository<SolicitudHistorial, Long> {
 
 	List<SolicitudHistorial> findBySolicitudEnsayo_IdOrderByFechaRegistroAsc(long solicitudId);
-	
-	List<SolicitudHistorial> findBySolicitudPruebasProceso_IdOrderByFechaRegistroAsc(long solicitudId);
+
 }

@@ -27,9 +27,9 @@ public class SolicitudHistorialControlador {
 		return new ResponseEntity<List<SolicitudHistorial>>(historial, HttpStatus.OK);
 	}
 	
-	@GetMapping("pruebasProceso/{solicitudId}")
-	public ResponseEntity<List<SolicitudHistorial>> buscarHistorialPruebasProceso(@PathVariable("solicitudId") Long solicitudId) throws IOException {
-		List<SolicitudHistorial> historial = service.buscarHistorialPruebasProceso(solicitudId);
-		return new ResponseEntity<List<SolicitudHistorial>>(historial, HttpStatus.OK);
-	}
+//	@GetMapping("pruebasProceso/{solicitudId}")
+//	public ResponseEntity<List<SolicitudHistorial>> buscarHistorialPruebasProceso(@PathVariable("solicitudId") Long solicitudId) throws IOException {
+//		List<SolicitudHistorial> historial = service.buscarHistorialPruebasProceso(solicitudId);
+//		return new ResponseEntity<List<SolicitudHistorial>>(historial, HttpStatus.OK);
+//	}
 }

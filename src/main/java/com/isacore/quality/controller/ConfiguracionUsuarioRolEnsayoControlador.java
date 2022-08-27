@@ -37,7 +37,7 @@ public class ConfiguracionUsuarioRolEnsayoControlador {
 	
 	@GetMapping("/tipoSolicitud")
     public ResponseEntity<List<CatalogDTO>> listarTiposSolicitud() {
-        final List<CatalogDTO> lista = Arrays.asList(TipoSolicitud.SOLICITUD_ENSAYOS, TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO).parallelStream().map( x -> {
+        final List<CatalogDTO> lista = Arrays.asList(TipoSolicitud.SOLICITUD_ENSAYOS).stream().map( x -> {
         	return new CatalogDTO(x.toString(), x.toString());
         }).collect(Collectors.toList());
         

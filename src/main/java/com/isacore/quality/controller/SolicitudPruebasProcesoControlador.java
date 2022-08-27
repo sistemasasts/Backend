@@ -1,7 +1,12 @@
 package com.isacore.quality.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.isacore.quality.model.Area;
+import com.isacore.quality.model.spp.OrigenSolicitudPP;
+import com.isacore.quality.service.IAreasService;
+import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +27,9 @@ public class SolicitudPruebasProcesoControlador {
 
 	@Autowired
 	private ISolicitudPruebasProcesoService servicio;
+
+	@Autowired
+	private IAreasService servicioArea;
 	
 	@GetMapping("/nombreSolicitante")
 	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudesPorNombreSolicitante() {
@@ -72,28 +80,43 @@ public class SolicitudPruebasProcesoControlador {
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
 	
-	@PostMapping("/responderSolicitud")
-	public ResponseEntity<Object> responderSolicitud(@RequestBody SolicitudPruebasProceso obj) {
-		boolean respuesta = servicio.responderSolicitud(obj);
-		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
-	}
+//	@PostMapping("/responderSolicitud")
+//	public ResponseEntity<Object> responderSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+//		boolean respuesta = servicio.responderSolicitud(obj);
+//		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+//	}
 	
 	@PostMapping("/anularSolicitud")
 	public ResponseEntity<Object> anularSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 		boolean respuesta = servicio.anularSolicitud(obj);
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
-	
-	@PostMapping("/regresarInformeSolicitud")
-	public ResponseEntity<Object> regresarInformeSolicitud(@RequestBody SolicitudPruebasProceso obj) {
-		boolean respuesta = servicio.regresarSolicitud(obj);
-		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+
+	@GetMapping("/areas")
+	public ResponseEntity<List<Area>> listarAreas() {
+		List<Area> areas = servicioArea.findAll();
+		return ResponseEntity.ok(areas);
+	}
+
+	@GetMapping("/origenes")
+	public ResponseEntity<List<CatalogDTO>> listarOrigenes() {
+		List<CatalogDTO> catalgo = new ArrayList<>();
+		for(OrigenSolicitudPP origen : OrigenSolicitudPP.values()){
+			catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
+		}
+		return ResponseEntity.ok(catalgo);
 	}
 	
-	@PostMapping("/rechazarSolicitud")
-	public ResponseEntity<Object> rechazarSolicitud(@RequestBody SolicitudPruebasProceso obj) {
-		boolean respuesta = servicio.rechazarSolicitud(obj);
-		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
-	}
+//	@PostMapping("/regresarInformeSolicitud")
+//	public ResponseEntity<Object> regresarInformeSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+//		boolean respuesta = servicio.regresarSolicitud(obj);
+//		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+//	}
+	
+//	@PostMapping("/rechazarSolicitud")
+//	public ResponseEntity<Object> rechazarSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+//		boolean respuesta = servicio.rechazarSolicitud(obj);
+//		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+//	}
 	
 }

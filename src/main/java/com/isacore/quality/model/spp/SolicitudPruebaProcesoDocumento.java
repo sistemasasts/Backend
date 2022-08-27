@@ -29,14 +29,17 @@ public class SolicitudPruebaProcesoDocumento {
     @Enumerated(EnumType.STRING)
     private OrdenFlujoPP ordenFlujo;
 
+    private String tipo;
+
     public SolicitudPruebaProcesoDocumento(SolicitudPruebasProceso solicitudPruebasProceso, String path, String nombreArchivo,
-                                           OrdenFlujoPP ordenFlujo) {
+                                           OrdenFlujoPP ordenFlujo, String tipo) {
         super();
         this.solicitudPruebasProceso = solicitudPruebasProceso;
         this.path = path;
         this.estado = solicitudPruebasProceso.getEstado();
         this.nombreArchivo = nombreArchivo;
         this.ordenFlujo = ordenFlujo;
+        this.tipo = tipo;
         this.fechaSubidaArchivo = LocalDateTime.now();
     }
 

@@ -45,9 +45,6 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 	private ISolicitudEnsayoRepo repoSolicitud;
 	
 	@Autowired
-	private ISolicitudPruebasProcesoRepo repoSolicitudPruebasProceso;
-	
-	@Autowired
 	private ConfiguracionSolicitud configuracion;
 	
 	@Autowired
@@ -194,13 +191,10 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 			SolicitudHistorial historial = historialOP.get();
 
 			List<SolicitudDocumento> archivos = new ArrayList<>();
-			if(historial.getSolicitudEnsayo() != null)
-				archivos = repo.findByEstadoInAndOrdenFlujoInAndSolicitudEnsayo_Id(Arrays.asList(historial.getEstadoSolicitud()),Arrays.asList(historial.getOrden()), historial.getSolicitudEnsayo().getId());
-			else if(historial.getSolicitudPruebasProceso() != null) 
-				archivos = repo.findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(Arrays.asList(historial.getEstadoSolicitud()),Arrays.asList(historial.getOrden()), historial.getSolicitudPruebasProceso().getId());
-			
+			archivos = repo.findByEstadoInAndOrdenFlujoInAndSolicitudEnsayo_Id(Arrays.asList(historial.getEstadoSolicitud()),Arrays.asList(historial.getOrden()), historial.getSolicitudEnsayo().getId());
+
 			try {
-				String rutaComprimido = crearRutaComprimido(historial.getSolicitudEnsayo() != null? historial.getSolicitudEnsayo().getCodigo(): historial.getSolicitudPruebasProceso().getCodigo());
+				String rutaComprimido = crearRutaComprimido(historial.getSolicitudEnsayo().getCodigo());
 				compressZip(archivos, rutaComprimido);
 				return PassFileToRepository.readLocalFile(rutaComprimido);
 				

@@ -9,6 +9,6 @@ public interface ISolicitudHistorialService extends CRUD<SolicitudHistorial> {
 
 	List<SolicitudHistorial> buscarHistorial(long solicitudId);
 	
-	List<SolicitudHistorial> buscarHistorialPruebasProceso(long solicitudId);
+//	List<SolicitudHistorial> buscarHistorialPruebasProceso(long solicitudId);
 	
 }

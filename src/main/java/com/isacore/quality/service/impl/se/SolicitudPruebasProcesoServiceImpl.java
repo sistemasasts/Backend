@@ -80,7 +80,10 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                 obj.getVariablesProceso(),
                 obj.getVerificacionAdicional(),
                 obj.getObservacion(),
-                nombreUsuarioEnSesion());
+                nombreUsuarioEnSesion(),
+                obj.getArea(),
+                obj.getOrigen(),
+                obj.isRequiereInforme());
 
         LOG.info(String.format("Solicitud Prueba en proceso a guardar %s", nuevo));
         return repo.save(nuevo);
