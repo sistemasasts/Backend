@@ -2,11 +2,8 @@ package com.isacore.quality.service.impl.se;
 
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.model.se.*;
-import com.isacore.quality.model.spp.OrdenFlujoPP;
-import com.isacore.quality.model.spp.SolicitudPPDTO;
-import com.isacore.quality.model.spp.SolicitudPruebaProcesoHistorial;
-import com.isacore.quality.model.spp.SolicitudPruebasProceso;
-import com.isacore.quality.repository.se.IConfiguracionUsuarioRolEnsayoRepo;
+import com.isacore.quality.model.spp.*;
+import com.isacore.quality.repository.spp.IConfiguracionFlujoPuebaProcesoRepo;
 import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoHistorialRepo;
 import com.isacore.quality.repository.spp.ISolicitudPruebasProcesoRepo;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
@@ -45,7 +42,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     private ISolicitudPruebasProcesoRepo repo;
 
     @Autowired
-    private IConfiguracionUsuarioRolEnsayoRepo repoConfiguracion;
+    private IConfiguracionFlujoPuebaProcesoRepo repoConfiguracion;
 
     @Autowired
     private ISolicitudPruebaProcesoHistorialRepo repoHistorial;
@@ -113,13 +110,40 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
     @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioEnGestion() {
-        return repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitud.EN_PROCESO,
-                EstadoSolicitud.REGRESADO_NOVEDAD_INFORME), nombreUsuarioEnSesion());
+        return repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitudPP.EN_PLANIFICACION),
+                nombreUsuarioEnSesion());
+    }
+
+    @Override
+    public List<SolicitudPruebasProceso> obtenerSolicitudesPorAsignarResponsable(OrdenFlujoPP orden) {
+        String usuario = nombreUsuarioEnSesion();
+        switch (orden) {
+            case MANTENIMIENTO:
+                return this.repo.findByEstadoAndUsuarioGestionMantenimientoJefe(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO, usuario);
+            case CALIDAD:
+                return this.repo.findByEstadoAndUsuarioGestionCalidadJefe(EstadoSolicitudPP.EN_PROCESO_CALIDAD, usuario);
+            default:
+                return new ArrayList<>();
+        }
     }
 
     @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioAprobador() {
-        return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitud.REVISION_INFORME, nombreUsuarioEnSesion());
+        return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitudPP.ENVIADO_REVISION, nombreUsuarioEnSesion());
+    }
+
+    @Override
+    public List<SolicitudPruebasProceso> obtenerSolicitudesPorProcesar(OrdenFlujoPP orden) {
+        String usuario = nombreUsuarioEnSesion();
+        switch (orden){
+            case PRODUCCION:
+                return this.repo.findByEstadoAndUsuarioGestionPlanta(EstadoSolicitudPP.EN_PROCESO_PRODUCCION, usuario);
+            case MANTENIMIENTO:
+                return this.repo.findByEstadoAndUsuarioGestionMantenimiento(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO, usuario);
+            case CALIDAD:
+                return this.repo.findByEstadoAndUsuarioGestionCalidad(EstadoSolicitudPP.EN_PROCESO_CALIDAD, usuario);
+            default: return new ArrayList<>();
+        }
     }
 
     @Override
@@ -132,19 +156,15 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     public boolean enviarSolicitud(SolicitudPruebasProceso solicitud) {
 
         Optional<SolicitudPruebasProceso> solicitudOP = repo.findById(solicitud.getId());
-        Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.VALIDAR_SOLICITUD,
-                TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO);
+        Optional<ConfiguracionFlujoPruebaProceso> configuracionOP = repoConfiguracion.findByOrden(OrdenFlujoPP.VALIDAR_SOLICITUD);
         if (!configuracionOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.VALIDAR_SOLICITUD));
         if (!solicitudOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
 
         SolicitudPruebasProceso solicitudRecargada = solicitudOP.get();
-
         agregarHistorial(solicitudRecargada, OrdenFlujoPP.INGRESO_SOLICITUD, solicitud.getObservacion());
-
         solicitudRecargada.marcarSolicitudComoEnviada(configuracionOP.get().getUsuarioId());
-
         LOG.info(String.format("Solicitud id=%s enviada..", solicitudRecargada.getId()));
         return true;
     }
@@ -160,17 +180,16 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
     @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioValidador() {
-        return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitud.ENVIADO_REVISION, nombreUsuarioEnSesion());
+        return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitudPP.ENVIADO_REVISION, nombreUsuarioEnSesion());
     }
 
     @Override
     @Transactional
     public boolean validarSolicitud(SolicitudPruebasProceso solicitud) {
         Optional<SolicitudPruebasProceso> solicitudOP = repo.findById(solicitud.getId());
-        Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.RESPONDER_SOLICITUD,
-                TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO);
+        Optional<ConfiguracionFlujoPruebaProceso> configuracionOP = repoConfiguracion.findByOrden(OrdenFlujoPP.ASIGNAR_RESPONSABLE);
         if (!configuracionOP.isPresent())
-            throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.RESPONDER_SOLICITUD));
+            throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujoPP.ASIGNAR_RESPONSABLE));
         if (!solicitudOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
 
@@ -180,32 +199,113 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
         solicitudRecargada.marcarSolicitudComoValidada(configuracionOP.get().getUsuarioId());
 
-        LOG.info(String.format("Solicitud id=%s validada..", solicitudRecargada.getId()));
+        LOG.info(String.format("Solicitud %s marcada como validada..", solicitudRecargada.getCodigo()));
         return true;
     }
 
-//    @Override
-//    @Transactional
-//    public boolean responderSolicitud(SolicitudPruebasProceso solicitud) {
-//        Optional<SolicitudPruebasProceso> solicitudOP = repo.findById(solicitud.getId());
-//        Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.APROBAR_INFORME,
-//                TipoSolicitud.SOLICITUD_ENSAYOS);
-//        if (!configuracionOP.isPresent())
-//            throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.APROBAR_INFORME));
-//        if (!solicitudOP.isPresent())
-//            throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
-//
-//        SolicitudPruebasProceso solicitudRecargada = solicitudOP.get();
-//
-//        agregarHistorial(solicitudRecargada, OrdenFlujoPP.RESPONDER_SOLICITUD, solicitud.getObservacion());
-//
-//        //solicitudRecargada.setEstado(EstadoSolicitud.FINALIZADO);
-//        solicitudRecargada.finalizarSolicitud();
-//
-//        LOG.info(String.format("Solicitud id=%s respondida..", solicitudRecargada.getId()));
-//        return true;
-//    }
+    @Transactional
+    @Override
+    public boolean asignarResponsable(SolicitudPruebasProceso dto) {
+        switch (dto.getOrden()) {
+            case ASIGNAR_RESPONSABLE:
+                this.asignarResponsablePlanta(dto);
+                break;
+            case CALIDAD:
+                this.asignarResponsableCalidad(dto);
+                break;
+            case MANTENIMIENTO:
+                this.asignarResponsableMantenimiento(dto);
+                break;
+            default:
+                LOG.info(String.format("Asignacion resposable para %s, no está programado..", dto.getOrden()));
+                break;
+        }
+        return true;
+    }
 
+    @Transactional
+    @Override
+    public boolean marcarComoPruebaNoRealizada(SolicitudPruebasProceso solicitud) {
+        SolicitudPruebasProceso solicitudRecargada = this.obtenerSolicitud(solicitud.getId());
+        this.agregarHistorial(solicitudRecargada, solicitud.getOrden(), solicitud.getObservacion());
+        solicitudRecargada.marcarComoPruebaNoEjecutada();
+        LOG.info(String.format("Solicitud %s, marcada como prueba no ejecutada", solicitudRecargada.getCodigo()));
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public void procesar(SolicitudPruebasProceso solicitud) {
+        SolicitudPruebasProceso solicitudRecargada = obtenerSolicitud(solicitud.getId());
+        switch (solicitud.getOrden()){
+            case PRODUCCION:
+                this.responderSolicitudPlanta(solicitudRecargada, solicitud.getObserviacionFlujo());
+                break;
+            case CALIDAD:
+                this.responderSolicitudCalidad(solicitudRecargada, solicitud.getObserviacionFlujo());
+                break;
+            case MANTENIMIENTO:
+                this.responderSolicitudMantenimiento(solicitudRecargada, solicitud.getObserviacionFlujo());
+                break;
+            default: break;
+        }
+    }
+
+    private void asignarResponsablePlanta(SolicitudPruebasProceso dto) {
+        SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
+        agregarHistorial(solicitud, dto.getOrden(), dto.getObservacion());
+        solicitud.marcarSolicitudComoAsignadaPlanta(dto.getUsuarioAsignado(), dto.getFechaPrueba());
+        LOG.info(String.format("Solicitud %s asignada a responsable planta %s", solicitud.getCodigo(), solicitud.getUsuarioGestionPlanta()));
+    }
+
+    private void asignarResponsableCalidad(SolicitudPruebasProceso dto) {
+        SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
+        solicitud.marcarSolicitudComoAsignadaCalidad(dto.getUsuarioAsignado());
+        LOG.info(String.format("Solicitud %s asignada a responsable calidad %s", solicitud.getCodigo(), solicitud.getUsuarioGestionCalidad()));
+    }
+
+    private void asignarResponsableMantenimiento(SolicitudPruebasProceso dto) {
+        SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
+        solicitud.marcarSolicitudComoAsignadaMantenimiento(dto.getUsuarioAsignado());
+        LOG.info(String.format("Solicitud %s asignada a responsable mantenimiento %s", solicitud.getCodigo(),
+                solicitud.getUsuarioGestionMantenimiento()));
+    }
+
+    private SolicitudPruebasProceso obtenerSolicitud(long id) {
+        SolicitudPruebasProceso solicitud = this.repo.findById(id).orElse(null);
+        if (solicitud == null) {
+            throw new SolicitudEnsayoErrorException(String.format("Solicitud no encontrada"));
+        }
+        return solicitud;
+    }
+
+    private  void responderSolicitudPlanta(SolicitudPruebasProceso solicitud, String observacion) {
+        ConfiguracionFlujoPruebaProceso configuracion = this.obtenerConfiguracion(OrdenFlujoPP.MANTENIMIENTO);
+        agregarHistorial(solicitud, OrdenFlujoPP.PRODUCCION, observacion);
+        solicitud.responderPlanta(configuracion.getUsuarioId());
+        LOG.info(String.format("Solicitud %s respondida planta..", solicitud.getCodigo()));
+    }
+
+    private  void responderSolicitudMantenimiento(SolicitudPruebasProceso solicitud, String observacion) {
+        ConfiguracionFlujoPruebaProceso configuracion = this.obtenerConfiguracion(OrdenFlujoPP.CALIDAD);
+        agregarHistorial(solicitud, OrdenFlujoPP.MANTENIMIENTO, observacion);
+        solicitud.responderPlanta(configuracion.getUsuarioId());
+        LOG.info(String.format("Solicitud %s respondida mantenimiento..", solicitud.getCodigo()));
+    }
+
+    private  void responderSolicitudCalidad(SolicitudPruebasProceso solicitud, String observacion) {
+        ConfiguracionFlujoPruebaProceso configuracion = this.obtenerConfiguracion(OrdenFlujoPP.APROBAR_PROCESO);
+        agregarHistorial(solicitud, OrdenFlujoPP.CALIDAD, observacion);
+        solicitud.responderPlanta(configuracion.getUsuarioId());
+        LOG.info(String.format("Solicitud %s respondida calidad..", solicitud.getCodigo()));
+    }
+
+    private ConfiguracionFlujoPruebaProceso obtenerConfiguracion(OrdenFlujoPP orden){
+        Optional<ConfiguracionFlujoPruebaProceso> configuracionOP = repoConfiguracion.findByOrden(orden);
+        if (!configuracionOP.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", orden));
+        return configuracionOP.get();
+    }
 
 //	@Override
 //	@Transactional

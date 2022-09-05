@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.isacore.quality.model.se.ConsultaSolicitudDTO;
 import com.isacore.quality.model.se.SolicitudDTO;
+import com.isacore.quality.model.spp.AsignarResponsableDTO;
+import com.isacore.quality.model.spp.OrdenFlujoPP;
 import com.isacore.quality.model.spp.SolicitudPPDTO;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.util.CRUD;
@@ -15,18 +17,26 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioSolicitante();
 	
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioEnGestion();
+
+	List<SolicitudPruebasProceso> obtenerSolicitudesPorAsignarResponsable(OrdenFlujoPP orden);
 	
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioValidador();
 	
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioAprobador();
+
+	List<SolicitudPruebasProceso> obtenerSolicitudesPorProcesar(OrdenFlujoPP orden);
 	
 	SolicitudPruebasProceso buscarPorId(long id);
 	
 	boolean enviarSolicitud(SolicitudPruebasProceso solicitud);
 	
 	boolean validarSolicitud(SolicitudPruebasProceso solicitud);
+
+	boolean asignarResponsable(SolicitudPruebasProceso dto);
 	
-//	boolean responderSolicitud(SolicitudPruebasProceso solicitud);
+	boolean marcarComoPruebaNoRealizada(SolicitudPruebasProceso solicitud);
+
+	void procesar(SolicitudPruebasProceso solicitud);
 	
 //	boolean regresarSolicitud(SolicitudPruebasProceso solicitud);
 	

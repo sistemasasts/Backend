@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.isacore.quality.model.Area;
+import com.isacore.quality.model.se.ConsultaSolicitudDTO;
+import com.isacore.quality.model.spp.AsignarResponsableDTO;
+import com.isacore.quality.model.spp.OrdenFlujoPP;
 import com.isacore.quality.model.spp.OrigenSolicitudPP;
 import com.isacore.quality.service.IAreasService;
 import com.isacore.util.CatalogDTO;
@@ -79,12 +82,36 @@ public class SolicitudPruebasProcesoControlador {
 		boolean respuesta = servicio.validarSolicitud(obj);
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
+
+	@PostMapping("/asignarResponsable")
+	public ResponseEntity<Object> asignarResponsableSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+		boolean respuesta = servicio.asignarResponsable(obj);
+		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+	}
+
+	@GetMapping("/solicitudesAsignadas/{orden}")
+	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudAsignadas(@PathVariable("orden") OrdenFlujoPP orden) {
+		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorProcesar(orden);
+		return ResponseEntity.ok(respuesta);
+	}
+
+	@GetMapping("/solicitudesPorAsignar/{orden}")
+	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudPorAsignar(@PathVariable("orden") OrdenFlujoPP orden) {
+		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorAsignarResponsable(orden);
+		return ResponseEntity.ok(respuesta);
+	}
+
+	@PostMapping("/marcarPruebaNoRealizada")
+	public ResponseEntity<Object> marcarPruebaNoRealizada(@RequestBody SolicitudPruebasProceso obj) {
+		boolean respuesta = servicio.marcarComoPruebaNoRealizada(obj);
+		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+	}
 	
-//	@PostMapping("/responderSolicitud")
-//	public ResponseEntity<Object> responderSolicitud(@RequestBody SolicitudPruebasProceso obj) {
-//		boolean respuesta = servicio.responderSolicitud(obj);
-//		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
-//	}
+	@PostMapping("/procesar")
+	public ResponseEntity<Object> responderSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+		servicio.procesar(obj);
+		return ResponseEntity.ok(true);
+	}
 	
 	@PostMapping("/anularSolicitud")
 	public ResponseEntity<Object> anularSolicitud(@RequestBody SolicitudPruebasProceso obj) {

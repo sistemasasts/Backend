@@ -16,6 +16,7 @@ import com.isacore.quality.model.se.TipoAprobacionSolicitud;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
 
+import com.isacore.util.UtilidadesFecha;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -72,11 +73,23 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     @Column(columnDefinition = "bit default 0")
     private boolean requiereInforme;
 
+    private String usuarioGestionPlanta;
+    private String usuarioGestionCalidadJefe;
+    private String usuarioGestionCalidad;
+    private String usuarioGestionMantenimientoJefe;
+    private String usuarioGestionMantenimiento;
+    private LocalDate fechaPrueba;
+    @Column(columnDefinition = "bit default 0")
+    private boolean pruebaRealizada;
+
     @Transient
     private String observiacionFlujo;
 
     @Transient
     private OrdenFlujoPP orden;
+
+    @Transient
+    private String usuarioAsignado;
 
     public SolicitudPruebasProceso(
             String codigo, LocalDate fechaEntrega, String lineaAplicacion, String motivo, String motivoOtro,
@@ -106,12 +119,47 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado) {
-        setEstado(EstadoSolicitudPP.EN_PROCESO_CALIDAD);
+        setEstado(EstadoSolicitudPP.EN_PLANIFICACION);
         setUsuarioGestion(usuarioAsignado);
+    }
+
+    public void marcarSolicitudComoAsignadaPlanta(String usuarioAsignado, LocalDate fechaPruebas) {
+        setEstado(EstadoSolicitudPP.EN_PROCESO_PRODUCCION);
+        setUsuarioGestionPlanta(usuarioAsignado);
+        setFechaPrueba(fechaPruebas);
+    }
+
+    public void marcarSolicitudComoAsignadaCalidad(String usuarioAsignado) {
+        setUsuarioGestionCalidad(usuarioAsignado);
+    }
+
+    public void marcarSolicitudComoAsignadaMantenimiento(String usuarioAsignado) {
+        setUsuarioGestionMantenimiento(usuarioAsignado);
     }
 
     public void marcarSolicitudComoRegresada() {
         setEstado(EstadoSolicitudPP.RECHAZADO);
+    }
+
+    public void responderPlanta(String usuarioAsignado){
+        setEstado(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO);
+        setUsuarioGestionMantenimientoJefe(usuarioAsignado);
+    }
+
+    public void responderMantenimiento(String usuarioAsignado){
+        setEstado(EstadoSolicitudPP.EN_PROCESO_CALIDAD);
+        setUsuarioGestionCalidadJefe(usuarioAsignado);
+    }
+
+    public void responderCalidad(String usuarioAsignado){
+        setEstado(EstadoSolicitudPP.PENDIENTE_APROBACION);
+        setUsuarioAprobador(usuarioAsignado);
+        setFechaAprobacion(LocalDate.now());
+    }
+
+    public void marcarComoPruebaNoEjecutada() {
+        setEstado(EstadoSolicitudPP.PRUEBA_NO_EJECUTADA);
+        setPruebaRealizada(false);
     }
 
     public void anular() {
@@ -124,4 +172,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.imagen1Ruta = path;
     }
 
+    public String getFechaSolicitud(){
+        return UtilidadesFecha.formatear(getFechaCreacion(), "YYYY-MM-dd");
+    }
 }

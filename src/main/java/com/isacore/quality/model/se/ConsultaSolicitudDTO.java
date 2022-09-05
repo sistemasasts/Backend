@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.isacore.quality.model.spp.OrdenFlujoPP;
 import com.isacore.util.LocalDateTimeDeserialize;
 import com.isacore.util.LocalDateTimeSerialize;
 
@@ -40,5 +41,5 @@ public class ConsultaSolicitudDTO implements Serializable{
 	
 	private EstadoSolicitud estado;
 	
-	
+	private OrdenFlujoPP ordenPP;
 }
