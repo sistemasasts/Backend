@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="UTF-8" />
+<title>Email Layout</title>
+</head>
+<body>
+<table name="bmeMainColumn" class="bmeHolder bmeMainColumn" style="max-width: 600px; border-image: initial; border-radius: 0px; border-collapse: separate; border-spacing: 0px; overflow: visible;" cellspacing="0" cellpadding="0" border="0" align="center">
+	<tbody>
+	<tr>
+		<td width="100%" class="bmeHolder" valign="top" align="center" name="bmeMainContentParent" style="border: 0px none rgb(128, 128, 128); border-radius: 0px; border-collapse: separate; border-spacing: 0px; overflow: hidden;">
+			<table name="bmeMainContent" style="border-radius: 0px; border-collapse: separate; border-spacing: 0px; border: 0px none transparent;" width="100%" cellspacing="0" cellpadding="0" border="0" align="center">
+				<tbody>
+				<tr>
+					<td width="100%" class="blk_container bmeHolder" name="bmeHeader" valign="top" align="center" style="border: 0px none transparent; background-color: rgb(255, 255, 255); color: rgb(56, 56, 56);" bgcolor="#1fc899">
+						<div id="dv_3" class="blk_wrapper">
+							<table class="blk" name="blk_image" width="600" border="0" cellpadding="0" cellspacing="0">
+								<tbody>
+								<tr>
+									<td>
+										<table width="100%" cellspacing="0" cellpadding="0" border="0">
+											<tbody>
+											<tr>
+												<td class="bmeImage" style="border-collapse: collapse;" align="center">
+													<img th:src="${imagenLogo}" class="mobile-img-large" width="560" style="max-width: 560px; display: block; width: 560px; height: 100px;" alt="" border="0">
+												</td>
+											</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+
+				<tr>
+					<td width="100%" class="blk_container bmeHolder bmeBody" name="bmeBody" valign="top" align="center" style="color: rgb(56, 56, 56); border: 0px none transparent; background-color: rgb(255, 255, 255);" bgcolor="#ffffff">
+						<div id="dv_21" class="blk_wrapper">
+							<table width="600" cellspacing="0" cellpadding="0" border="0" class="blk" name="blk_card">
+								<tbody>
+								<tr>
+									<td class="bmeImageCard" align="center" style="padding-left:20px; padding-right:20px; padding-top:20px; padding-bottom:20px;">
+										<table width="100%" cellspacing="0" cellpadding="0" border="0">
+											<tbody>
+											<tr>
+												<td valign="top" class="bmeImageContainer" style="border-collapse: collapse; background-color: rgb(241, 241, 241);">
+													<table cellspacing="0" cellpadding="0" border="0" width="100%">
+														<tbody>
+														<tr>
+															<td valign="top" align="center" class="tdPart">
+																<div layout:fragment="contenido">
+																</div>
+															</td>
+														</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="100%" class="blk_container bmeHolder" name="bmePreFooter" valign="top" align="center" style="border: 0px none transparent; background-color: rgb(255, 255, 255);" bgcolor="#ffffff">
+						<div id="dv_14" class="blk_wrapper">
+							<table cellspacing="0" cellpadding="0" border="0" style="background-color: #4ca6de;" name="blk_social_follow" width="750" class="blk">
+								<tbody>
+								<tr>
+									<td class="tblCellMain" align="center" style="padding-top:10px; padding-bottom:10px; padding-left:20px; padding-right:20px;">
+										<table class="tblContainer mblSocialContain" cellspacing="0" cellpadding="0" border="0" align="center" style="text-align:center;">
+											<tbody>
+											<tr>
+												<td class="tdItemContainer">
+													<table cellspacing="0" cellpadding="0" border="0" class="mblSocialContain" style="table-layout: auto;">
+														<tbody>
+														<tr>
+															<td valign="top" name="bmeSocialTD" class="bmeSocialTD">
+																<!--[if gte mso 6]></td><td align="left" valign="top"><![endif]-->
+																<div align="center" style="color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 12px; align-content: center">
+																	<p>
+																		<b>IMPTEK INNOVACIÓN Y BIENESTAR</b>
+																	</p>
+																</div>
+															</td>
+														</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											</tbody>
+										</table>
+									</td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
+					</td>
+				</tr>
+
+				</tbody>
+			</table>
+		</td>
+	</tr>
+	</tbody>
+</table>
+</body>
+</html>

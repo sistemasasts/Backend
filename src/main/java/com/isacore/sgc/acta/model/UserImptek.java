@@ -80,7 +80,8 @@ public class UserImptek {
 		this.lastAccess = lastAccess;
 		this.role = role;
 	}
-	
+
+
 	public String getIdUser() {
 		return idUser;
 	}
@@ -131,6 +132,12 @@ public class UserImptek {
 
 	public Employee getEmployee() {
 		return employee;
+	}
+
+	public String getCorreo(){
+		if(getEmployee() != null)
+			return getEmployee().getEmail();
+		return "";
 	}
 
 	public void setEmployee(Employee employee) {

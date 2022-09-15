@@ -4,10 +4,7 @@ import java.util.List;
 
 import com.isacore.quality.model.se.ConsultaSolicitudDTO;
 import com.isacore.quality.model.se.SolicitudDTO;
-import com.isacore.quality.model.spp.AsignarResponsableDTO;
-import com.isacore.quality.model.spp.OrdenFlujoPP;
-import com.isacore.quality.model.spp.SolicitudPPDTO;
-import com.isacore.quality.model.spp.SolicitudPruebasProceso;
+import com.isacore.quality.model.spp.*;
 import com.isacore.util.CRUD;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +22,8 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioAprobador();
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorProcesar(OrdenFlujoPP orden);
+
+	List<SolicitudPruebasProceso> obtenerSolicitudesPorAprobar(OrdenFlujoPP orden);
 	
 	SolicitudPruebasProceso buscarPorId(long id);
 	
@@ -36,7 +35,11 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	
 	boolean marcarComoPruebaNoRealizada(SolicitudPruebasProceso solicitud);
 
+	boolean marcarComoPruebaRealizada(SolicitudPruebasProceso solicitud);
+
 	void procesar(SolicitudPruebasProceso solicitud);
+
+	void procesarAprobacion(AprobarSolicitudDTO dto);
 	
 //	boolean regresarSolicitud(SolicitudPruebasProceso solicitud);
 	

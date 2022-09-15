@@ -1,10 +1,12 @@
 package com.isacore.quality.service.impl.se;
 
+import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudPP;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.*;
 import com.isacore.quality.repository.spp.IConfiguracionFlujoPuebaProcesoRepo;
 import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoHistorialRepo;
+import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoResponsableRepo;
 import com.isacore.quality.repository.spp.ISolicitudPruebasProcesoRepo;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
 import com.isacore.sgc.acta.model.UserImptek;
@@ -24,12 +26,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.isacore.util.UtilidadesCadena.esNuloOBlanco;
 import static com.isacore.util.UtilidadesCadena.noEsNuloNiBlanco;
 import static com.isacore.util.UtilidadesSeguridad.nombreUsuarioEnSesion;
 
@@ -55,6 +55,11 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
     @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    private ISolicitudPruebaProcesoResponsableRepo responsableRepo;
+    @Autowired
+    private ServicioNotificacionSolicitudPP servicioNotificacion;
 
     @Override
     public List<SolicitudPruebasProceso> findAll() {
@@ -110,18 +115,24 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
     @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioEnGestion() {
-        return repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitudPP.EN_PLANIFICACION),
+        return repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitudPP.EN_PROCESO),
                 nombreUsuarioEnSesion());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorAsignarResponsable(OrdenFlujoPP orden) {
         String usuario = nombreUsuarioEnSesion();
         switch (orden) {
+            case PRODUCCION:
             case MANTENIMIENTO:
-                return this.repo.findByEstadoAndUsuarioGestionMantenimientoJefe(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO, usuario);
             case CALIDAD:
-                return this.repo.findByEstadoAndUsuarioGestionCalidadJefe(EstadoSolicitudPP.EN_PROCESO_CALIDAD, usuario);
+                return this.responsableRepo.findByUsuarioResponsableAndActivoTrueAndOrdenAndEstadoIn(usuario, orden,
+                        Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE))
+                        .stream()
+                        .filter(x -> esNuloOBlanco(x.getUsuarioAsignado()))
+                        .map(SolicitudPruebaProcesoResponsable::getSolicitudPruebasProceso)
+                        .collect(Collectors.toList());
             default:
                 return new ArrayList<>();
         }
@@ -132,18 +143,32 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitudPP.ENVIADO_REVISION, nombreUsuarioEnSesion());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorProcesar(OrdenFlujoPP orden) {
         String usuario = nombreUsuarioEnSesion();
-        switch (orden){
+        switch (orden) {
             case PRODUCCION:
-                return this.repo.findByEstadoAndUsuarioGestionPlanta(EstadoSolicitudPP.EN_PROCESO_PRODUCCION, usuario);
             case MANTENIMIENTO:
-                return this.repo.findByEstadoAndUsuarioGestionMantenimiento(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO, usuario);
             case CALIDAD:
-                return this.repo.findByEstadoAndUsuarioGestionCalidad(EstadoSolicitudPP.EN_PROCESO_CALIDAD, usuario);
-            default: return new ArrayList<>();
+                return this.responsableRepo.findByUsuarioAsignadoAndActivoTrueAndOrdenAndEstadoIn(usuario, orden,
+                        Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE))
+                        .stream()
+                        .map(SolicitudPruebaProcesoResponsable::getSolicitudPruebasProceso)
+                        .collect(Collectors.toList());
+            default:
+                return new ArrayList<>();
         }
+    }
+
+    @Override
+    public List<SolicitudPruebasProceso> obtenerSolicitudesPorAprobar(OrdenFlujoPP orden){
+        String usuario = nombreUsuarioEnSesion();
+        return this.responsableRepo.findByUsuarioResponsableAndActivoTrueAndOrdenAndEstadoIn(usuario, orden,
+                Arrays.asList(EstadoSolicitudPPResponsable.POR_APROBAR))
+                .stream()
+                .map(SolicitudPruebaProcesoResponsable::getSolicitudPruebasProceso)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -196,7 +221,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         SolicitudPruebasProceso solicitudRecargada = solicitudOP.get();
 
         agregarHistorial(solicitudRecargada, OrdenFlujoPP.VALIDAR_SOLICITUD, solicitud.getObservacion());
-
+        this.crearResponsable(configuracionOP.get().getUsuarioId(), OrdenFlujoPP.PRODUCCION, solicitudRecargada);
         solicitudRecargada.marcarSolicitudComoValidada(configuracionOP.get().getUsuarioId());
 
         LOG.info(String.format("Solicitud %s marcada como validada..", solicitudRecargada.getCodigo()));
@@ -207,7 +232,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     @Override
     public boolean asignarResponsable(SolicitudPruebasProceso dto) {
         switch (dto.getOrden()) {
-            case ASIGNAR_RESPONSABLE:
+            case PRODUCCION:
                 this.asignarResponsablePlanta(dto);
                 break;
             case CALIDAD:
@@ -230,6 +255,26 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         this.agregarHistorial(solicitudRecargada, solicitud.getOrden(), solicitud.getObservacion());
         solicitudRecargada.marcarComoPruebaNoEjecutada();
         LOG.info(String.format("Solicitud %s, marcada como prueba no ejecutada", solicitudRecargada.getCodigo()));
+        try {
+            servicioNotificacion.notificarPruebaNoEjecutada(solicitudRecargada);
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar PRUEBA NO EJECUTADA: %s", e));
+        }
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public boolean marcarComoPruebaRealizada(SolicitudPruebasProceso solicitud) {
+        SolicitudPruebasProceso solicitudRecargada = this.obtenerSolicitud(solicitud.getId());
+        solicitudRecargada.marcarComoPruebaEjecutada();
+        this.CrearMatrizResponsables(solicitudRecargada);
+        LOG.info(String.format("Solicitud %s, marcada como prueba ejecutada", solicitudRecargada.getCodigo()));
+        try {
+            servicioNotificacion.notificarPruebaEjecutada(solicitudRecargada);
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar PRUEBA EJECUTADA: %s", e));
+        }
         return true;
     }
 
@@ -237,7 +282,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     @Override
     public void procesar(SolicitudPruebasProceso solicitud) {
         SolicitudPruebasProceso solicitudRecargada = obtenerSolicitud(solicitud.getId());
-        switch (solicitud.getOrden()){
+        switch (solicitud.getOrden()) {
             case PRODUCCION:
                 this.responderSolicitudPlanta(solicitudRecargada, solicitud.getObserviacionFlujo());
                 break;
@@ -247,25 +292,61 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             case MANTENIMIENTO:
                 this.responderSolicitudMantenimiento(solicitudRecargada, solicitud.getObserviacionFlujo());
                 break;
-            default: break;
+            default:
+                break;
         }
+    }
+
+    @Transactional
+    @Override
+    synchronized public void procesarAprobacion(AprobarSolicitudDTO dto) {
+        SolicitudPruebasProceso solicitudRecargada = obtenerSolicitud(dto.getSolicitudId());
+        SolicitudPruebaProcesoResponsable responsable =  obtenerResponsable(dto.getOrden(), Arrays.asList(EstadoSolicitudPPResponsable.POR_APROBAR), dto.getSolicitudId());
+        responsable.marcarAprobacion(dto.isAprobar());
+        LOG.info(String.format("Solicitud %s aprobada %s en el paso %s", solicitudRecargada.getCodigo(), dto.isAprobar(), dto.getOrden()));
+        this.verificarFinProceso(solicitudRecargada);
+    }
+
+    private void verificarFinProceso(SolicitudPruebasProceso solicitud){
+        List<SolicitudPruebaProcesoResponsable> responsables = this.responsableRepo.findBySolicitudPruebasProceso_Id(solicitud.getId());
+        if(responsables.stream().allMatch(x -> x.getEstado().equals(EstadoSolicitudPPResponsable.PROCESADO))){
+            solicitud.marcarComoProcesoFinalizado();
+        }
+    }
+
+    private void CrearMatrizResponsables(SolicitudPruebasProceso solicitud) {
+        ConfiguracionFlujoPruebaProceso configMantenimiento = this.obtenerConfiguracion(OrdenFlujoPP.MANTENIMIENTO);
+        solicitud.setUsuarioGestionMantenimientoJefe(configMantenimiento.getUsuarioId());
+        ConfiguracionFlujoPruebaProceso configCalidad = this.obtenerConfiguracion(OrdenFlujoPP.CALIDAD);
+        solicitud.setUsuarioGestionCalidadJefe(configCalidad.getUsuarioId());
+        this.crearResponsable(configMantenimiento.getUsuarioId(), OrdenFlujoPP.MANTENIMIENTO, solicitud);
+        this.crearResponsable(configCalidad.getUsuarioId(), OrdenFlujoPP.CALIDAD, solicitud);
     }
 
     private void asignarResponsablePlanta(SolicitudPruebasProceso dto) {
         SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
-        agregarHistorial(solicitud, dto.getOrden(), dto.getObservacion());
+        //agregarHistorial(solicitud, dto.getOrden(), dto.getObservacion());
+        SolicitudPruebaProcesoResponsable responsable = this.obtenerResponsable(dto.getOrden(),
+                Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.asignarUsuario(dto.getUsuarioAsignado());
         solicitud.marcarSolicitudComoAsignadaPlanta(dto.getUsuarioAsignado(), dto.getFechaPrueba());
         LOG.info(String.format("Solicitud %s asignada a responsable planta %s", solicitud.getCodigo(), solicitud.getUsuarioGestionPlanta()));
     }
 
     private void asignarResponsableCalidad(SolicitudPruebasProceso dto) {
         SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
+        SolicitudPruebaProcesoResponsable responsable = this.obtenerResponsable(dto.getOrden(),
+                Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.asignarUsuario(dto.getUsuarioAsignado());
         solicitud.marcarSolicitudComoAsignadaCalidad(dto.getUsuarioAsignado());
         LOG.info(String.format("Solicitud %s asignada a responsable calidad %s", solicitud.getCodigo(), solicitud.getUsuarioGestionCalidad()));
     }
 
     private void asignarResponsableMantenimiento(SolicitudPruebasProceso dto) {
         SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
+        SolicitudPruebaProcesoResponsable responsable = this.obtenerResponsable(dto.getOrden(),
+                Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.asignarUsuario(dto.getUsuarioAsignado());
         solicitud.marcarSolicitudComoAsignadaMantenimiento(dto.getUsuarioAsignado());
         LOG.info(String.format("Solicitud %s asignada a responsable mantenimiento %s", solicitud.getCodigo(),
                 solicitud.getUsuarioGestionMantenimiento()));
@@ -279,51 +360,42 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         return solicitud;
     }
 
-    private  void responderSolicitudPlanta(SolicitudPruebasProceso solicitud, String observacion) {
-        ConfiguracionFlujoPruebaProceso configuracion = this.obtenerConfiguracion(OrdenFlujoPP.MANTENIMIENTO);
-        agregarHistorial(solicitud, OrdenFlujoPP.PRODUCCION, observacion);
-        solicitud.responderPlanta(configuracion.getUsuarioId());
+    private SolicitudPruebaProcesoResponsable obtenerResponsable(OrdenFlujoPP orden, Collection<EstadoSolicitudPPResponsable> estados,
+                                                                 long idSolicitud) {
+        Optional<SolicitudPruebaProcesoResponsable> responsable = this.responsableRepo.findByOrdenAndEstadoInAndSolicitudPruebasProceso_Id(orden,
+                estados, idSolicitud).stream().findFirst();
+        if (!responsable.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Responsable %s no encontrado para la solicitud", orden));
+        return responsable.get();
+    }
+
+    private void responderSolicitudPlanta(SolicitudPruebasProceso solicitud, String observacion) {
+        SolicitudPruebaProcesoResponsable responsable =  obtenerResponsable(OrdenFlujoPP.PRODUCCION, Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.marcarComoPendientePorAprobar();
+        agregarHistorial(solicitud, OrdenFlujoPP.MANTENIMIENTO, observacion);
         LOG.info(String.format("Solicitud %s respondida planta..", solicitud.getCodigo()));
     }
 
-    private  void responderSolicitudMantenimiento(SolicitudPruebasProceso solicitud, String observacion) {
-        ConfiguracionFlujoPruebaProceso configuracion = this.obtenerConfiguracion(OrdenFlujoPP.CALIDAD);
+    private void responderSolicitudMantenimiento(SolicitudPruebasProceso solicitud, String observacion) {
+        SolicitudPruebaProcesoResponsable responsable =  obtenerResponsable(OrdenFlujoPP.MANTENIMIENTO, Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.marcarComoPendientePorAprobar();
         agregarHistorial(solicitud, OrdenFlujoPP.MANTENIMIENTO, observacion);
-        solicitud.responderPlanta(configuracion.getUsuarioId());
         LOG.info(String.format("Solicitud %s respondida mantenimiento..", solicitud.getCodigo()));
     }
 
-    private  void responderSolicitudCalidad(SolicitudPruebasProceso solicitud, String observacion) {
-        ConfiguracionFlujoPruebaProceso configuracion = this.obtenerConfiguracion(OrdenFlujoPP.APROBAR_PROCESO);
+    private void responderSolicitudCalidad(SolicitudPruebasProceso solicitud, String observacion) {
+        SolicitudPruebaProcesoResponsable responsable =  obtenerResponsable(OrdenFlujoPP.CALIDAD, Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.marcarComoPendientePorAprobar();
         agregarHistorial(solicitud, OrdenFlujoPP.CALIDAD, observacion);
-        solicitud.responderPlanta(configuracion.getUsuarioId());
         LOG.info(String.format("Solicitud %s respondida calidad..", solicitud.getCodigo()));
     }
 
-    private ConfiguracionFlujoPruebaProceso obtenerConfiguracion(OrdenFlujoPP orden){
+    private ConfiguracionFlujoPruebaProceso obtenerConfiguracion(OrdenFlujoPP orden) {
         Optional<ConfiguracionFlujoPruebaProceso> configuracionOP = repoConfiguracion.findByOrden(orden);
         if (!configuracionOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", orden));
         return configuracionOP.get();
     }
-
-//	@Override
-//	@Transactional
-//	public boolean regresarSolicitud(SolicitudPruebasProceso solicitud) {
-//		Optional<SolicitudPruebasProceso> solicitudOP = repo.findById(solicitud.getId());
-//
-//		if(!solicitudOP.isPresent())
-//			throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
-//
-//		SolicitudPruebasProceso solicitudRecargada = solicitudOP.get();
-//
-//		agregarHistorial(solicitudRecargada, OrdenFlujo.APROBAR_INFORME, solicitud.getObservacion());
-//
-//		solicitudRecargada.marcarSolicitudComoRegresada();
-//
-//		LOG.info(String.format("Solicitud id=%s regresada..", solicitudRecargada.getId()));
-//		return true;
-//	}
 
     @Override
     @Transactional
@@ -342,24 +414,6 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         LOG.info(String.format("Solicitud id=%s anulada..", solicitudRecargada.getId()));
         return true;
     }
-
-//    @Override
-//    @Transactional
-//    public boolean rechazarSolicitud(SolicitudPruebasProceso solicitud) {
-//        Optional<SolicitudPruebasProceso> solicitudOP = repo.findById(solicitud.getId());
-//
-//        if (!solicitudOP.isPresent())
-//            throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
-//
-//        SolicitudPruebasProceso solicitudRecargada = solicitudOP.get();
-//
-//        agregarHistorial(solicitudRecargada, solicitudRecargada.getOrden(), solicitud.getObservacion());
-//
-//        //solicitudRecargada.rechazar();
-//
-//        LOG.info(String.format("Solicitud id=%s rechazada..", solicitudRecargada.getId()));
-//        return true;
-//    }
 
     @Override
     @Transactional(readOnly = true)
@@ -460,5 +514,11 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         }
     }
 
-
+    private SolicitudPruebaProcesoResponsable crearResponsable(String usuarioResponsable, OrdenFlujoPP orden,
+                                                               SolicitudPruebasProceso solicitudPruebasProceso) {
+        SolicitudPruebaProcesoResponsable responsable = new SolicitudPruebaProcesoResponsable(usuarioResponsable, orden, solicitudPruebasProceso);
+        this.responsableRepo.save(responsable);
+        LOG.info(String.format("Resposanble guardado de la Solicitud %s : %s", solicitudPruebasProceso.getCodigo(), responsable));
+        return responsable;
+    }
 }

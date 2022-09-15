@@ -2,6 +2,7 @@ package com.isacore;
 
 import javax.servlet.MultipartConfigElement;
 
+import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -35,4 +36,9 @@ public class SpringBootIsa extends SpringBootServletInitializer  {
 	        factory.setMaxRequestSize(DataSize.ofBytes(512000000L));
 	        return factory.createMultipartConfig();
 	    }
+
+	@Bean
+	public LayoutDialect layoutDialect() {
+		return new LayoutDialect();
+	}
 }

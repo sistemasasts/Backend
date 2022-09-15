@@ -3,7 +3,7 @@ package com.isacore.quality.model.spp;
 public enum EstadoSolicitudPP {
     NUEVO,
     ENVIADO_REVISION,
-    EN_PLANIFICACION,
+    EN_PROCESO,
     EN_PROCESO_PRODUCCION,
     EN_PROCESO_MANTENIMIENTO,
     EN_PROCESO_CALIDAD,

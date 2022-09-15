@@ -5,9 +5,7 @@ import java.util.List;
 
 import com.isacore.quality.model.Area;
 import com.isacore.quality.model.se.ConsultaSolicitudDTO;
-import com.isacore.quality.model.spp.AsignarResponsableDTO;
-import com.isacore.quality.model.spp.OrdenFlujoPP;
-import com.isacore.quality.model.spp.OrigenSolicitudPP;
+import com.isacore.quality.model.spp.*;
 import com.isacore.quality.service.IAreasService;
 import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
 
 @RestController
@@ -106,11 +103,29 @@ public class SolicitudPruebasProcesoControlador {
 		boolean respuesta = servicio.marcarComoPruebaNoRealizada(obj);
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
+
+	@PostMapping("/marcarPruebaRealizada")
+	public ResponseEntity<Object> marcarPruebaRealizada(@RequestBody SolicitudPruebasProceso obj) {
+		boolean respuesta = servicio.marcarComoPruebaRealizada(obj);
+		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+	}
 	
 	@PostMapping("/procesar")
 	public ResponseEntity<Object> responderSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 		servicio.procesar(obj);
 		return ResponseEntity.ok(true);
+	}
+
+	@PostMapping("/procesarAprobacion")
+	public ResponseEntity<Object> procesarAprobacion(@RequestBody AprobarSolicitudDTO obj) {
+		servicio.procesarAprobacion(obj);
+		return ResponseEntity.ok(true);
+	}
+
+	@GetMapping("/solicitudesPorAprobar/{orden}")
+	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudPorAprobar(@PathVariable("orden") OrdenFlujoPP orden) {
+		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorAprobar(orden);
+		return ResponseEntity.ok(respuesta);
 	}
 	
 	@PostMapping("/anularSolicitud")

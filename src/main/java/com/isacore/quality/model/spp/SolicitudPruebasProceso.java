@@ -2,6 +2,7 @@ package com.isacore.quality.model.spp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -81,6 +82,26 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private LocalDate fechaPrueba;
     @Column(columnDefinition = "bit default 0")
     private boolean pruebaRealizada;
+    private LocalDateTime fechaNotificacionPruebaRealizada;
+
+    @Column(columnDefinition = "varchar(max)")
+    private String observacionMantenimiento;
+    @Column(columnDefinition = "varchar(max)")
+    private String observacionCalidad;
+    @Column(columnDefinition = "varchar(max)")
+    private String observacionProduccion;
+
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_pruebas_proceso_id")
+    private List<MaterialUtilizado> materiales;
+
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_pruebas_proceso_id")
+    private List<CondicionOperacion> condicionesOperacion;
+
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_pruebas_proceso_id")
+    private List<Mermas> mermas;
 
     @Transient
     private String observiacionFlujo;
@@ -119,12 +140,12 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado) {
-        setEstado(EstadoSolicitudPP.EN_PLANIFICACION);
+        setEstado(EstadoSolicitudPP.EN_PROCESO);
         setUsuarioGestion(usuarioAsignado);
     }
 
     public void marcarSolicitudComoAsignadaPlanta(String usuarioAsignado, LocalDate fechaPruebas) {
-        setEstado(EstadoSolicitudPP.EN_PROCESO_PRODUCCION);
+        //setEstado(EstadoSolicitudPP.EN_PROCESO_PRODUCCION);
         setUsuarioGestionPlanta(usuarioAsignado);
         setFechaPrueba(fechaPruebas);
     }
@@ -141,26 +162,26 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         setEstado(EstadoSolicitudPP.RECHAZADO);
     }
 
+    public void marcarComoProcesoFinalizado(){
+        setEstado(EstadoSolicitudPP.PENDIENTE_APROBACION);
+    }
+
     public void responderPlanta(String usuarioAsignado){
         setEstado(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO);
         setUsuarioGestionMantenimientoJefe(usuarioAsignado);
     }
 
-    public void responderMantenimiento(String usuarioAsignado){
-        setEstado(EstadoSolicitudPP.EN_PROCESO_CALIDAD);
-        setUsuarioGestionCalidadJefe(usuarioAsignado);
-    }
-
-    public void responderCalidad(String usuarioAsignado){
-        setEstado(EstadoSolicitudPP.PENDIENTE_APROBACION);
-        setUsuarioAprobador(usuarioAsignado);
-        setFechaAprobacion(LocalDate.now());
-    }
-
     public void marcarComoPruebaNoEjecutada() {
         setEstado(EstadoSolicitudPP.PRUEBA_NO_EJECUTADA);
         setPruebaRealizada(false);
+        setFechaNotificacionPruebaRealizada(LocalDateTime.now());
     }
+
+    public void marcarComoPruebaEjecutada() {
+        setPruebaRealizada(true);
+        setFechaNotificacionPruebaRealizada(LocalDateTime.now());
+    }
+
 
     public void anular() {
         this.setFechaFinalizacion(LocalDateTime.now());

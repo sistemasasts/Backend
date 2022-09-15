@@ -56,7 +56,8 @@ public class ResourceServerConfig  extends ResourceServerConfigurerAdapter {
                 .antMatchers("/solicitudDocumentos/**" ).authenticated()
                 .antMatchers("/solicitudesEnsayo/**" ).authenticated()
                 .antMatchers("/solicitudHistorial/**" ).authenticated()
-                .antMatchers("/solicitudesPruebasProceso/**" ).authenticated()                
+                .antMatchers("/solicitudesPruebasProceso/**" ).authenticated()
+                        .antMatchers("/notificacionesCorreo/**" ).permitAll()
                 .antMatchers("/tokens/**" ).permitAll();
          
                 

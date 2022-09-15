@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{emailLayout}">
+<head>
+<title>Correo Notificación Prueba</title>
+</head>
+<body>
+	<h3 layout:fragment="titulo">Correo Notificación Prueba</h3>
+	<div layout:fragment="contenido">
+		<p><span th:text="${texto}">Pérez Sánchez Juan</span>
+		<br/>		
+	</div>
+</body>
+</html>
