@@ -10,4 +10,5 @@ public class AprobarSolicitudDTO implements Serializable {
     private boolean aprobar;
     private String observacion;
     private OrdenFlujoPP orden;
+    private TipoAprobacionPP tipoAprobacion;
 }

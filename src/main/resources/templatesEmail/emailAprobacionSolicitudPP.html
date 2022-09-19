@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>Aprobación Solicitud de Pruebas en Proceso</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Aprobación Solicitud de Pruebas en Proceso</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;" dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p>Estimado(a) Usuario: <b th:text="${usuario}">Federico Perez</b></p>
+                    <p>La solicitud <b th:text="${codigo}">SP000001</b> se encuentra <b th:text="${aprobado}">APROBADA</b>
+                        <br/>
+                        Tipo de aprobación: <b th:text="${tipoAprobacion}">SOLICITUD SOLUCINES TÉCNICAS</b>
+                    </p>
+                    <p>Observación: <b th:text="${observacion}">NINGUNA</b></p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

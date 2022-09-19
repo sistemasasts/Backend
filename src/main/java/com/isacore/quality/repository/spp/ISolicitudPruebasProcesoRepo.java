@@ -18,6 +18,8 @@ public interface ISolicitudPruebasProcesoRepo extends JpaRepository<SolicitudPru
 	
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitudPP estado, String usuarioAprobador);
 
+	List<SolicitudPruebasProceso> findByEstadoAndUsuarioValidadorOrderByFechaCreacionDesc(EstadoSolicitudPP estado, String usuarioAprobador);
+
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioGestionPlanta(EstadoSolicitudPP estado, String usuarioPlanta);
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioGestionCalidad(EstadoSolicitudPP estado, String usuarioCalidad);
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioGestionMantenimiento(EstadoSolicitudPP estado, String usuarioMantenimiento);

@@ -1,26 +1,23 @@
 package com.isacore.quality.model.spp;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.Area;
-import com.isacore.quality.model.se.EstadoSolicitud;
-import com.isacore.quality.model.se.OrdenFlujo;
 import com.isacore.quality.model.se.SolicitudBase;
-import com.isacore.quality.model.se.TipoAprobacionSolicitud;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
-
 import com.isacore.util.UtilidadesFecha;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -54,6 +51,9 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     @Column(columnDefinition = "varchar(max)")
     private String observacion;
 
+    @Column(columnDefinition = "bit default 0")
+    private boolean aprobado;
+
     @Enumerated(EnumType.STRING)
     private TipoAprobacionPP tipoAprobacion;
 
@@ -74,6 +74,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     @Column(columnDefinition = "bit default 0")
     private boolean requiereInforme;
 
+    private String usuarioValidador;
     private String usuarioGestionPlanta;
     private String usuarioGestionCalidadJefe;
     private String usuarioGestionCalidad;
@@ -83,6 +84,8 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     @Column(columnDefinition = "bit default 0")
     private boolean pruebaRealizada;
     private LocalDateTime fechaNotificacionPruebaRealizada;
+
+    private LocalDate fechaEntregaInforme;
 
     @Column(columnDefinition = "varchar(max)")
     private String observacionMantenimiento;
@@ -136,7 +139,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
 
     public void marcarSolicitudComoEnviada(String usuarioAsignado) {
         setEstado(EstadoSolicitudPP.ENVIADO_REVISION);
-        setUsuarioAprobador(usuarioAsignado);
+        setUsuarioValidador(usuarioAsignado);
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado) {
@@ -158,15 +161,18 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         setUsuarioGestionMantenimiento(usuarioAsignado);
     }
 
-    public void marcarSolicitudComoRegresada() {
-        setEstado(EstadoSolicitudPP.RECHAZADO);
-    }
-
-    public void marcarComoProcesoFinalizado(){
+    public void marcarComoProcesoFinalizado(String usuarioAprobador) {
         setEstado(EstadoSolicitudPP.PENDIENTE_APROBACION);
+        setUsuarioAprobador(usuarioAprobador);
     }
 
-    public void responderPlanta(String usuarioAsignado){
+    public void marcarComoAprobada(TipoAprobacionPP tipo) {
+        setTipoAprobacion(tipo);
+        setAprobado(tipo.isAprobado());
+        setFechaAprobacion(LocalDate.now());
+    }
+
+    public void responderPlanta(String usuarioAsignado) {
         setEstado(EstadoSolicitudPP.EN_PROCESO_MANTENIMIENTO);
         setUsuarioGestionMantenimientoJefe(usuarioAsignado);
     }
@@ -177,9 +183,11 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         setFechaNotificacionPruebaRealizada(LocalDateTime.now());
     }
 
-    public void marcarComoPruebaEjecutada() {
+    public void marcarComoPruebaEjecutada(int diasPlazo) {
         setPruebaRealizada(true);
         setFechaNotificacionPruebaRealizada(LocalDateTime.now());
+        setTiempoRespuesta(diasPlazo);
+        calcularFechaEntregaInforme(diasPlazo);
     }
 
 
@@ -188,12 +196,37 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.setEstado(EstadoSolicitudPP.ANULADO);
     }
 
-    public void guardarDatosImagen1(long id, String path){
+    public void guardarDatosImagen1(long id, String path) {
         this.imagen1Id = id;
         this.imagen1Ruta = path;
     }
 
-    public String getFechaSolicitud(){
+    public String getFechaSolicitud() {
         return UtilidadesFecha.formatear(getFechaCreacion(), "YYYY-MM-dd");
+    }
+
+    public String getTipoAprobacionTexto() {
+        return getTipoAprobacion() != null ? getTipoAprobacion().getDescripcion() : "";
+    }
+
+    public String getAprobadoTexto() {
+        return getTipoAprobacion() != null ? isAprobado() ? "SI" : "NO" : "";
+    }
+
+    private void calcularFechaEntregaInforme(int dias) {
+        LocalDate result = LocalDate.now();
+        int agregarDias = 0;
+        while (agregarDias < dias) {
+            result = result.plusDays(1);
+            if (!(result.getDayOfWeek() == DayOfWeek.SATURDAY || result.getDayOfWeek() == DayOfWeek.SUNDAY)) {
+                ++agregarDias;
+            }
+        }
+        setFechaEntregaInforme(result);
+    }
+
+    public int getVigencia() {
+        Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaEntregaInforme.atStartOfDay());
+        return (int) diff.toDays();
     }
 }

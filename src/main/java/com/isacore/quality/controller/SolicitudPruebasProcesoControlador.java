@@ -148,6 +148,15 @@ public class SolicitudPruebasProcesoControlador {
 		}
 		return ResponseEntity.ok(catalgo);
 	}
+
+	@GetMapping("/tiposAprobacion")
+	public ResponseEntity<List<CatalogDTO>> listarTiposAprobacion() {
+		List<CatalogDTO> catalgo = new ArrayList<>();
+		for(TipoAprobacionPP origen : TipoAprobacionPP.values()){
+			catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString(), origen.isAprobado()));
+		}
+		return ResponseEntity.ok(catalgo);
+	}
 	
 //	@PostMapping("/regresarInformeSolicitud")
 //	public ResponseEntity<Object> regresarInformeSolicitud(@RequestBody SolicitudPruebasProceso obj) {
