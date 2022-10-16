@@ -1,5 +1,6 @@
 package com.isacore.quality.controller;
 
+import com.isacore.quality.model.spp.HistorialPPCompletoDto;
 import com.isacore.quality.model.spp.SolicitudPruebaProcesoHistorial;
 import com.isacore.quality.service.spp.ISolicitudPruebaProcesoHistorialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,12 @@ public class SolicitudHistorialPruebaProcesoControlador {
 	public ResponseEntity<List<SolicitudPruebaProcesoHistorial>> buscarHistorial(@PathVariable("solicitudId") Long solicitudId) throws IOException {
 		List<SolicitudPruebaProcesoHistorial> historial = service.buscarHistorial(solicitudId);
 		return new ResponseEntity<List<SolicitudPruebaProcesoHistorial>>(historial, HttpStatus.OK);
+	}
+
+	@GetMapping("/completo/{solicitudId}")
+	public ResponseEntity<List<HistorialPPCompletoDto>> buscarHistorialCompleto(@PathVariable("solicitudId") Long solicitudId) throws IOException {
+		List<HistorialPPCompletoDto> historial = service.buscarHistorialCompleto(solicitudId);
+		return ResponseEntity.ok(historial);
 	}
 
 }

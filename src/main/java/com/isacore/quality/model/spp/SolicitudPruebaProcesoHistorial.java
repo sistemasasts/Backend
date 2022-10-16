@@ -27,6 +27,10 @@ public class SolicitudPruebaProcesoHistorial extends SolicitudHistorialBase {
 		this.estadoSolicitud = solicitudE.getEstado();
 		this.orden = orden;
 	}
+
+	public String getCodigoSolicitud(){
+		return this.solicitudPruebasProceso.getCodigo();
+	}
 	
 	
 }

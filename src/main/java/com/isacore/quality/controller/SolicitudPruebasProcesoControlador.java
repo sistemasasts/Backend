@@ -87,6 +87,12 @@ public class SolicitudPruebasProcesoControlador {
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
 
+	@PostMapping("/reasignarResponsable")
+	public ResponseEntity<Object> reasignarResponsableSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+		boolean respuesta = servicio.reasignarResponsable(obj);
+		return ResponseEntity.ok(respuesta);
+	}
+
 	@GetMapping("/solicitudesAsignadas/{orden}")
 	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudAsignadas(@PathVariable("orden") OrdenFlujoPP orden) {
 		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorProcesar(orden);
@@ -96,6 +102,12 @@ public class SolicitudPruebasProcesoControlador {
 	@GetMapping("/solicitudesPorAsignar/{orden}")
 	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudPorAsignar(@PathVariable("orden") OrdenFlujoPP orden) {
 		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorAsignarResponsable(orden);
+		return ResponseEntity.ok(respuesta);
+	}
+
+	@GetMapping("/solicitudesPorReasignar/{orden}")
+	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudPorReasignar(@PathVariable("orden") OrdenFlujoPP orden) {
+		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorReasignarResponsable(orden);
 		return ResponseEntity.ok(respuesta);
 	}
 

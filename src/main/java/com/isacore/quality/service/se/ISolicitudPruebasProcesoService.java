@@ -16,6 +16,8 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioEnGestion();
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorAsignarResponsable(OrdenFlujoPP orden);
+
+	List<SolicitudPruebasProceso> obtenerSolicitudesPorReasignarResponsable(OrdenFlujoPP orden);
 	
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioValidador();
 	
@@ -32,6 +34,8 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	boolean validarSolicitud(SolicitudPruebasProceso solicitud);
 
 	boolean asignarResponsable(SolicitudPruebasProceso dto);
+
+	boolean reasignarResponsable(SolicitudPruebasProceso dto);
 
 	boolean marcarComoPruebaNoRealizada(SolicitudPruebasProceso solicitud);
 

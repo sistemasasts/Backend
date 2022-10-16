@@ -168,6 +168,17 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     }
 
     @Override
+    public List<SolicitudPruebasProceso> obtenerSolicitudesPorReasignarResponsable(OrdenFlujoPP orden) {
+        String usuario = nombreUsuarioEnSesion();
+        return this.responsableRepo.findByUsuarioResponsableAndActivoTrueAndOrdenAndEstadoIn(usuario, orden,
+                Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE))
+                .stream()
+                .filter(x -> noEsNuloNiBlanco(x.getUsuarioAsignado()))
+                .map(SolicitudPruebaProcesoResponsable::getSolicitudPruebasProceso)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioAprobador() {
         return repo.findByEstadoAndUsuarioValidadorOrderByFechaCreacionDesc(EstadoSolicitudPP.ENVIADO_REVISION, nombreUsuarioEnSesion());
     }
@@ -280,6 +291,28 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                 LOG.info(String.format("Asignacion resposable para %s, no está programado..", dto.getOrden()));
                 break;
         }
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public boolean reasignarResponsable(SolicitudPruebasProceso dto) {
+        SolicitudPruebasProceso solicitud = obtenerSolicitud(dto.getId());
+        SolicitudPruebaProcesoResponsable responsable = this.obtenerResponsable(dto.getOrden(),
+                Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
+        responsable.asignarUsuario(dto.getUsuarioAsignado());
+        switch (dto.getOrden()){
+            case PRODUCCION:
+                solicitud.setUsuarioGestionPlanta(dto.getUsuarioAsignado());
+                break;
+            case CALIDAD:
+                solicitud.marcarSolicitudComoAsignadaCalidad(dto.getUsuarioAsignado());
+                break;
+            case MANTENIMIENTO:
+                solicitud.marcarSolicitudComoAsignadaMantenimiento(dto.getUsuarioAsignado());
+                break;
+        }
+        LOG.info(String.format("Solicitud %s reasignada a responsable %s - %s", solicitud.getCodigo(), dto.getOrden(), dto.getUsuarioAsignado()));
         return true;
     }
 

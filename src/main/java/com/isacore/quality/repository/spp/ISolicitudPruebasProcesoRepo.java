@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.isacore.quality.model.spp.EstadoSolicitudPP;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.isacore.quality.model.se.EstadoSolicitud;
@@ -28,4 +30,18 @@ public interface ISolicitudPruebasProcesoRepo extends JpaRepository<SolicitudPru
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioGestionMantenimientoJefe(EstadoSolicitudPP estado, String usuarioMantenimientoJefe);
 
 	List<SolicitudPruebasProceso> findBySolicitudPadreId(long solicitudPadreId);
+
+	@Query(value = "WITH TreeCTE AS\n" +
+			"(\n" +
+				"SELECT id, codigo, solicitud_padre_id\n" +
+				"FROM solicitud_pruebas_proceso\n" +
+				"where id= :solicitudId\n" +
+				"UNION ALL\n" +
+				"SELECT Tre.id, Tre.codigo, Tre.solicitud_padre_id\n" +
+				"FROM TreeCTE AS TreCTE\n" +
+				"JOIN solicitud_pruebas_proceso AS Tre\n" +
+				"ON Tre.id = TreCTE.solicitud_padre_id\n" +
+			")\n" +
+			"SELECT * FROM TreeCTE ", nativeQuery = true)
+	List<Object[]> obtenerSolicitudesHija(@Param("solicitudId")long solicitudId);
 }
