@@ -61,7 +61,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         });
     }
 
-    public void notificarPruebaNoEjecutada(SolicitudPruebasProceso solicitud) throws Exception {
+    public void notificarPruebaNoEjecutada(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
         String asunto = String.format("SOLICITUD %s PRUEBA NO EJECUTADA", solicitud.getCodigo());
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioCalidad = this.obtenerUsuario(solicitud.getUsuarioGestionCalidadJefe());
@@ -78,9 +78,30 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
 
         enviarHtml(destinos, asunto, "emailPruebaNoEjecutada", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("observacion", observacion);
             context.setVariable("usuarioResponsable", usuarioPlantaResponsable.getEmployee().getCompleteName());
-            context.setVariable("fechaPrueba", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "DD-MM-YYYY"));
-            context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "DD-MM-YYYY"));
+            context.setVariable("fechaPrueba", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "dd-MM-yyyy"));
+            context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "dd-MM-yyyy"));
+        });
+    }
+
+    public void notificarPruebaNoEjecutadaDefinitiva(SolicitudPruebasProceso solicitud, String observacion, UserImptek usuarioAprobador) throws Exception {
+        String asunto = String.format("SOLICITUD FINALIZADA %s PRUEBA NO EJECUTADA", solicitud.getCodigo());
+        UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
+        UserImptek usuarioCalidad = this.obtenerUsuario(solicitud.getUsuarioGestionCalidadJefe());
+        UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
+        UserImptek usuarioProduccion = this.obtenerUsuario(solicitud.getUsuarioGestion());
+
+        DireccionesDestino destinos = new DireccionesDestino();
+        destinos.agregarDireccionA(usuarioCalidad.getCorreo());
+        destinos.agregarDireccionA(usuarioSolicitante.getCorreo());
+        destinos.agregarDireccionA(usuarioMantenimiento.getCorreo());
+        destinos.agregarDireccionA(usuarioProduccion.getCorreo());
+        destinos.agregarDireccionA(usuarioAprobador.getCorreo());
+
+        enviarHtml(destinos, asunto, "emailPruebaNoEjecutadaDefinitiva", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("observacion", observacion);
         });
     }
 

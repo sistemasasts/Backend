@@ -17,6 +17,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -86,6 +87,12 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private LocalDateTime fechaNotificacionPruebaRealizada;
 
     private LocalDate fechaEntregaInforme;
+    @Column(columnDefinition = "bit default 0")
+    private boolean requiereAjusteMaquinaria;
+    @Column(columnDefinition = "bit default 0")
+    private boolean ajusteMaquinariaFactible;
+    private LocalDate fechaSolicitudValidada;
+    private Long solicitudPadreId;
 
     @Column(columnDefinition = "varchar(max)")
     private String observacionMantenimiento;
@@ -107,13 +114,16 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private List<Mermas> mermas;
 
     @Transient
-    private String observiacionFlujo;
+    private String observacionFlujo;
 
     @Transient
     private OrdenFlujoPP orden;
 
     @Transient
     private String usuarioAsignado;
+
+    @Transient
+    private String estadoInterno;
 
     public SolicitudPruebasProceso(
             String codigo, LocalDate fechaEntrega, String lineaAplicacion, String motivo, String motivoOtro,
@@ -145,6 +155,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     public void marcarSolicitudComoValidada(String usuarioAsignado) {
         setEstado(EstadoSolicitudPP.EN_PROCESO);
         setUsuarioGestion(usuarioAsignado);
+        setFechaSolicitudValidada(LocalDate.now());
     }
 
     public void marcarSolicitudComoAsignadaPlanta(String usuarioAsignado, LocalDate fechaPruebas) {
@@ -178,6 +189,12 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     }
 
     public void marcarComoPruebaNoEjecutada() {
+        //setEstado(EstadoSolicitudPP.EN_PROCESO);
+        setPruebaRealizada(false);
+        setFechaNotificacionPruebaRealizada(LocalDateTime.now());
+    }
+
+    public void marcarComoPruebaNoEjecutadaDefinitiva() {
         setEstado(EstadoSolicitudPP.PRUEBA_NO_EJECUTADA);
         setPruebaRealizada(false);
         setFechaNotificacionPruebaRealizada(LocalDateTime.now());
@@ -188,6 +205,11 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         setFechaNotificacionPruebaRealizada(LocalDateTime.now());
         setTiempoRespuesta(diasPlazo);
         calcularFechaEntregaInforme(diasPlazo);
+    }
+
+    public void marcarAjustesMaquinariaFacible(boolean esFactible) {
+        setEstado(EstadoSolicitudPP.FINALIZADO);
+        setAjusteMaquinariaFactible(esFactible);
     }
 
 
@@ -226,7 +248,18 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     }
 
     public int getVigencia() {
+        if(fechaEntregaInforme == null)
+            return 0;
         Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaEntregaInforme.atStartOfDay());
         return (int) diff.toDays();
+    }
+
+    public boolean getPuedeRepetirPrueba(){
+        if(this.estado.equals(EstadoSolicitudPP.FINALIZADO)){
+            if(this.tipoAprobacion.equals(TipoAprobacionPP.AJUSTE_MAQUINARIA) && this.isAjusteMaquinariaFactible())
+                return true;
+            return this.tipoAprobacion.equals(TipoAprobacionPP.REPETIR_PRUEBA);
+        }
+        return false;
     }
 }

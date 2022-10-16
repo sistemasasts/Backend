@@ -32,10 +32,10 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	boolean validarSolicitud(SolicitudPruebasProceso solicitud);
 
 	boolean asignarResponsable(SolicitudPruebasProceso dto);
-	
+
 	boolean marcarComoPruebaNoRealizada(SolicitudPruebasProceso solicitud);
 
-	boolean marcarComoPruebaRealizada(SolicitudPruebasProceso solicitud);
+	boolean marcarComoPruebaNoRealizadaDefinitiva(SolicitudPruebasProceso solicitud);
 
 	void procesar(SolicitudPruebasProceso solicitud);
 
@@ -48,4 +48,8 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 //	boolean rechazarSolicitud(SolicitudPruebasProceso solicitud);
 
 	Page<SolicitudPPDTO> consultar(Pageable pageabe, ConsultaSolicitudDTO dto);
+
+	byte[] generateReporte(long id);
+
+	SolicitudPruebasProceso crearSolicitudParaRepetirPrueba(long solicitudId);
 }

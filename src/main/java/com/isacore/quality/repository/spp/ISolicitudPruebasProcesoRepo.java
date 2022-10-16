@@ -26,4 +26,6 @@ public interface ISolicitudPruebasProcesoRepo extends JpaRepository<SolicitudPru
 
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioGestionCalidadJefe(EstadoSolicitudPP estado, String usuarioCalidadJefe);
 	List<SolicitudPruebasProceso> findByEstadoAndUsuarioGestionMantenimientoJefe(EstadoSolicitudPP estado, String usuarioMantenimientoJefe);
+
+	List<SolicitudPruebasProceso> findBySolicitudPadreId(long solicitudPadreId);
 }

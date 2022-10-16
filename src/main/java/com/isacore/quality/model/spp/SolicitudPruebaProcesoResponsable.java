@@ -1,5 +1,6 @@
 package com.isacore.quality.model.spp;
 
+import com.isacore.util.UtilidadesCadena;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -52,6 +53,17 @@ public class SolicitudPruebaProcesoResponsable {
         this.fechaRespuesta = LocalDateTime.now();
     }
 
+    public void marcarComoPruebaNoRealizada(){
+        this.estado = EstadoSolicitudPPResponsable.PRUEBA_NO_REALIZADA;
+        this.fechaRespuesta = LocalDateTime.now();
+    }
+
+    public void marcarComoPruebaNoRealizadaDefinitiva(){
+        this.estado = EstadoSolicitudPPResponsable.PRUEBA_NO_REALIZADA;
+        this.fechaRespuesta = LocalDateTime.now();
+        this.setActivo(false);
+    }
+
     public void marcarAprobacion(boolean aprobado){
         if(aprobado){
             this.estado = EstadoSolicitudPPResponsable.PROCESADO;
@@ -59,5 +71,11 @@ public class SolicitudPruebaProcesoResponsable {
         }else{
             this.estado = EstadoSolicitudPPResponsable.PENDIENTE;
         }
+    }
+
+    public boolean necesitaUsuarioAsignado(){
+        if(this.estado.equals(EstadoSolicitudPPResponsable.PRUEBA_NO_REALIZADA))
+            return UtilidadesCadena.noEsNuloNiBlanco(this.usuarioAsignado);
+        return UtilidadesCadena.esNuloOBlanco(this.usuarioAsignado);
     }
 }

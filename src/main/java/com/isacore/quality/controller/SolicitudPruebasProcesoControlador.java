@@ -10,6 +10,7 @@ import com.isacore.quality.service.IAreasService;
 import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -104,10 +105,10 @@ public class SolicitudPruebasProcesoControlador {
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
 
-	@PostMapping("/marcarPruebaRealizada")
-	public ResponseEntity<Object> marcarPruebaRealizada(@RequestBody SolicitudPruebasProceso obj) {
-		boolean respuesta = servicio.marcarComoPruebaRealizada(obj);
-		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+	@PostMapping("/marcarPruebaNoRealizadaDefinitiva")
+	public ResponseEntity<Object> marcarPruebaNoRealizadaDefinitiva(@RequestBody SolicitudPruebasProceso obj) {
+		boolean respuesta = servicio.marcarComoPruebaNoRealizadaDefinitiva(obj);
+		return ResponseEntity.ok(respuesta);
 	}
 	
 	@PostMapping("/procesar")
@@ -157,7 +158,20 @@ public class SolicitudPruebasProcesoControlador {
 		}
 		return ResponseEntity.ok(catalgo);
 	}
-	
+
+	@GetMapping(value="/reporte/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	public ResponseEntity<byte[]> generarReporte(@PathVariable("id") long id) {
+		byte [] data = null;
+		data= servicio.generateReporte(id);
+		return new ResponseEntity<byte[]>(data, HttpStatus.CREATED);
+	}
+
+	@GetMapping("/repetirPrueba/{solicitudId}")
+	public ResponseEntity<SolicitudPruebasProceso> repetirPrueba(@PathVariable("solicitudId") long solicitudId) {
+		SolicitudPruebasProceso solicitud= servicio.crearSolicitudParaRepetirPrueba(solicitudId);
+		return new ResponseEntity<SolicitudPruebasProceso>(solicitud, HttpStatus.OK);
+	}
+
 //	@PostMapping("/regresarInformeSolicitud")
 //	public ResponseEntity<Object> regresarInformeSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 //		boolean respuesta = servicio.regresarSolicitud(obj);
