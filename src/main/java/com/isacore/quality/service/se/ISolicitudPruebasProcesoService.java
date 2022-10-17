@@ -1,13 +1,11 @@
 package com.isacore.quality.service.se;
 
-import java.util.List;
-
-import com.isacore.quality.model.se.ConsultaSolicitudDTO;
-import com.isacore.quality.model.se.SolicitudDTO;
 import com.isacore.quality.model.spp.*;
 import com.isacore.util.CRUD;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasProceso> {
 
@@ -51,7 +49,7 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	
 //	boolean rechazarSolicitud(SolicitudPruebasProceso solicitud);
 
-	Page<SolicitudPPDTO> consultar(Pageable pageabe, ConsultaSolicitudDTO dto);
+	Page<SolicitudPPDTO> consultar(Pageable pageabe, ConsultaSolicitudPPDTO dto);
 
 	byte[] generateReporte(long id);
 

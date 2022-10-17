@@ -1,8 +1,8 @@
 package com.isacore.quality.model.spp;
 
 public enum OrigenSolicitudPP {
-    DESARROLLO_PRODUCTOS("Desarrollo de Productos"),
-    REINGENIERIA("Reingeniería");
+    DESARROLLO_PRODUCTOS("DESARROLLO PRODUCTOS"),
+    REINGENIERIA("REINGENIERÍA");
 
     private String descripcion;
 

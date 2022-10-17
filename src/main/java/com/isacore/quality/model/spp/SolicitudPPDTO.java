@@ -2,6 +2,7 @@ package com.isacore.quality.model.spp;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.isacore.quality.model.Area;
 import com.isacore.quality.model.se.TipoAprobacionSolicitud;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
@@ -18,58 +19,64 @@ import java.time.LocalDateTime;
 @SuppressWarnings("serial")
 @Data
 @NoArgsConstructor
-public class SolicitudPPDTO implements Serializable{
+public class SolicitudPPDTO implements Serializable {
 
-	private Long id;
+    private Long id;
+    private String codigo;
 
-	private String codigo;
+    @JsonSerialize(using = LocalDateTimeSerialize.class)
+    @JsonDeserialize(using = LocalDateTimeDeserialize.class)
+    private LocalDateTime fechaCreacion;
 
-	@JsonSerialize(using = LocalDateTimeSerialize.class)
-	@JsonDeserialize(using = LocalDateTimeDeserialize.class)
-	private LocalDateTime fechaCreacion;
+    @JsonSerialize(using = LocalDateSerializeIsa.class)
+    @JsonDeserialize(using = LocalDateDeserializeIsa.class)
+    private LocalDate fechaAprobacion;
 
-	@JsonSerialize(using = LocalDateSerializeIsa.class)
-	@JsonDeserialize(using = LocalDateDeserializeIsa.class)
-	private LocalDate fechaAprobacion;
+    private String nombreSolicitante;
+    private String usuarioGestion;
+    private String usuarioAprobador;
+    private EstadoSolicitudPP estado;
+    private String proveedorNombre;
+    private Integer proveedorId;
+    private String lineaAplicacion;
+    @JsonSerialize(using = LocalDateSerializeIsa.class)
+    @JsonDeserialize(using = LocalDateDeserializeIsa.class)
+    private LocalDate fechaEntrega;
+    private String detalleMaterial;
+    private TipoAprobacionPP tipoAprobacion;
+    private boolean aprobado;
+    private Area area;
+    private OrigenSolicitudPP origen;
+    private boolean requiereInforme;
+    private String usuarioValidador;
+    private String usuarioGestionPlanta;
+    private String usuarioGestionCalidadJefe;
+    private String usuarioGestionCalidad;
+    private String usuarioGestionMantenimientoJefe;
+    private String usuarioGestionMantenimiento;
+    private LocalDate fechaPrueba;
+    private LocalDate fechaEntregaInforme;
 
-	private String nombreSolicitante;
+    public LocalDate getFechaCreacion2() {
+        return this.fechaCreacion.toLocalDate();
+    }
 
-	private String usuarioGestion;
+    public String getTipoAprobacionTexto() {
+        return this.tipoAprobacion != null ? this.tipoAprobacion.getDescripcion() : "";
+    }
 
-	private String usuarioAprobador;
+    public String getNombreArea() {
+        return this.area != null ? this.area.getNameArea() : "";
+    }
+    public String getAprobadoTexto(){
+        return getTipoAprobacion() != null ? isAprobado() ? "SI" : "NO" : "";
+    }
 
-	private EstadoSolicitudPP estado;
+    public String getRequiereInformeTexto(){
+        return isRequiereInforme() ?  "SI" : "NO";
+    }
 
-	private String proveedorNombre;
-
-	private Integer proveedorId;
-
-	@JsonSerialize(using = LocalDateSerializeIsa.class)
-	@JsonDeserialize(using = LocalDateDeserializeIsa.class)
-	private LocalDate fechaEntrega;
-
-	private String detalleMaterial;
-
-	private TipoAprobacionSolicitud tipoAprobacion;
-
-	public SolicitudPPDTO(Long id, String codigo, LocalDateTime fechaCreacion, LocalDate fechaAprobacion,
-                          String nombreSolicitante, String usuarioGestion, String usuarioAprobador, EstadoSolicitudPP estado,
-                          String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String detalleMaterial,
-                          TipoAprobacionSolicitud tipoAprobacion) {
-		super();
-		this.id = id;
-		this.codigo = codigo;
-		this.fechaCreacion = fechaCreacion;
-		this.fechaAprobacion = fechaAprobacion;
-		this.nombreSolicitante = nombreSolicitante;
-		this.usuarioGestion = usuarioGestion;
-		this.usuarioAprobador = usuarioAprobador;
-		this.estado = estado;
-		this.proveedorNombre = proveedorNombre;
-		this.proveedorId = proveedorId;
-		this.fechaEntrega = fechaEntrega;
-		this.detalleMaterial = detalleMaterial;
-		this.tipoAprobacion = tipoAprobacion;
-	}
-	
+    public String getOrigenTexto(){
+        return getOrigen() != null ? this.origen.getDescripcion() : "";
+    }
 }

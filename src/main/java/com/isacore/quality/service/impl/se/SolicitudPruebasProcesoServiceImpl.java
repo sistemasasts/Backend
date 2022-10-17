@@ -23,6 +23,7 @@ import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -58,6 +59,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     private ServicioNotificacionSolicitudPP servicioNotificacion;
     private IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
     private IGeneradorJasperReports reporteServicio;
+    private ModelMapper modelMapper;
 
     @Autowired
     public SolicitudPruebasProcesoServiceImpl(
@@ -67,7 +69,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             ISolicitudPruebaProcesoResponsableRepo responsableRepo,
             ServicioNotificacionSolicitudPP servicioNotificacion,
             IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo,
-            IGeneradorJasperReports reporteServicio) {
+            IGeneradorJasperReports reporteServicio,
+            ModelMapper modelMapper) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -78,6 +81,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         this.servicioNotificacion = servicioNotificacion;
         this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
         this.reporteServicio = reporteServicio;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -569,7 +573,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SolicitudPPDTO> consultar(Pageable pageable, ConsultaSolicitudDTO dto) {
+    public Page<SolicitudPPDTO> consultar(Pageable pageable, ConsultaSolicitudPPDTO dto) {
         try {
 
             List<SolicitudPPDTO> respuesta = new ArrayList<>();
@@ -629,7 +633,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                 aprobador == null ? "": aprobador.getEmployee().getCompleteName());
     }
 
-    private List<SolicitudPPDTO> obtenerSolicitudesPruebasProceso(ConsultaSolicitudDTO consulta) {
+    private List<SolicitudPPDTO> obtenerSolicitudesPruebasProceso(ConsultaSolicitudPPDTO consulta) {
         try {
             final CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
             final CriteriaQuery<SolicitudPruebasProceso> query = criteriaBuilder.createQuery(SolicitudPruebasProceso.class);
@@ -637,10 +641,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             final Root<SolicitudPruebasProceso> root = query.from(SolicitudPruebasProceso.class);
             final List<Predicate> predicadosConsulta = new ArrayList<>();
 
-            if (consulta.getEstado() != null) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("estado"), EstadoSolicitud.valueOf(consulta.getEstado().toString())));
-            }
-
+            if (consulta.getEstados() != null && !consulta.getEstados().isEmpty())
+                predicadosConsulta.add(criteriaBuilder.in(root.get("estado")).value(consulta.getEstados()));
 
             if (noEsNuloNiBlanco(consulta.getCodigo())) {
                 predicadosConsulta.add(criteriaBuilder.like(root.get("codigo"), "%" + consulta.getCodigo() + "%"));
@@ -650,14 +652,13 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("nombreSolicitante"), consulta.getNombreSolicitante()));
             }
 
-            if (noEsNuloNiBlanco(consulta.getUsuarioGestion())) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioGestion"), consulta.getUsuarioGestion()));
+            if (noEsNuloNiBlanco(consulta.getUsuarioGestionCalidad())) {
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioGestionCalidad"), consulta.getUsuarioGestionCalidad()));
             }
 
             if (noEsNuloNiBlanco(consulta.getUsuarioAprobador())) {
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioAprobador"), consulta.getUsuarioAprobador()));
             }
-
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
                 predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
@@ -679,21 +680,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             final List<SolicitudPruebasProceso> cotizacionesResult = statement.getResultList();
 
             return cotizacionesResult.stream().map(c -> {
-                return new SolicitudPPDTO(
-                        c.getId(),
-                        c.getCodigo(),
-                        c.getFechaCreacion(),
-                        c.getFechaAprobacion(),
-                        c.getNombreSolicitante(),
-                        c.getUsuarioGestion(),
-                        c.getUsuarioAprobador(),
-                        c.getEstado(),
-                        "",
-                        0,
-                        c.getFechaEntrega(),
-                        c.getMaterialLineaProceso(),
-                        null
-                );
+                return modelMapper.map(c, SolicitudPPDTO.class);
             }).collect(Collectors.toList());
 
         } catch (Exception e) {

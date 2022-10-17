@@ -1,14 +1,20 @@
 package com.isacore.quality.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.isacore.quality.model.Area;
 import com.isacore.quality.model.se.ConsultaSolicitudDTO;
+import com.isacore.quality.model.se.EstadoSolicitud;
+import com.isacore.quality.model.se.SolicitudDTO;
 import com.isacore.quality.model.spp.*;
 import com.isacore.quality.service.IAreasService;
 import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -184,16 +190,18 @@ public class SolicitudPruebasProcesoControlador {
 		return new ResponseEntity<SolicitudPruebasProceso>(solicitud, HttpStatus.OK);
 	}
 
-//	@PostMapping("/regresarInformeSolicitud")
-//	public ResponseEntity<Object> regresarInformeSolicitud(@RequestBody SolicitudPruebasProceso obj) {
-//		boolean respuesta = servicio.regresarSolicitud(obj);
-//		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
-//	}
-	
-//	@PostMapping("/rechazarSolicitud")
-//	public ResponseEntity<Object> rechazarSolicitud(@RequestBody SolicitudPruebasProceso obj) {
-//		boolean respuesta = servicio.rechazarSolicitud(obj);
-//		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
-//	}
+	@PostMapping("/consulta")
+	public ResponseEntity<Page<SolicitudPPDTO>> consultar(final Pageable page, @RequestBody final ConsultaSolicitudPPDTO consulta) {
+		final Page<SolicitudPPDTO> resultadoConsulta = this.servicio.consultar(page, consulta);
+		return ResponseEntity.ok(resultadoConsulta);
+	}
+
+	@GetMapping("/estados")
+	public ResponseEntity<List<CatalogDTO>> listarEstados() {
+		final List<CatalogDTO> lista = Arrays.asList(EstadoSolicitudPP.values()).parallelStream().map(x -> {
+			return new CatalogDTO(x.getDescripcion(), x.toString());
+		}).collect(Collectors.toList());
+		return ResponseEntity.ok(lista);
+	}
 	
 }
