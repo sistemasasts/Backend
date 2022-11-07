@@ -4,6 +4,7 @@ import com.isacore.quality.model.Area;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class ReporteSolicitudPPDTO implements Serializable {
     private final String[] OpcionesMaterialDesc = {"Materia Prima", "Láminas Impermeabilizantes", "Prod. en Proceso", "Prod. Terminado",
             "Suministros", "Accesorios", "Prod. Viales", "Rev. Líquidos", "Pinturas", "Prod. Metálicos", "Paneles PUR"};
 
+    private String codigo;
     private LocalDateTime fechaCreacion;
     private LocalDate fechaEntrega;
     private String lineaAplicacion;
@@ -35,10 +37,14 @@ public class ReporteSolicitudPPDTO implements Serializable {
     private LocalDate fechaAprobacion;
     private String observacion;
     private String imagen1Ruta;
+    private BigDecimal cantidadRequeridaProducir = BigDecimal.ZERO;
+    private String unidadRequeridaProducir;
     private List<String> motivosSeleccionados = new ArrayList<>();
     private List<String> materialesSeleccionados = new ArrayList<>();
+    private List<MaterialFormula> materialesFormula = new ArrayList<>();
 
     public ReporteSolicitudPPDTO(SolicitudPruebasProceso solicitud, String nombreSolicitante, String usuarioAprobador) {
+        this.codigo = solicitud.getCodigo();
         this.fechaCreacion = solicitud.getFechaCreacion();
         this.fechaEntrega = solicitud.getFechaEntrega();
         this.lineaAplicacion = solicitud.getLineaAplicacion();
@@ -56,6 +62,9 @@ public class ReporteSolicitudPPDTO implements Serializable {
         this.fechaAprobacion = solicitud.getFechaSolicitudValidada();
         this.observacion = solicitud.getObservacion();
         this.imagen1Ruta = solicitud.getImagen1Ruta();
+        this.materialesFormula = solicitud.getMaterialesFormula();
+        this.cantidadRequeridaProducir = solicitud.getCantidadRequeridaProducir();
+        this.unidadRequeridaProducir = solicitud.getUnidadRequeridaProducir();
         this.motivosParaImprimir();
         this.materialesParaImprimir();
     }

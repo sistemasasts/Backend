@@ -13,11 +13,9 @@ import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.*;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
-import com.isacore.quality.repository.spp.IConfiguracionFlujoPuebaProcesoRepo;
-import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoHistorialRepo;
-import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoResponsableRepo;
-import com.isacore.quality.repository.spp.ISolicitudPruebasProcesoRepo;
+import com.isacore.quality.repository.spp.*;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
+import com.isacore.quality.service.spp.ISolicitudPPInformeService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
@@ -59,6 +57,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     private ServicioNotificacionSolicitudPP servicioNotificacion;
     private IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
     private IGeneradorJasperReports reporteServicio;
+    private IMaterialFormulaRepo materialFormulaRepo;
+    private ISolicitudPPInformeService informeServicio;
     private ModelMapper modelMapper;
 
     @Autowired
@@ -70,6 +70,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             ServicioNotificacionSolicitudPP servicioNotificacion,
             IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo,
             IGeneradorJasperReports reporteServicio,
+            IMaterialFormulaRepo materialFormulaRepo,
+            ISolicitudPPInformeService informeServicio,
             ModelMapper modelMapper) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
@@ -81,6 +83,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         this.servicioNotificacion = servicioNotificacion;
         this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
         this.reporteServicio = reporteServicio;
+        this.materialFormulaRepo = materialFormulaRepo;
+        this.informeServicio = informeServicio;
         this.modelMapper = modelMapper;
     }
 
@@ -108,7 +112,9 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                 nombreUsuarioEnSesion(),
                 obj.getArea(),
                 obj.getOrigen(),
-                obj.isRequiereInforme());
+                obj.isRequiereInforme(),
+                obj.getCantidadRequeridaProducir(),
+                obj.getUnidadRequeridaProducir());
 
         LOG.info(String.format("Solicitud Prueba en proceso a guardar %s", nuevo));
         return repo.save(nuevo);
@@ -481,6 +487,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         solicitud.marcarSolicitudComoAsignadaPlanta(dto.getUsuarioAsignado(), dto.getFechaPrueba());
         LOG.info(String.format("Solicitud %s asignada a responsable planta %s", solicitud.getCodigo(), solicitud.getUsuarioGestionPlanta()));
         this.marcarComoPruebaRealizada(solicitud);
+        this.informeServicio.registrar(solicitud);
     }
 
     private void asignarResponsableCalidad(SolicitudPruebasProceso dto) {
@@ -614,14 +621,44 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     @Transactional
     @Override
     public SolicitudPruebasProceso crearSolicitudParaRepetirPrueba(long solicitudId) {
-        SolicitudPruebasProceso solicitud = this.repo.findById(solicitudId).orElse(null);
-        if(solicitud == null)
-            throw new SolicitudPruebaProcesoErrorException("Solicitud no encontrada");
+        SolicitudPruebasProceso solicitud = this.obtenerSolicitud(solicitudId);
         this.validarUnicaPruebaRepetidaEnCurso(solicitudId);
         SolicitudPruebasProceso solicitudNueva = this.create(solicitud);
         solicitudNueva.setSolicitudPadreId(solicitud.getId());
         LOG.info(String.format("Solicitud creada para repetir prueba -> solicitud origen %s :: solicitud nueva %s", solicitud.getCodigo(), solicitudNueva));
         return solicitudNueva;
+    }
+
+    @Transactional
+    @Override
+    public SolicitudPruebasProceso agregarMaterialFormula(long solicitudId, MaterialFormula materialFormula) {
+        SolicitudPruebasProceso solicitud = this.obtenerSolicitud(solicitudId);
+        MaterialFormula material = new MaterialFormula(materialFormula.getNombre(),solicitud.getCantidadRequeridaProducir(),
+                materialFormula.getPorcentaje(), solicitud.getUnidadRequeridaProducir());
+        solicitud.agregarMaterialFormula(material);
+        LOG.info(String.format("Material Formula agregado %s", material));
+        return solicitud;
+    }
+
+    @Transactional
+    @Override
+    public SolicitudPruebasProceso editarMaterialFormula(long solicitudId, MaterialFormula materialFormula) {
+        SolicitudPruebasProceso solicitud = this.obtenerSolicitud(solicitudId);
+        Optional<MaterialFormula> material = solicitud.getMaterialesFormula().stream().filter(x -> x.getId().compareTo(materialFormula.getId()) == 0).findFirst();
+        if(!material.isPresent())
+            throw new SolicitudPruebaProcesoErrorException(String.format("Materila Formula no encontrada para editar"));
+        material.get().cambiarNombreYPorcentaje(materialFormula.getNombre(), solicitud.getCantidadRequeridaProducir(), materialFormula.getPorcentaje());
+        LOG.info(String.format("Material Formula modificado %s", material.get()));
+        return solicitud;
+    }
+
+    @Transactional
+    @Override
+    public SolicitudPruebasProceso eliminarMaterialFormula(long solicitudId, long materialFormulaId) {
+        SolicitudPruebasProceso solicitud = this.obtenerSolicitud(solicitudId);
+        solicitud.eliminarMaterialFormula(materialFormulaId);
+        LOG.info(String.format("Material Formula eliminado %s", materialFormulaId));
+        return solicitud;
     }
 
     private ReporteSolicitudPPDTO crearReporteDTO(SolicitudPruebasProceso solicitud){
@@ -658,6 +695,10 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
             if (noEsNuloNiBlanco(consulta.getUsuarioAprobador())) {
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioAprobador"), consulta.getUsuarioAprobador()));
+            }
+
+            if(consulta.getTipoAprobacion() != null){
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("tipoAprobacion"), consulta.getTipoAprobacion()));
             }
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {

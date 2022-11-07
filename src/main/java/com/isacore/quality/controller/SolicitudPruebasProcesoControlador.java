@@ -203,5 +203,23 @@ public class SolicitudPruebasProcesoControlador {
 		}).collect(Collectors.toList());
 		return ResponseEntity.ok(lista);
 	}
+
+	@PostMapping("/agregarMaterialFormula/{solicitudId}")
+	public ResponseEntity<SolicitudPruebasProceso> agregarMaterialFormula(@PathVariable("solicitudId") long solicitudId, @RequestBody MaterialFormula materialFormula) {
+		SolicitudPruebasProceso resultadoConsulta = this.servicio.agregarMaterialFormula(solicitudId, materialFormula);
+		return ResponseEntity.ok(resultadoConsulta);
+	}
+
+	@PostMapping("/editarMaterialFormula/{solicitudId}")
+	public ResponseEntity<SolicitudPruebasProceso> editarMaterialFormula(@PathVariable("solicitudId") long solicitudId, @RequestBody MaterialFormula materialFormula) {
+		SolicitudPruebasProceso resultadoConsulta = this.servicio.editarMaterialFormula(solicitudId, materialFormula);
+		return ResponseEntity.ok(resultadoConsulta);
+	}
+
+	@GetMapping("/eliminarMaterialFormula/{solicitudId}/{materialFormulaId}")
+	public ResponseEntity<SolicitudPruebasProceso> eliminarMaterialFormula(@PathVariable("solicitudId") long solicitudId, @PathVariable("materialFormulaId") long materialFormulaId) {
+		SolicitudPruebasProceso resultadoConsulta = this.servicio.eliminarMaterialFormula(solicitudId, materialFormulaId);
+		return ResponseEntity.ok(resultadoConsulta);
+	}
 	
 }

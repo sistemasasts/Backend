@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -94,24 +95,12 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private LocalDate fechaSolicitudValidada;
     private Long solicitudPadreId;
 
-    @Column(columnDefinition = "varchar(max)")
-    private String observacionMantenimiento;
-    @Column(columnDefinition = "varchar(max)")
-    private String observacionCalidad;
-    @Column(columnDefinition = "varchar(max)")
-    private String observacionProduccion;
+    private BigDecimal cantidadRequeridaProducir = BigDecimal.ZERO;
+    private String unidadRequeridaProducir;
 
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "solicitud_pruebas_proceso_id")
-    private List<MaterialUtilizado> materiales;
-
-    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "solicitud_pruebas_proceso_id")
-    private List<CondicionOperacion> condicionesOperacion;
-
-    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "solicitud_pruebas_proceso_id")
-    private List<Mermas> mermas;
+    private List<MaterialFormula> materialesFormula;
 
     @Transient
     private String observacionFlujo;
@@ -129,7 +118,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
             String codigo, LocalDate fechaEntrega, String lineaAplicacion, String motivo, String motivoOtro,
             String materialLineaProceso, String materialLineaProOtro, String descripcionProducto,
             String variablesProceso, String verificacionAdicional, String observacion, String nombreSolicitante, Area area,
-            OrigenSolicitudPP origen, boolean requiereInforme) {
+            OrigenSolicitudPP origen, boolean requiereInforme, BigDecimal cantidadRequeridaProducir, String unidadRequeridaProducir) {
         super(codigo, nombreSolicitante);
         this.fechaEntrega = fechaEntrega;
         this.lineaAplicacion = lineaAplicacion;
@@ -145,6 +134,8 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.origen = origen;
         this.requiereInforme = requiereInforme;
         this.estado = EstadoSolicitudPP.NUEVO;
+        this.cantidadRequeridaProducir = cantidadRequeridaProducir;
+        this.unidadRequeridaProducir = unidadRequeridaProducir;
     }
 
     public void marcarSolicitudComoEnviada(String usuarioAsignado) {
@@ -261,5 +252,13 @@ public class SolicitudPruebasProceso extends SolicitudBase {
             return this.tipoAprobacion.equals(TipoAprobacionPP.REPETIR_PRUEBA);
         }
         return false;
+    }
+
+    public void agregarMaterialFormula(MaterialFormula material){
+        this.materialesFormula.add(material);
+    }
+
+    public void eliminarMaterialFormula(long materialId){
+        this.materialesFormula.removeIf(x -> x.getId() == materialId);
     }
 }

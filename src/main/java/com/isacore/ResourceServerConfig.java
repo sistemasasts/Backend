@@ -13,14 +13,14 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfig  extends ResourceServerConfigurerAdapter {
-	
+
 	@Autowired
     private ResourceServerTokenServices tokenServices;
-	
-	
+
+
     @Value("${security.jwt.resource-ids}")
     private String resourceIds;
-    
+
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
         resources.resourceId(resourceIds).tokenServices(tokenServices);
@@ -57,11 +57,12 @@ public class ResourceServerConfig  extends ResourceServerConfigurerAdapter {
                 .antMatchers("/solicitudesEnsayo/**" ).authenticated()
                 .antMatchers("/solicitudHistorial/**" ).authenticated()
                 .antMatchers("/solicitudesPruebasProceso/**" ).authenticated()
-                        .antMatchers("/notificacionesCorreo/**" ).permitAll()
+                .antMatchers("/solicitudPPInforme/**" ).authenticated()
+                .antMatchers("/notificacionesCorreo/**" ).permitAll()
                 .antMatchers("/tokens/**" ).permitAll();
-         
-                
-    }    
+
+
+    }
 
 
 }
