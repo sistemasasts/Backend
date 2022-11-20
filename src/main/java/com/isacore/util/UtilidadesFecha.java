@@ -19,7 +19,7 @@ public class UtilidadesFecha {
 
 		return fecha.format(formatter);
 	}
-	
+
 	public final static LocalDateTime stringToLocalDateTime(String fecha, String formato) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formato);
 		return LocalDateTime.parse(fecha, formatter);
