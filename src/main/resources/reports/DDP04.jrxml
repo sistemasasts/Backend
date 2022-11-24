@@ -308,7 +308,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 		</band>
 	</title>
 	<detail>
-		<band height="262" splitType="Stretch">
+		<band height="231" splitType="Stretch">
 			<rectangle>
 				<reportElement mode="Transparent" x="300" y="90" width="254" height="129" uuid="1e0425e5-618a-4142-a19d-e07b8a40ec3c"/>
 			</rectangle>
@@ -382,58 +382,11 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{motivoOtro}== null?"    Otro":"x   Otro :"+$F{motivoOtro}]]></textFieldExpression>
 			</textField>
-			<staticText>
-				<reportElement x="7" y="238" width="170" height="16" uuid="c219bb21-02de-4901-92b4-bb64fd7c84ac">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<box>
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="9" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Cantidad Requerida Para Producir]]></text>
-			</staticText>
-			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="177" y="238" width="120" height="16" uuid="2604e8f9-272a-46d6-b987-8c38a73b6cb5">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<box>
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{cantidadRequeridaProducir}]]></textFieldExpression>
-			</textField>
-			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="297" y="238" width="100" height="16" uuid="2487f9a9-c329-44f3-ad4a-1e01b934fa2c">
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<box>
-					<topPen lineWidth="1.0"/>
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{unidadRequeridaProducir}]]></textFieldExpression>
-			</textField>
-			<rectangle>
-				<reportElement mode="Transparent" x="0" y="231" width="554" height="29" uuid="775c90ba-5ffc-4287-8155-25cd27381adc"/>
-			</rectangle>
 		</band>
-		<band height="55">
+		<band height="86">
+			<printWhenExpression><![CDATA[$F{nombreArea}.startsWith( "I+D")]]></printWhenExpression>
 			<componentElement>
-				<reportElement mode="Transparent" x="0" y="-2" width="554" height="57" uuid="b3477756-ea9a-4a10-9266-f54a5f947da3">
+				<reportElement mode="Transparent" x="0" y="29" width="554" height="57" uuid="b3477756-ea9a-4a10-9266-f54a5f947da3">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
@@ -566,6 +519,57 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 					</jr:column>
 				</jr:table>
 			</componentElement>
+			<staticText>
+				<reportElement x="10" y="7" width="170" height="16" uuid="aa6f7967-0d08-41e4-b7cf-b226be088e70">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cantidad Requerida Para Producir]]></text>
+			</staticText>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="180" y="7" width="120" height="16" uuid="55d75056-3e21-4a8f-a3bf-3471c88f0247">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cantidadRequeridaProducir}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="300" y="7" width="100" height="16" uuid="68cfc98e-fba0-422c-bc13-885f5426cf72">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unidadRequeridaProducir}]]></textFieldExpression>
+			</textField>
+			<rectangle>
+				<reportElement mode="Transparent" x="0" y="0" width="554" height="29" uuid="24e8ddb1-0523-4064-91dd-1078d11c0b32"/>
+				<graphicElement>
+					<pen lineWidth="1.0"/>
+				</graphicElement>
+			</rectangle>
 		</band>
 		<band height="122">
 			<staticText>
