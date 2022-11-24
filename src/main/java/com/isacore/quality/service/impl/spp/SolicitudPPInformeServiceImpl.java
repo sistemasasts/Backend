@@ -13,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +37,7 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         Optional<SolicitudPruebaProcesoInforme> informeExistente = this.informeRepo.findBySolicitudPruebasProceso_Id(solicitud.getId());
         if (!informeExistente.isPresent()) {
             SolicitudPruebaProcesoInforme informe = new SolicitudPruebaProcesoInforme(solicitud);
+            this.cargarCondicionesOperacionPorDefecto(informe);
             this.informeRepo.save(informe);
 
             LOG.info(String.format("Solicitud prueba proceso %s => informe creado %s", solicitud.getCodigo(), informe));
@@ -63,6 +62,10 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         informe.setCantidadDesperdicio(solicitudPruebaProcesoInforme.getCantidadDesperdicio());
         informe.setCantidadProductoPrueba(solicitudPruebaProcesoInforme.getCantidadProductoPrueba());
         informe.setObservacionProduccion(solicitudPruebaProcesoInforme.getObservacionProduccion());
+        informe.setUnidadProductoTerminado(solicitudPruebaProcesoInforme.getUnidadProductoTerminado());
+        informe.setUnidadProductoNoConforme(solicitudPruebaProcesoInforme.getUnidadProductoNoConforme());
+        informe.setUnidadDesperdicio(solicitudPruebaProcesoInforme.getUnidadDesperdicio());
+        informe.setUnidadProductoPrueba(solicitudPruebaProcesoInforme.getUnidadProductoPrueba());
         return informe;
     }
 
@@ -217,5 +220,18 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         if (!condicionOperacionRecargada.isPresent())
             throw new SolicitudPruebaProcesoErrorException("Condición operación no encontrada");
         return condicionOperacionRecargada.get();
+    }
+
+    private void cargarCondicionesOperacionPorDefecto(SolicitudPruebaProcesoInforme informe){
+        List<CondicionOperacion> condiciones = new ArrayList<>();
+        condiciones.add(new CondicionOperacion("Polimerización", "N/A", CondicionOperacionTipo.PRODUCCION));
+        condiciones.add(new CondicionOperacion("Laminación", "N/A", CondicionOperacionTipo.PRODUCCION));
+        condiciones.add(new CondicionOperacion("Mezcla", "N/A", CondicionOperacionTipo.PRODUCCION));
+        condiciones.forEach(x -> {
+            x.agregarCondicion(new Condicion(null,"Temperatura", BigDecimal.ZERO,"°C"));
+            x.agregarCondicion(new Condicion(null,"Tiempo", BigDecimal.ZERO,"min"));
+            x.agregarCondicion(new Condicion(null,"Velocidad", BigDecimal.ZERO,"rpm"));
+            informe.agregarCondicionOperacion(x);
+        });
     }
 }

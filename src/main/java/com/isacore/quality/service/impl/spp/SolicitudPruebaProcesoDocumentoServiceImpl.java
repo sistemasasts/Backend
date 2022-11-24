@@ -150,7 +150,7 @@ public class SolicitudPruebaProcesoDocumentoServiceImpl implements ISolicitudPru
 
     @Override
     public List<SolicitudPruebaProcesoDocumento> buscarPorEstadoYOrdenYSolicitudId(EstadoSolicitudPP estado, OrdenFlujoPP orden, long solicitudId) {
-        return repo.findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(Arrays.asList(EstadoSolicitudPP.NUEVO, estado),
+        return repo.findByEstadoInAndOrdenFlujoInAndSolicitudPruebasProceso_Id(Arrays.asList(EstadoSolicitudPP.NUEVO,EstadoSolicitudPP.REGRESADO_NOVEDAD_FORMA, estado),
                 Arrays.asList(OrdenFlujoPP.INGRESO_SOLICITUD, orden), solicitudId);
     }
 

@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.Area;
 import com.isacore.quality.model.se.SolicitudBase;
-import com.isacore.util.LocalDateDeserializeIsa;
-import com.isacore.util.LocalDateSerializeIsa;
-import com.isacore.util.UtilidadesFecha;
+import com.isacore.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -18,7 +16,6 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 @Data
@@ -82,7 +79,9 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private String usuarioGestionCalidad;
     private String usuarioGestionMantenimientoJefe;
     private String usuarioGestionMantenimiento;
-    private LocalDate fechaPrueba;
+    @JsonSerialize(using = LocalDateTimeSerializeIsa.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializeIsa.class)
+    private LocalDateTime fechaPrueba;
     @Column(columnDefinition = "bit default 0")
     private boolean pruebaRealizada;
     private LocalDateTime fechaNotificacionPruebaRealizada;
@@ -101,6 +100,8 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "solicitud_pruebas_proceso_id")
     private List<MaterialFormula> materialesFormula;
+    private LocalDate fechaLimiteValidarSolicitud;
+    private int tiempoValidarSolicitud;
 
     @Transient
     private String observacionFlujo;
@@ -138,9 +139,11 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.unidadRequeridaProducir = unidadRequeridaProducir;
     }
 
-    public void marcarSolicitudComoEnviada(String usuarioAsignado) {
+    public void marcarSolicitudComoEnviada(String usuarioAsignado, int diasPlazoValidarSolicitud) {
         setEstado(EstadoSolicitudPP.ENVIADO_REVISION);
         setUsuarioValidador(usuarioAsignado);
+        setTiempoValidarSolicitud(diasPlazoValidarSolicitud);
+        setFechaLimiteValidarSolicitud(calcularFechaLimiteDiasLaborables(diasPlazoValidarSolicitud));
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado) {
@@ -149,7 +152,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         setFechaSolicitudValidada(LocalDate.now());
     }
 
-    public void marcarSolicitudComoAsignadaPlanta(String usuarioAsignado, LocalDate fechaPruebas) {
+    public void marcarSolicitudComoAsignadaPlanta(String usuarioAsignado, LocalDateTime fechaPruebas) {
         //setEstado(EstadoSolicitudPP.EN_PROCESO_PRODUCCION);
         setUsuarioGestionPlanta(usuarioAsignado);
         setFechaPrueba(fechaPruebas);
@@ -195,7 +198,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         setPruebaRealizada(true);
         setFechaNotificacionPruebaRealizada(LocalDateTime.now());
         setTiempoRespuesta(diasPlazo);
-        calcularFechaEntregaInforme(diasPlazo);
+        setFechaEntregaInforme(calcularFechaLimiteDiasLaborables(diasPlazo));
     }
 
     public void marcarAjustesMaquinariaFacible(boolean esFactible) {
@@ -226,7 +229,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         return getTipoAprobacion() != null ? isAprobado() ? "SI" : "NO" : "";
     }
 
-    private void calcularFechaEntregaInforme(int dias) {
+    private LocalDate calcularFechaLimiteDiasLaborables(int dias) {
         LocalDate result = LocalDate.now();
         int agregarDias = 0;
         while (agregarDias < dias) {
@@ -235,13 +238,20 @@ public class SolicitudPruebasProceso extends SolicitudBase {
                 ++agregarDias;
             }
         }
-        setFechaEntregaInforme(result);
+        return result;
     }
 
     public int getVigencia() {
         if(fechaEntregaInforme == null)
             return 0;
         Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaEntregaInforme.atStartOfDay());
+        return (int) diff.toDays();
+    }
+
+    public int getVigenciaValidarSolicitud() {
+        if(fechaLimiteValidarSolicitud == null)
+            return 0;
+        Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimiteValidarSolicitud.atStartOfDay());
         return (int) diff.toDays();
     }
 

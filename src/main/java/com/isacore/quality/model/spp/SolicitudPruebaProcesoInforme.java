@@ -25,7 +25,7 @@ public class SolicitudPruebaProcesoInforme {
     @ManyToOne(fetch = FetchType.EAGER)
     private SolicitudPruebasProceso solicitudPruebasProceso;
 
-    private LocalDate fechaPrueba;
+    private LocalDateTime fechaPrueba;
     private BigDecimal cantidadProducida;
     private String lote;
     private String producto;
@@ -37,6 +37,11 @@ public class SolicitudPruebaProcesoInforme {
     private BigDecimal cantidadProductoNoConforme;
     private BigDecimal cantidadDesperdicio;
     private BigDecimal cantidadProductoPrueba;
+
+    private String unidadProductoTerminado;
+    private String unidadProductoNoConforme;
+    private String unidadDesperdicio;
+    private String unidadProductoPrueba;
 
     @Column(columnDefinition = "varchar(max)")
     private String conclucion;

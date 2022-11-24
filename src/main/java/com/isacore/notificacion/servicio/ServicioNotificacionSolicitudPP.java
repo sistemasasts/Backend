@@ -56,7 +56,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         enviarHtml(destinos, asunto, "emailPruebaEjecutada", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("usuarioResponsable", usuarioPlantaResponsable.getEmployee().getCompleteName());
-            context.setVariable("fechaPrueba", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "dd-MM-yyyy"));
+            context.setVariable("fechaPrueba", UtilidadesFecha.formatear(solicitud.getFechaPrueba(), "dd-MM-yyyy hh:mm"));
             context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaEntregaInforme(), "dd-MM-yyyy"));
         });
     }
@@ -80,8 +80,8 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("observacion", observacion);
             context.setVariable("usuarioResponsable", usuarioPlantaResponsable.getEmployee().getCompleteName());
-            context.setVariable("fechaPrueba", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "dd-MM-yyyy"));
-            context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaPrueba(), "dd-MM-yyyy"));
+            context.setVariable("fechaPrueba", UtilidadesFecha.formatear(solicitud.getFechaPrueba(), "dd-MM-yyyy hh:mm"));
+            context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaEntregaInforme(), "dd-MM-yyyy"));
         });
     }
 

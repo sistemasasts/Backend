@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,7 +27,7 @@ public class CondicionOperacion {
 
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "condicion_operacion_id")
-    private List<Condicion> condiciones;
+    private List<Condicion> condiciones = new ArrayList<>();
 
     public CondicionOperacion(String proceso, String observacion, CondicionOperacionTipo tipo) {
         this.proceso = proceso;

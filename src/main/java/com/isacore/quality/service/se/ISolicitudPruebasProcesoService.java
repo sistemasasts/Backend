@@ -11,25 +11,25 @@ import java.util.List;
 public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasProceso> {
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioSolicitante();
-	
+
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioEnGestion();
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorAsignarResponsable(OrdenFlujoPP orden);
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorReasignarResponsable(OrdenFlujoPP orden);
-	
+
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioValidador();
-	
+
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorUsuarioAprobador();
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorProcesar(OrdenFlujoPP orden);
 
 	List<SolicitudPruebasProceso> obtenerSolicitudesPorAprobar(OrdenFlujoPP orden);
-	
+
 	SolicitudPruebasProceso buscarPorId(long id);
-	
+
 	boolean enviarSolicitud(SolicitudPruebasProceso solicitud);
-	
+
 	boolean validarSolicitud(SolicitudPruebasProceso solicitud);
 
 	boolean asignarResponsable(SolicitudPruebasProceso dto);
@@ -43,12 +43,12 @@ public interface ISolicitudPruebasProcesoService extends CRUD<SolicitudPruebasPr
 	void procesar(SolicitudPruebasProceso solicitud);
 
 	void procesarAprobacion(AprobarSolicitudDTO dto);
-	
-//	boolean regresarSolicitud(SolicitudPruebasProceso solicitud);
-	
+
+	boolean regresarSolicitudNovedadForma(SolicitudPruebasProceso solicitud);
+
 	boolean anularSolicitud(SolicitudPruebasProceso solicitud);
-	
-//	boolean rechazarSolicitud(SolicitudPruebasProceso solicitud);
+
+	boolean rechazarSolicitud(SolicitudPruebasProceso solicitud);
 
 	Page<SolicitudPPDTO> consultar(Pageable pageabe, ConsultaSolicitudPPDTO dto);
 

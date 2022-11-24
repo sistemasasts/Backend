@@ -37,50 +37,50 @@ public class SolicitudPruebasProcesoControlador {
 
 	@Autowired
 	private IAreasService servicioArea;
-	
+
 	@GetMapping("/nombreSolicitante")
 	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudesPorNombreSolicitante() {
 		List<SolicitudPruebasProceso> solicitudes = servicio.obtenerSolicitudesPorUsuarioSolicitante();
 		return ResponseEntity.ok(solicitudes);
 	}
-	
+
 	@GetMapping("/usuarioGestion")
 	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudesPorUsuarioGestion() {
 		List<SolicitudPruebasProceso> solicitudes = servicio.obtenerSolicitudesPorUsuarioEnGestion();
 		return ResponseEntity.ok(solicitudes);
 	}
-	
+
 	@GetMapping("/usuarioValidador")
 	public ResponseEntity<List<SolicitudPruebasProceso>> listarSolicitudesPorUsuarioValidador() {
 		List<SolicitudPruebasProceso> solicitudes = servicio.obtenerSolicitudesPorUsuarioValidador();
 		return ResponseEntity.ok(solicitudes);
 	}
-	
+
 	@GetMapping("/{id}")
 	public ResponseEntity<SolicitudPruebasProceso> buscarSolicitud(@PathVariable("id") Long id) {
 		SolicitudPruebasProceso solicitudes = servicio.buscarPorId(id);
 		return ResponseEntity.ok(solicitudes);
 	}
-	
+
 	@PostMapping
 	public ResponseEntity<SolicitudPruebasProceso> crear(@RequestBody SolicitudPruebasProceso obj) {
 		SolicitudPruebasProceso solicitud = servicio.create(obj);
 		return new ResponseEntity<SolicitudPruebasProceso>(solicitud, HttpStatus.CREATED);
 	}
-	
+
 	@PutMapping
 	public ResponseEntity<SolicitudPruebasProceso> actualizar(@RequestBody SolicitudPruebasProceso obj) {
 		SolicitudPruebasProceso solicitud = servicio.update(obj);
 		return new ResponseEntity<SolicitudPruebasProceso>(solicitud, HttpStatus.OK);
 	}
-	
-	
+
+
 	@PostMapping("/enviarSolicitud")
 	public ResponseEntity<Object> enviarSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 		boolean respuesta = servicio.enviarSolicitud(obj);
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
-	
+
 	@PostMapping("/validarSolicitud")
 	public ResponseEntity<Object> validarSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 		boolean respuesta = servicio.validarSolicitud(obj);
@@ -128,7 +128,7 @@ public class SolicitudPruebasProcesoControlador {
 		boolean respuesta = servicio.marcarComoPruebaNoRealizadaDefinitiva(obj);
 		return ResponseEntity.ok(respuesta);
 	}
-	
+
 	@PostMapping("/procesar")
 	public ResponseEntity<Object> responderSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 		servicio.procesar(obj);
@@ -146,12 +146,24 @@ public class SolicitudPruebasProcesoControlador {
 		List<SolicitudPruebasProceso> respuesta = servicio.obtenerSolicitudesPorAprobar(orden);
 		return ResponseEntity.ok(respuesta);
 	}
-	
+
 	@PostMapping("/anularSolicitud")
 	public ResponseEntity<Object> anularSolicitud(@RequestBody SolicitudPruebasProceso obj) {
 		boolean respuesta = servicio.anularSolicitud(obj);
 		return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
 	}
+
+    @PostMapping("/rechazarSolicitud")
+    public ResponseEntity<Object> rechazarSolicitud(@RequestBody SolicitudPruebasProceso obj) {
+        boolean respuesta = servicio.rechazarSolicitud(obj);
+        return ResponseEntity.ok(respuesta);
+    }
+
+    @PostMapping("/regresarSolicitudNovedadForma")
+    public ResponseEntity<Object> regresarSolicitudNovedadForma(@RequestBody SolicitudPruebasProceso obj) {
+        boolean respuesta = servicio.regresarSolicitudNovedadForma(obj);
+        return ResponseEntity.ok(respuesta);
+    }
 
 	@GetMapping("/areas")
 	public ResponseEntity<List<Area>> listarAreas() {
@@ -221,5 +233,5 @@ public class SolicitudPruebasProcesoControlador {
 		SolicitudPruebasProceso resultadoConsulta = this.servicio.eliminarMaterialFormula(solicitudId, materialFormulaId);
 		return ResponseEntity.ok(resultadoConsulta);
 	}
-	
+
 }
