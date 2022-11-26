@@ -1,6 +1,7 @@
 package com.isacore.sgc.acta.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,10 +18,12 @@ public interface IUserImptekRepo extends JpaRepository<UserImptek, String>{
 			+ "inner join area a on a.area_id=em.area_id"
 			+ " where ui.user_nickname = :user", nativeQuery = true)
 	List<Object[]> findUserByNickname(@Param("user") String user);
-	
+
 	@Query("select new com.isacore.sgc.acta.model.UserImptek(ui.idUser,ui.employee,ui.nickName,ui.userPass,ui.lastKeyDateChange,ui.lastAccess) from userImptek ui where ui.nickName = :user")
 	UserImptek findOnlyUserByNickname(@Param("user") String user);
-	
+
 	UserImptek findOneByNickName(String nickName);
-	
+
+	Optional<UserImptek> findByIdUser(String idUser);
+
 }

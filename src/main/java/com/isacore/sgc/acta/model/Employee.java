@@ -21,141 +21,155 @@ import com.isacore.quality.model.Area;
 @Entity(name = "employee")
 @Table(name = "EMPLOYEE")
 public class Employee {
-	
-	@Id
-	@Column(name = "EMP_CIEMPLOYEE", length = 20)
-	private String ciEmployee;
-	
-	@OneToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-	@JoinColumn(name = "KIN_IDKINDEMPLOYEE", nullable = false)
-	private KindEmployee kind;
-	
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "AREA_ID", nullable = false)
-	private Area area;
-	
-	@Column(name = "EMP_NAME", length = 64, nullable = false)
-	private String name;
-	
-	@Column(name = "EMP_LASTNAME", length = 64, nullable = false)
-	private String lastName;
-	
-	@Column(name = "EMP_EMAIL", length = 64)
-	private String email;
-	
-	@Column(name = "EMP_DATALIFE", length = 16)
-	private String codDataLife;
-	
-	@Column(name = "EMP_STATE")
-	private Boolean state;
-	
-	@Column(name = "EMP_JOB", nullable = true, length = 512)
-	private String job;
-	
-	@ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "participants")
-	private List<MeetingMinute> minutes;
-	
-	@JsonIgnore
-	@ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "responsible", fetch = FetchType.LAZY)
-	private List<ActionPlan> plans;
 
-	public String getCiEmployee() {
-		return ciEmployee;
-	}
+    @Id
+    @Column(name = "EMP_CIEMPLOYEE", length = 20)
+    private String ciEmployee;
 
-	public void setCiEmployee(String ciEmployee) {
-		this.ciEmployee = ciEmployee;
-	}
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "KIN_IDKINDEMPLOYEE", nullable = false)
+    private KindEmployee kind;
 
-	public String getName() {
-		return name;
-	}
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "AREA_ID", nullable = false)
+    private Area area;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Column(name = "EMP_NAME", length = 64, nullable = false)
+    private String name;
 
-	public String getLastName() {
-		return lastName;
-	}
+    @Column(name = "EMP_LASTNAME", length = 64, nullable = false)
+    private String lastName;
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    @Column(name = "EMP_EMAIL", length = 64)
+    private String email;
 
-	public String getEmail() {
-		return email;
-	}
+    @Column(name = "EMP_DATALIFE", length = 16)
+    private String codDataLife;
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    @Column(name = "EMP_STATE")
+    private Boolean state;
 
-	public String getCodDataLife() {
-		return codDataLife;
-	}
+    @Column(name = "EMP_JOB", nullable = true, length = 512)
+    private String job;
 
-	public void setCodDataLife(String codDataLife) {
-		this.codDataLife = codDataLife;
-	}
+    @ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "participants")
+    private List<MeetingMinute> minutes;
 
-	public Boolean getState() {
-		return state;
-	}
+    @JsonIgnore
+    @ManyToMany(cascade = {CascadeType.ALL}, mappedBy = "responsible", fetch = FetchType.LAZY)
+    private List<ActionPlan> plans;
 
-	public void setState(Boolean state) {
-		this.state = state;
-	}
+    public Employee() {
+    }
 
-	public List<MeetingMinute> findMinutes() {
-		return minutes;
-	}
+    public Employee(String ciEmployee, KindEmployee kind, Area area, String name, String lastName, String email, String job) {
+        this.ciEmployee = ciEmployee;
+        this.kind = kind;
+        this.area = area;
+        this.name = name;
+        this.lastName = lastName;
+        this.email = email;
+        this.job = job;
+        this.state = true;
+    }
 
-	public void setMinutes(List<MeetingMinute> minutes) {
-		this.minutes = minutes;
-	}
+    public String getCiEmployee() {
+        return ciEmployee;
+    }
 
-	public List<ActionPlan> getPlans() {
-		return plans;
-	}
+    public void setCiEmployee(String ciEmployee) {
+        this.ciEmployee = ciEmployee;
+    }
 
-	public void setPlans(List<ActionPlan> plans) {
-		this.plans = plans;
-	}
-	
-	
-	public String getJob() {
-		return job;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setJob(String job) {
-		this.job = job;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getCompleteName() {
-		StringBuilder sb = new StringBuilder().append(this.name).append(" ").append(this.lastName);		
-		StringTokenizer st = new StringTokenizer(sb.toString());
-		StringBuilder name = new StringBuilder();
-		while(st.hasMoreTokens()) {
-			name.append(StringUtils.capitalize(st.nextToken())).append(" ");
-		}		
-		return StringUtils.trim(name.toString());
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public KindEmployee getKind() {
-		return kind;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public void setKind(KindEmployee kind) {
-		this.kind = kind;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public Area getArea() {
-		return area;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setArea(Area area) {
-		this.area = area;
-	}
-	
+    public String getCodDataLife() {
+        return codDataLife;
+    }
+
+    public void setCodDataLife(String codDataLife) {
+        this.codDataLife = codDataLife;
+    }
+
+    public Boolean getState() {
+        return state;
+    }
+
+    public void setState(Boolean state) {
+        this.state = state;
+    }
+
+    public List<MeetingMinute> findMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(List<MeetingMinute> minutes) {
+        this.minutes = minutes;
+    }
+
+    public List<ActionPlan> getPlans() {
+        return plans;
+    }
+
+    public void setPlans(List<ActionPlan> plans) {
+        this.plans = plans;
+    }
+
+
+    public String getJob() {
+        return job;
+    }
+
+    public void setJob(String job) {
+        this.job = job;
+    }
+
+    public String getCompleteName() {
+        StringBuilder sb = new StringBuilder().append(this.name).append(" ").append(this.lastName);
+        StringTokenizer st = new StringTokenizer(sb.toString());
+        StringBuilder name = new StringBuilder();
+        while (st.hasMoreTokens()) {
+            name.append(StringUtils.capitalize(st.nextToken())).append(" ");
+        }
+        return StringUtils.trim(name.toString());
+    }
+
+    public KindEmployee getKind() {
+        return kind;
+    }
+
+    public void setKind(KindEmployee kind) {
+        this.kind = kind;
+    }
+
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+    }
+
 }
