@@ -23,34 +23,34 @@ import com.isacore.util.LocalDateTimeSerializeIsa;
 @Entity(name = "userImptek")
 @Table(name = "USERIMPTEK")
 public class UserImptek {
-	
+
 	@Id
 	@Column(name = "USER_IDUSER", nullable = false, length = 20)
 	private String idUser;
-	
+
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "EMP_CIEMPLOYEE", nullable = true)
 	private Employee employee;
-	
+
 	@Column(name = "USER_NICKNAME", nullable = false, length = 32)
 	private String nickName;
-	
+
 	@Column(name = "USER_PASS", nullable = false, length = 1024)
 	private String userPass;
-	
+
 	@Column(name = "USER_LASTKEYDATECHANGE", nullable = true)
 	@Convert(converter = LocalDateTimeConverter.class)
 	@JsonSerialize(using = LocalDateTimeSerializeIsa.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializeIsa.class)
 	private LocalDateTime lastKeyDateChange;
-	
+
 	@Column(name = "USER_LASTACCESS", nullable = false)
 	@Convert(converter = LocalDateTimeConverter.class)
 	@JsonSerialize(using = LocalDateTimeSerializeIsa.class)
 	@JsonDeserialize(using = LocalDateTimeDeserializeIsa.class)
 	private LocalDateTime lastAccess;
-	
-	@ManyToOne(cascade = {CascadeType.ALL})
+
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ROLE_NAME",insertable = true, updatable = true, nullable = true)
 	private Role role;
 
@@ -81,8 +81,16 @@ public class UserImptek {
 		this.role = role;
 	}
 
+    public UserImptek(String idUser, Employee employee, Role role) {
+        this.idUser = idUser;
+        this.nickName = idUser;
+        this.employee = employee;
+        this.role = role;
+        this.lastKeyDateChange = LocalDateTime.now();
+        this.lastAccess = LocalDateTime.now();
+    }
 
-	public String getIdUser() {
+    public String getIdUser() {
 		return idUser;
 	}
 
@@ -143,5 +151,5 @@ public class UserImptek {
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
 	}
-	
+
 }
