@@ -2,6 +2,7 @@ package com.isacore.quality.service.impl.se;
 
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.model.se.*;
+import com.isacore.quality.repository.configuracionFlujo.IConfiguracionAdjuntoRequeridoRepo;
 import com.isacore.quality.repository.se.IConfiguracionTiempoSolicitudRepo;
 import com.isacore.quality.repository.se.IConfiguracionUsuarioRolEnsayoRepo;
 import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
@@ -39,29 +40,37 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     private static final Log LOG = LogFactory.getLog(SolicitudEnsayoServiceImpl.class);
 
-    @Autowired
     private ISolicitudEnsayoRepo repo;
-
-    @Autowired
     private IConfiguracionUsuarioRolEnsayoRepo repoConfiguracion;
-
-    @Autowired
     private ISolicitudHistorialRepo repoHistorial;
-
-    @Autowired
     private IUserImptekRepo repoUsuario;
-
-    @Autowired
     private ISolicitudDocumentoService documentoServicio;
-
-    @Autowired
     private SecuencialServiceImpl secuencialService;
-
-    @Autowired
     private IConfiguracionTiempoSolicitudRepo repoConfiguracionTiempo;
+    private EntityManager entityManager;
+    private IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo;
 
     @Autowired
-    private EntityManager entityManager;
+    public SolicitudEnsayoServiceImpl(
+        ISolicitudEnsayoRepo repo,
+        IConfiguracionUsuarioRolEnsayoRepo repoConfiguracion,
+        ISolicitudHistorialRepo repoHistorial,
+        IUserImptekRepo repoUsuario,
+        ISolicitudDocumentoService documentoServicio,
+        SecuencialServiceImpl secuencialService,
+        IConfiguracionTiempoSolicitudRepo repoConfiguracionTiempo,
+        EntityManager entityManager,
+        IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo) {
+        this.repo = repo;
+        this.repoConfiguracion = repoConfiguracion;
+        this.repoHistorial = repoHistorial;
+        this.repoUsuario = repoUsuario;
+        this.documentoServicio = documentoServicio;
+        this.secuencialService = secuencialService;
+        this.repoConfiguracionTiempo = repoConfiguracionTiempo;
+        this.entityManager = entityManager;
+        this.configuracionAdjuntoRequeridoRepo = configuracionAdjuntoRequeridoRepo;
+    }
 
     @Override
     public List<SolicitudEnsayo> findAll() {
@@ -73,19 +82,21 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
         Secuencial secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_ENSAYOS);
         SolicitudEnsayo nuevo = new SolicitudEnsayo(
-                secuencial.getNumeroSecuencial(),
-                obj.getProveedorNombre(),
-                obj.getProveedorId(),
-                obj.getFechaEntrega(),
-                obj.getObjetivo(),
-                obj.getPrioridad(),
-                obj.getTiempoEntrega(),
-                obj.getDetalleMaterial(),
-                obj.getLineaAplicacion(),
-                obj.getUso(),
-                obj.getCantidad(),
-                obj.getUnidad(),
-                nombreUsuarioEnSesion());
+            secuencial.getNumeroSecuencial(),
+            obj.getProveedorNombre(),
+            obj.getProveedorId(),
+            obj.getFechaEntrega(),
+            obj.getObjetivo(),
+            obj.getPrioridad(),
+            obj.getTiempoEntrega(),
+            obj.getDetalleMaterial(),
+            obj.getLineaAplicacion(),
+            obj.getCantidad(),
+            obj.getUnidad(),
+            nombreUsuarioEnSesion(),
+            obj.getMuestraEntrega(),
+            obj.getMuestraUbicacion(),
+            this.crearAdjuntosRequeridos());
 
         LOG.info(String.format("Solicitud Ensayo a guardar %s", nuevo));
         return repo.save(nuevo);
@@ -97,9 +108,28 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         return repo.findById(id.getId()).orElse(null);
     }
 
+    @Transactional
     @Override
     public SolicitudEnsayo update(SolicitudEnsayo obj) {
-        return repo.save(obj);
+        Optional<SolicitudEnsayo> solicitudOP = repo.findById(obj.getId());
+        if (!solicitudOP.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", obj.getId()));
+        SolicitudEnsayo solicitud = solicitudOP.get();
+        solicitud.setFechaEntrega(obj.getFechaEntrega());
+        solicitud.setPrioridad(obj.getPrioridad());
+        solicitud.marcarAdjuntoRespaldoComoObligatorio(obj.getPrioridad().equals(PrioridadNivel.ALTO));
+        solicitud.setProveedorId(obj.getProveedorId());
+        solicitud.setProveedorNombre(obj.getProveedorNombre());
+        solicitud.setObjetivo(obj.getObjetivo());
+        solicitud.setTiempoEntrega(obj.getTiempoEntrega());
+        solicitud.setDetalleMaterial(obj.getDetalleMaterial());
+        solicitud.setCantidad(obj.getCantidad());
+        solicitud.setUnidad(obj.getUnidad());
+        solicitud.setLineaAplicacion(obj.getLineaAplicacion());
+        solicitud.setMuestraEntrega(obj.getMuestraEntrega());
+        solicitud.setMuestraUbicacion(obj.getMuestraUbicacion());
+        LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
+        return solicitud;
     }
 
     @Override
@@ -116,7 +146,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     @Override
     public List<SolicitudEnsayo> obtenerSolicitudesPorUsuarioEnGestion() {
         return repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitud.EN_PROCESO,
-                EstadoSolicitud.REGRESADO_NOVEDAD_INFORME), nombreUsuarioEnSesion());
+            EstadoSolicitud.REGRESADO_NOVEDAD_INFORME), nombreUsuarioEnSesion());
     }
 
     @Override
@@ -135,13 +165,15 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
         Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
         Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.VALIDAR_SOLICITUD,
-                TipoSolicitud.SOLICITUD_ENSAYOS);
+            TipoSolicitud.SOLICITUD_ENSAYOS);
         if (!configuracionOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.VALIDAR_SOLICITUD));
         if (!solicitudOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
 
         SolicitudEnsayo solicitudRecargada = solicitudOP.get();
+        if (!solicitudRecargada.adjuntosRequeridosCompletos())
+            throw new SolicitudEnsayoErrorException(String.format("Debe cargar todos los adjuntos requeridos."));
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.INGRESO_SOLICITUD, solicitud.getObservacion());
 
@@ -170,7 +202,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     public boolean validarSolicitud(SolicitudEnsayo solicitud) {
         Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
         Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.RESPONDER_SOLICITUD,
-                TipoSolicitud.SOLICITUD_ENSAYOS);
+            TipoSolicitud.SOLICITUD_ENSAYOS);
 
         if (!configuracionOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.RESPONDER_SOLICITUD));
@@ -180,12 +212,12 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         SolicitudEnsayo solicitudRecargada = solicitudOP.get();
 
         Optional<ConfiguracionTiempoSolicitud> configuracionTiempoOP = repoConfiguracionTiempo.
-                findByOrdenAndTipoSolicitudAndTipoEntrega(OrdenFlujo.RESPONDER_SOLICITUD, TipoSolicitud.SOLICITUD_ENSAYOS,
-                        solicitudRecargada.getTiempoEntrega());
+            findByOrdenAndTipoSolicitudAndTipoEntrega(OrdenFlujo.RESPONDER_SOLICITUD, TipoSolicitud.SOLICITUD_ENSAYOS,
+                solicitudRecargada.getTiempoEntrega());
 
         if (!configuracionTiempoOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el tipo de entrega %s no existe.",
-                    solicitudRecargada.getTiempoEntrega()));
+                solicitudRecargada.getTiempoEntrega()));
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.VALIDAR_SOLICITUD, solicitud.getObservacion());
 
@@ -200,7 +232,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     public boolean responderSolicitud(SolicitudEnsayo solicitud) {
         Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
         Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.APROBAR_INFORME,
-                TipoSolicitud.SOLICITUD_ENSAYOS);
+            TipoSolicitud.SOLICITUD_ENSAYOS);
         if (!configuracionOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.APROBAR_INFORME));
         if (!solicitudOP.isPresent())
@@ -211,12 +243,12 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         documentoServicio.validarInformeSubido(solicitudRecargada.getId(), solicitudRecargada.getEstado());
 
         Optional<ConfiguracionTiempoSolicitud> configuracionTiempoOP = repoConfiguracionTiempo.
-                findByOrdenAndTipoSolicitudAndTipoEntrega(OrdenFlujo.APROBAR_INFORME, TipoSolicitud.SOLICITUD_ENSAYOS,
-                        solicitudRecargada.getTiempoEntrega());
+            findByOrdenAndTipoSolicitudAndTipoEntrega(OrdenFlujo.APROBAR_INFORME, TipoSolicitud.SOLICITUD_ENSAYOS,
+                solicitudRecargada.getTiempoEntrega());
 
         if (!configuracionTiempoOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el tipo de entrega %s no existe.",
-                    solicitudRecargada.getTiempoEntrega()));
+                solicitudRecargada.getTiempoEntrega()));
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.RESPONDER_SOLICITUD, solicitud.getObservacion());
 
@@ -309,7 +341,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
             final int start = (int) pageable.getOffset();
             final int end = (start + pageable.getPageSize()) > respuesta.size() ? respuesta.size()
-                    : (start + pageable.getPageSize());
+                : (start + pageable.getPageSize());
 
             respuesta = respuesta.subList(start, end);
 
@@ -337,7 +369,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
             if (consulta.getTipoAprobacion() != null) {
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("tipoAprobacion"),
-                        TipoAprobacionSolicitud.valueOf(consulta.getTipoAprobacion().toString())));
+                    TipoAprobacionSolicitud.valueOf(consulta.getTipoAprobacion().toString())));
             }
 
             if (noEsNuloNiBlanco(consulta.getCodigo())) {
@@ -362,18 +394,18 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
                 predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
-                        consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
-                        consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
+                    consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
+                    consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
             }
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() == null) {
                 predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
-                        consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
-                        consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
+                    consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
+                    consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
             }
 
             query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
-                    .orderBy(criteriaBuilder.desc(root.get("fechaCreacion")));
+                .orderBy(criteriaBuilder.desc(root.get("fechaCreacion")));
 
             final TypedQuery<SolicitudEnsayo> statement = this.entityManager.createQuery(query);
 
@@ -381,20 +413,20 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
             return cotizacionesResult.stream().map(c -> {
                 return new SolicitudDTO(
-                        c.getId(),
-                        c.getCodigo(),
-                        c.getFechaCreacion(),
-                        c.getFechaAprobacion(),
-                        c.getNombreSolicitante(),
-                        c.getUsuarioGestion(),
-                        c.getUsuarioAprobador(),
-                        c.getEstado(),
-                        c.getProveedorNombre(),
-                        c.getProveedorId(),
-                        c.getFechaEntrega(),
-                        c.getDetalleMaterial(),
-                        TipoSolicitud.SOLICITUD_ENSAYOS,
-                        c.getTipoAprobacion()
+                    c.getId(),
+                    c.getCodigo(),
+                    c.getFechaCreacion(),
+                    c.getFechaAprobacion(),
+                    c.getNombreSolicitante(),
+                    c.getUsuarioGestion(),
+                    c.getUsuarioAprobador(),
+                    c.getEstado(),
+                    c.getProveedorNombre(),
+                    c.getProveedorId(),
+                    c.getFechaEntrega(),
+                    c.getDetalleMaterial(),
+                    TipoSolicitud.SOLICITUD_ENSAYOS,
+                    c.getTipoAprobacion()
                 );
             }).collect(Collectors.toList());
 
@@ -404,4 +436,10 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         }
     }
 
+    private List<SolicitudEnsayoAdjuntoRequerido> crearAdjuntosRequeridos() {
+        return this.configuracionAdjuntoRequeridoRepo.findAll()
+            .stream()
+            .map(x -> new SolicitudEnsayoAdjuntoRequerido(x.getNombre(), x.getSecuencia(), x.isObligatorio()))
+            .collect(Collectors.toList());
+    }
 }

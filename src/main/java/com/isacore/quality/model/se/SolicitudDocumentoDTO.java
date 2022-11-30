@@ -12,6 +12,7 @@ import java.io.Serializable;
 public class SolicitudDocumentoDTO implements Serializable {
 
 	private long idSolicitud;
+    private long adjuntoRequeridoId;
 	private OrdenFlujo orden;
 	private TipoSolicitud tipoSolicitud;
 	private OrdenFlujoPP ordenPP;

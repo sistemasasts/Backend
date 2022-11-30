@@ -41,12 +41,24 @@ public class SolicitudDocumentoControlador {
         return new ResponseEntity<SolicitudDocumento>(infoRegister, HttpStatus.OK);
     }
 
+    @PostMapping("/imagenMuestra")
+    public ResponseEntity<Object> subirArchivoImagenMuestra(@RequestPart("info") String info, @RequestPart("file") MultipartFile file) throws IOException {
+        VerImagenDTO imgBase64 = service.subirImg1(info, file.getBytes(), file.getOriginalFilename(), file.getContentType());
+        return ResponseEntity.ok(imgBase64);
+    }
+
     @GetMapping("/{estado}/{orden}/{solicitudId}")
     public ResponseEntity<List<SolicitudDocumento>> listarArchivos(@PathVariable("estado") EstadoSolicitud estado,
                                                                    @PathVariable("orden") OrdenFlujo orden,
                                                                    @PathVariable("solicitudId") Long solicitudId) throws IOException {
         List<SolicitudDocumento> files = service.buscarPorEstadoYOrdenYSolicitudId(estado, orden, solicitudId);
         return new ResponseEntity<List<SolicitudDocumento>>(files, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/ver/imagenMuestra/{id}")
+    public ResponseEntity<VerImagenDTO> verImagenMuestra(@PathVariable("id") Long id) {
+        VerImagenDTO data = service.verImg(id);
+        return ResponseEntity.ok(data);
     }
 
     @DeleteMapping("/{id}")
