@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -22,10 +23,12 @@ public class ProveedorCorreoElectronicoOffice365 {
     private static final Log LOG = LogFactory.getLog(ProveedorCorreoElectronicoOffice365.class);
 
     private JavaMailSender emailSender;
+    private Environment env;
 
     @Autowired
-    public ProveedorCorreoElectronicoOffice365(JavaMailSender emailSender) {
+    public ProveedorCorreoElectronicoOffice365(JavaMailSender emailSender, Environment env) {
         this.emailSender = emailSender;
+        this.env = env;
     }
 
     private final String[] direccionesComoArreglo(Set<String> direcciones) {
@@ -40,7 +43,7 @@ public class ProveedorCorreoElectronicoOffice365 {
 //            log(LOG, mensaje, "Enviando mensaje...");
             MimeMessage message = this.emailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
-
+            helper.setFrom(env.getProperty("spring.mail.username"));
             helper.setTo(direccionesComoArreglo(mensaje.getDireccionesA()));
 
             if (mensaje.isTieneDireccionesCC()) {
