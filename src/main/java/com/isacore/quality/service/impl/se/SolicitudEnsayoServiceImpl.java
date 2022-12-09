@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.isacore.util.UtilidadesCadena.esNuloOBlanco;
 import static com.isacore.util.UtilidadesCadena.noEsNuloNiBlanco;
 import static com.isacore.util.UtilidadesSeguridad.nombreUsuarioEnSesion;
 
@@ -97,7 +98,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             obj.getMuestraEntrega(),
             obj.getMuestraUbicacion(),
             this.crearAdjuntosRequeridos());
-
+        nuevo.marcarAdjuntoRespaldoComoObligatorio(obj.getPrioridad().equals(PrioridadNivel.ALTO));
         LOG.info(String.format("Solicitud Ensayo a guardar %s", nuevo));
         return repo.save(nuevo);
     }
@@ -151,7 +152,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     @Override
     public List<SolicitudEnsayo> obtenerSolicitudesPorUsuarioAprobador() {
-        return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitud.REVISION_INFORME, nombreUsuarioEnSesion());
+        return repo.findByEstadoAndUsuarioAprobadorOrderByFechaCreacionDesc(EstadoSolicitud.PENDIENTE_APROBACION, nombreUsuarioEnSesion());
     }
 
     @Override
@@ -201,11 +202,11 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     @Transactional
     public boolean validarSolicitud(SolicitudEnsayo solicitud) {
         Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
-        Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.RESPONDER_SOLICITUD,
-            TipoSolicitud.SOLICITUD_ENSAYOS);
+//        Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.RESPONDER_SOLICITUD,
+//            TipoSolicitud.SOLICITUD_ENSAYOS);
 
-        if (!configuracionOP.isPresent())
-            throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.RESPONDER_SOLICITUD));
+        if (esNuloOBlanco(solicitud.getUsuarioGestion()))
+            throw new SolicitudEnsayoErrorException("Usuario responsable obligatorio.");
         if (!solicitudOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
 
@@ -220,9 +221,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                 solicitudRecargada.getTiempoEntrega()));
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.VALIDAR_SOLICITUD, solicitud.getObservacion());
-
-        solicitudRecargada.marcarSolicitudComoValidada(configuracionOP.get().getUsuarioId(), configuracionTiempoOP.get().getVigenciaDias());
-
+        solicitudRecargada.marcarSolicitudComoValidada(solicitud.getUsuarioGestion(), configuracionTiempoOP.get().getVigenciaDias());
         LOG.info(String.format("Solicitud id=%s validada..", solicitudRecargada.getId()));
         return true;
     }
@@ -230,18 +229,23 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     @Override
     @Transactional
     public boolean responderSolicitud(SolicitudEnsayo solicitud) {
-        Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
+        SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
+        documentoServicio.validarInformeSubido(solicitudRecargada.getId(), solicitudRecargada.getEstado());
+        agregarHistorial(solicitudRecargada, OrdenFlujo.RESPONDER_SOLICITUD, solicitud.getObservacion());
+        solicitudRecargada.marcarSolicitudComoRespondida();
+
+        LOG.info(String.format("Solicitud id=%s respondida..", solicitudRecargada.getId()));
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public boolean aprobarInforme(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
         Optional<ConfiguracionUsuarioRolEnsayo> configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.APROBAR_INFORME,
             TipoSolicitud.SOLICITUD_ENSAYOS);
         if (!configuracionOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.APROBAR_INFORME));
-        if (!solicitudOP.isPresent())
-            throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
-
-        SolicitudEnsayo solicitudRecargada = solicitudOP.get();
-
-        documentoServicio.validarInformeSubido(solicitudRecargada.getId(), solicitudRecargada.getEstado());
-
         Optional<ConfiguracionTiempoSolicitud> configuracionTiempoOP = repoConfiguracionTiempo.
             findByOrdenAndTipoSolicitudAndTipoEntrega(OrdenFlujo.APROBAR_INFORME, TipoSolicitud.SOLICITUD_ENSAYOS,
                 solicitudRecargada.getTiempoEntrega());
@@ -250,11 +254,19 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el tipo de entrega %s no existe.",
                 solicitudRecargada.getTiempoEntrega()));
 
-        agregarHistorial(solicitudRecargada, OrdenFlujo.RESPONDER_SOLICITUD, solicitud.getObservacion());
+        this.agregarHistorial(solicitudRecargada,OrdenFlujo.REVISION_INFORME,solicitud.getObservacion());
+        solicitudRecargada.marcarSolicitudComoInformeAprobado(configuracionOP.get().getUsuarioId(), configuracionTiempoOP.get().getVigenciaDias());
+        LOG.info(String.format("Solicitud %s, marcada como informe aprobado", solicitudRecargada.getCodigo()));
+        return true;
+    }
 
-        solicitudRecargada.marcarSolicitudComoRespondida(configuracionOP.get().getUsuarioId(), configuracionTiempoOP.get().getVigenciaDias());
-
-        LOG.info(String.format("Solicitud id=%s respondida..", solicitudRecargada.getId()));
+    @Transactional
+    @Override
+    public boolean rechazarInforme(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
+        this.agregarHistorial(solicitudRecargada,OrdenFlujo.REVISION_INFORME,solicitud.getObservacion());
+        solicitudRecargada.setEstado(EstadoSolicitud.EN_PROCESO);
+        LOG.info(String.format("Solicitud %s, marcada como informe rechazado", solicitudRecargada.getCodigo()));
         return true;
     }
 
@@ -441,5 +453,12 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             .stream()
             .map(x -> new SolicitudEnsayoAdjuntoRequerido(x.getNombre(), x.getSecuencia(), x.isObligatorio()))
             .collect(Collectors.toList());
+    }
+
+    private SolicitudEnsayo obtenerSolicitudPorId(long id){
+        Optional<SolicitudEnsayo> solicitudOP = repo.findById(id);
+        if (!solicitudOP.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", id));
+        return solicitudOP.get();
     }
 }

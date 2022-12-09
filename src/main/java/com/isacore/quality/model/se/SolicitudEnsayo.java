@@ -117,12 +117,16 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.validador = usuarioAsignado;
     }
 
-    public void marcarSolicitudComoRespondida(String usuarioAsignado, int tiempoAprobacion) {
-        if (getEstado().equals(EstadoSolicitud.EN_PROCESO)) {
-            setFechaRespuesta(LocalDate.now());
+    public void marcarSolicitudComoRespondida() {
+        setEstado(EstadoSolicitud.REVISION_INFORME);
+        setFechaRespuesta(LocalDate.now());
+    }
+
+    public void marcarSolicitudComoInformeAprobado(String usuarioAsignado, int tiempoAprobacion) {
+        if (getEstado().equals(EstadoSolicitud.REVISION_INFORME)) {
             setTiempoAprobacion(tiempoAprobacion);
         }
-        setEstado(EstadoSolicitud.REVISION_INFORME);
+        setEstado(EstadoSolicitud.PENDIENTE_APROBACION);
         setUsuarioAprobador(usuarioAsignado);
     }
 
@@ -137,18 +141,28 @@ public class SolicitudEnsayo extends SolicitudBase {
     }
 
     public int getVigencia() {
-        if (getEstado().equals(EstadoSolicitud.EN_PROCESO)) {
+        if (getEstado().equals(EstadoSolicitud.EN_PROCESO) || getEstado().equals(EstadoSolicitud.REVISION_INFORME) ) {
             LocalDate fechaLimite = this.fechaEntregaValidacion.plusDays(getTiempoRespuesta());
             Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimite.atStartOfDay());
             return (int) diff.toDays();
         }
 
-        if (getEstado().equals(EstadoSolicitud.REVISION_INFORME)) {
-            LocalDate fechaLimite = this.getFechaRespuesta().plusDays(getTiempoAprobacion());
-            Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimite.atStartOfDay());
-            return (int) diff.toDays();
+        if (getEstado().equals(EstadoSolicitud.PENDIENTE_APROBACION)) {
+            if (this.getFechaRespuesta() != null) {
+                LocalDate fechaLimite = this.getFechaRespuesta().plusDays(getTiempoAprobacion());
+                Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimite.atStartOfDay());
+                return (int) diff.toDays();
+            } else
+                return 0;
+
         }
         return 0;
+    }
+
+    public LocalDate getFechaEntregaInforme() {
+        if (fechaEntregaValidacion != null)
+            return this.fechaEntregaValidacion.plusDays(getTiempoRespuesta());
+        return null;
     }
 
     public void anular() {

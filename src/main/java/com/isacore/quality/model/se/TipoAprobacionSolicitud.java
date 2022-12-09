@@ -2,8 +2,8 @@ package com.isacore.quality.model.se;
 
 public enum TipoAprobacionSolicitud {
 
-	LABORATORIO,
-	PLANTA,
-	LIBRE_USO,
+    NIVEL_LABORATORIO,
+    NIVEL_PLANTA,
+    GESTION_COMPRA,
 	NO_APROBADO
 }
