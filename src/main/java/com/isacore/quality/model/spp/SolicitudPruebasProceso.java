@@ -92,7 +92,6 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     @Column(columnDefinition = "bit default 0")
     private boolean ajusteMaquinariaFactible;
     private LocalDate fechaSolicitudValidada;
-    private Long solicitudPadreId;
 
     private BigDecimal cantidadRequeridaProducir = BigDecimal.ZERO;
     private String unidadRequeridaProducir;
@@ -137,6 +136,13 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.estado = EstadoSolicitudPP.NUEVO;
         this.cantidadRequeridaProducir = cantidadRequeridaProducir;
         this.unidadRequeridaProducir = unidadRequeridaProducir;
+    }
+
+    public SolicitudPruebasProceso(String codigo, String nombreSolicitante, LocalDate fechaEntrega, Area area) {
+        super(codigo, nombreSolicitante);
+        this.fechaEntrega = fechaEntrega;
+        this.area = area;
+        this.estado = EstadoSolicitudPP.NUEVO;
     }
 
     public void marcarSolicitudComoEnviada(String usuarioAsignado, int diasPlazoValidarSolicitud) {

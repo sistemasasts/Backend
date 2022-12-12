@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -157,6 +158,24 @@ public class SolicitudEnsayoControlador {
         	return new CatalogDTO(x.toString(), x.toString());
         }).collect(Collectors.toList());
         return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/crearAPartirSolicitudPadre/{idSolicitudPadre}")
+    public ResponseEntity<SolicitudEnsayo> crearAPartirSolicitudPadre(@PathVariable("idSolicitudPadre") Long idSolicitudPadre) {
+        SolicitudEnsayo respuesta = servicio.crearSolicitudAPartirDeOtra(idSolicitudPadre);
+        return ResponseEntity.ok(respuesta);
+    }
+
+    @PostMapping("/finalizarProceso")
+    public ResponseEntity<Object> finalizarSolicitud(@RequestBody SolicitudEnsayo obj) {
+        boolean respuesta = servicio.finalizarProceso(obj);
+        return ResponseEntity.ok(respuesta);
+    }
+
+    @PostMapping("/iniciarPruebaEnProceso")
+    public ResponseEntity<SolicitudPruebasProceso> iniciarPruebaEnProceso(@RequestBody SolicitudEnsayo obj) {
+        SolicitudPruebasProceso respuesta = servicio.iniciarPruebaEnProceso(obj);
+        return ResponseEntity.ok(respuesta);
     }
 
 }

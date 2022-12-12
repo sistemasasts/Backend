@@ -78,7 +78,7 @@ public class SolicitudEnsayo extends SolicitudBase {
     private String muestraUbicacion;
     private Long muestraImagenId;
     private String muestraImagenRuta;
-
+    private Long solicitudPruebaProcesoId;
     @Transient
     private String observacion;
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>Ejecución Prueba en Proceso</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Solicitud Ensayo Finalizada</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;" dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p style="font-size: 16px">Estimado(a) Usuario:</p>
+                    <p>Se informa la <b>NO EJECUCIÓN</b> de la prueba en proceso de la solicitud <b th:text="${codigo}">SP000001</b> con el siguiente
+                        detalle</p>
+                    <p>La solicitud de ensayo <b th:text="${codigo}">SP000001</b> se encuentra en estado <b th:text="${tipoAprobacion}">NO APROBADO</b></p>
+                    <p><b>Observación:</b> <span th:text="${observacion}">Solicitud Aprobada</span></p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

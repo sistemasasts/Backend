@@ -28,38 +28,39 @@ public abstract class SolicitudBase {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotNull
 	private String codigo;
-	
+
 	@JsonSerialize(using = LocalDateTimeSerialize.class)
 	@JsonDeserialize(using = LocalDateTimeDeserialize.class)
 	private LocalDateTime fechaCreacion;
-	
+
 	@JsonSerialize(using = LocalDateTimeSerialize.class)
 	@JsonDeserialize(using = LocalDateTimeDeserialize.class)
 	private LocalDateTime fechaFinalizacion;
-	
+
 	@JsonSerialize(using = LocalDateSerializeIsa.class)
 	@JsonDeserialize(using = LocalDateDeserializeIsa.class)
 	private LocalDate fechaRespuesta;
-	
+
 	@JsonSerialize(using = LocalDateSerializeIsa.class)
 	@JsonDeserialize(using = LocalDateDeserializeIsa.class)
 	private LocalDate fechaAprobacion;
-	
+
 	private int tiempoRespuesta;
-	
+
 	private int tiempoAprobacion;
-	
+
 	private String creadoPor;
-	
+
 	private String nombreSolicitante;
-	
+
 	private String usuarioGestion;
-	
+
 	private String usuarioAprobador;
-	
+
+	private Long solicitudPadreId;
 	protected SolicitudBase() {}
 
 	public SolicitudBase(String codigo, String nombreSolicitante) {
@@ -69,7 +70,7 @@ public abstract class SolicitudBase {
 		this.creadoPor = nombreSolicitante;
 		this.nombreSolicitante = nombreSolicitante;
 	}
-	
+
 	public void finalizarSolicitud() {
 		this.fechaFinalizacion = LocalDateTime.now();
 	}

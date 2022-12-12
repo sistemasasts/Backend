@@ -60,7 +60,7 @@ public class AprobacionSolicitudService {
             solicitudes.add(this.crearDto(TipoSolicitud.SOLICITUD_ENSAYOS, x));
         });
         this.responsableRepo.findByUsuarioResponsableAndActivoTrueAndOrdenAndEstadoIn(nombreUsuarioEnSesion(), OrdenFlujoPP.CALIDAD,
-            Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE))
+            Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE, EstadoSolicitudPPResponsable.POR_APROBAR))
             .forEach(x -> {
                 solicitudes.add(this.crearDto(TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO, x.getSolicitudPruebasProceso()));
             });

@@ -2,6 +2,7 @@ package com.isacore.quality.service.se;
 
 import java.util.List;
 
+import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -41,4 +42,10 @@ public interface ISolicitudEnsayoService extends CRUD<SolicitudEnsayo> {
 	boolean rechazarSolicitud(SolicitudEnsayo solicitud);
 
 	Page<SolicitudDTO> consultar(Pageable pageabe, ConsultaSolicitudDTO dto);
+
+    SolicitudEnsayo crearSolicitudAPartirDeOtra(long solicitudId);
+
+    boolean finalizarProceso(SolicitudEnsayo solicitud);
+
+    SolicitudPruebasProceso iniciarPruebaEnProceso(SolicitudEnsayo solicitud);
 }

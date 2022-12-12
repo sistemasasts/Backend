@@ -1,7 +1,11 @@
 package com.isacore.quality.service.impl.se;
 
+import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudEnsayo;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
+import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
+import com.isacore.quality.model.Area;
 import com.isacore.quality.model.se.*;
+import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionAdjuntoRequeridoRepo;
 import com.isacore.quality.repository.se.IConfiguracionTiempoSolicitudRepo;
 import com.isacore.quality.repository.se.IConfiguracionUsuarioRolEnsayoRepo;
@@ -9,6 +13,7 @@ import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
 import com.isacore.quality.repository.se.ISolicitudHistorialRepo;
 import com.isacore.quality.service.se.ISolicitudDocumentoService;
 import com.isacore.quality.service.se.ISolicitudEnsayoService;
+import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import org.apache.commons.logging.Log;
@@ -50,6 +55,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private IConfiguracionTiempoSolicitudRepo repoConfiguracionTiempo;
     private EntityManager entityManager;
     private IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo;
+    private ISolicitudPruebasProcesoService pruebasProcesoService;
+    private ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo;
 
     @Autowired
     public SolicitudEnsayoServiceImpl(
@@ -61,7 +68,9 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         SecuencialServiceImpl secuencialService,
         IConfiguracionTiempoSolicitudRepo repoConfiguracionTiempo,
         EntityManager entityManager,
-        IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo) {
+        IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo,
+        ISolicitudPruebasProcesoService pruebasProcesoService,
+        ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -71,6 +80,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         this.repoConfiguracionTiempo = repoConfiguracionTiempo;
         this.entityManager = entityManager;
         this.configuracionAdjuntoRequeridoRepo = configuracionAdjuntoRequeridoRepo;
+        this.pruebasProcesoService = pruebasProcesoService;
+        this.servicioNotificacionSolicitudEnsayo = servicioNotificacionSolicitudEnsayo;
     }
 
     @Override
@@ -146,8 +157,10 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     @Override
     public List<SolicitudEnsayo> obtenerSolicitudesPorUsuarioEnGestion() {
-        return repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitud.EN_PROCESO,
-            EstadoSolicitud.REGRESADO_NOVEDAD_INFORME), nombreUsuarioEnSesion());
+        List<SolicitudEnsayo> solicitudesPendientes = new ArrayList<>(repo.findByEstadoInAndUsuarioGestionOrderByFechaCreacionDesc(Arrays.asList(EstadoSolicitud.EN_PROCESO,
+            EstadoSolicitud.REGRESADO_NOVEDAD_INFORME, EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO), nombreUsuarioEnSesion()));
+        solicitudesPendientes.addAll(this.repo.findByEstadoAndValidadorOrderByFechaCreacionDesc(EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO, nombreUsuarioEnSesion()));
+        return solicitudesPendientes;
     }
 
     @Override
@@ -254,7 +267,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             throw new SolicitudEnsayoErrorException(String.format("Configuración para el tipo de entrega %s no existe.",
                 solicitudRecargada.getTiempoEntrega()));
 
-        this.agregarHistorial(solicitudRecargada,OrdenFlujo.REVISION_INFORME,solicitud.getObservacion());
+        this.agregarHistorial(solicitudRecargada, OrdenFlujo.REVISION_INFORME, solicitud.getObservacion());
         solicitudRecargada.marcarSolicitudComoInformeAprobado(configuracionOP.get().getUsuarioId(), configuracionTiempoOP.get().getVigenciaDias());
         LOG.info(String.format("Solicitud %s, marcada como informe aprobado", solicitudRecargada.getCodigo()));
         return true;
@@ -264,7 +277,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     @Override
     public boolean rechazarInforme(SolicitudEnsayo solicitud) {
         SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
-        this.agregarHistorial(solicitudRecargada,OrdenFlujo.REVISION_INFORME,solicitud.getObservacion());
+        this.agregarHistorial(solicitudRecargada, OrdenFlujo.REVISION_INFORME, solicitud.getObservacion());
         solicitudRecargada.setEstado(EstadoSolicitud.EN_PROCESO);
         LOG.info(String.format("Solicitud %s, marcada como informe rechazado", solicitudRecargada.getCodigo()));
         return true;
@@ -283,8 +296,16 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         agregarHistorial(solicitudRecargada, OrdenFlujo.APROBAR_INFORME, solicitud.getObservacion());
 
         solicitudRecargada.marcarSolicitudComoAprobada(solicitud.getTipoAprobacion());
-
-        LOG.info(String.format("Solicitud id=%s validada..", solicitudRecargada.getId()));
+        if (solicitud.getTipoAprobacion().equals(TipoAprobacionSolicitud.SOLICITUD_PRUEBA_PROCESO)) {
+            solicitudRecargada.setEstado(EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO);
+        }
+        LOG.info(String.format("Solicitud id=%s aprobada, tipo aprobacion %s..", solicitudRecargada.getId(), solicitudRecargada.getTipoAprobacion()));
+        //TODO: se debe agregar metodo de notificar al solicitante el estado de la solicitud
+        try {
+            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudFinalizada(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud Finalizada %s", e));
+        }
         return true;
     }
 
@@ -365,6 +386,45 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             final Page<SolicitudDTO> pageResult = new PageImpl<SolicitudDTO>(new ArrayList<SolicitudDTO>(), pageable, 0);
             return pageResult;
         }
+    }
+
+    @Transactional
+    @Override
+    public SolicitudEnsayo crearSolicitudAPartirDeOtra(long solicitudId) {
+        SolicitudEnsayo solicitud = this.obtenerSolicitudPorId(solicitudId);
+        this.validarUnicaPruebaEnviadaNuevamenteEnCurso(solicitudId);
+        SolicitudEnsayo solicitudNueva = this.create(solicitud);
+        solicitudNueva.setSolicitudPadreId(solicitud.getId());
+        LOG.info(String.format("Solicitud creada para reenviar -> solicitud origen %s :: solicitud nueva %s", solicitud.getCodigo(), solicitudNueva));
+        return solicitudNueva;
+    }
+
+    @Transactional
+    @Override
+    public boolean finalizarProceso(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudEnsayo = this.obtenerSolicitudPorId(solicitud.getId());
+        String observacion = noEsNuloNiBlanco(solicitud.getObservacion()) ? solicitud.getObservacion() : "PROCESO FINALIZADO";
+        this.agregarHistorial(solicitudEnsayo, OrdenFlujo.SOLICITANTE_PLANES_ACCION, observacion);
+        solicitudEnsayo.setEstado(EstadoSolicitud.PROCESO_FINALIZADO);
+        LOG.info(String.format("Solicitud %s marcada como proceso finalizado", solicitudEnsayo.getCodigo()));
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public SolicitudPruebasProceso iniciarPruebaEnProceso(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudEnsayo = this.obtenerSolicitudPorId(solicitud.getId());
+        SolicitudPruebasProceso nuevo = this.pruebasProcesoService.create(new SolicitudPruebasProceso(
+            "",
+            nombreUsuarioEnSesion(),
+            solicitudEnsayo.getFechaEntrega(),
+            this.obtenerAreaUsuarioEnSesion()
+        ));
+        String observacion = noEsNuloNiBlanco(solicitud.getObservacion()) ? solicitud.getObservacion() : "PROCESO INICIADO";
+        this.agregarHistorial(solicitudEnsayo, OrdenFlujo.SOLICITUD_PRUEBAS_PROCESO, observacion);
+        solicitudEnsayo.setEstado(EstadoSolicitud.GESTION_PRUEBAS_PROCESO);
+        solicitudEnsayo.setSolicitudPruebaProcesoId(nuevo.getId());
+        return nuevo;
     }
 
     private List<SolicitudDTO> obtenerSolicitudesEnsayo(ConsultaSolicitudDTO consulta) {
@@ -455,10 +515,24 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             .collect(Collectors.toList());
     }
 
-    private SolicitudEnsayo obtenerSolicitudPorId(long id){
+    private SolicitudEnsayo obtenerSolicitudPorId(long id) {
         Optional<SolicitudEnsayo> solicitudOP = repo.findById(id);
         if (!solicitudOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", id));
         return solicitudOP.get();
+    }
+
+    private void validarUnicaPruebaEnviadaNuevamenteEnCurso(long solicitudPadreId) {
+        List<EstadoSolicitud> estados = Arrays.asList(EstadoSolicitud.ANULADO, EstadoSolicitud.FINALIZADO);
+        List<SolicitudEnsayo> solicitudesEnProceso = this.repo.findBySolicitudPadreId(solicitudPadreId);
+        if (solicitudesEnProceso.stream().anyMatch(x -> !estados.contains(x.getEstado())))
+            throw new SolicitudPruebaProcesoErrorException("La solicitud ya fue reenviada en un nuevo proceso.");
+    }
+
+    private Area obtenerAreaUsuarioEnSesion() {
+        Optional<UserImptek> usuarioOp = repoUsuario.findById(nombreUsuarioEnSesion());
+        if (!usuarioOp.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Usuario en sesión no tiene asignado una área"));
+        return usuarioOp.get().getEmployee().getArea();
     }
 }

@@ -16,10 +16,10 @@ public class SolicitudHistorial extends SolicitudHistorialBase {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	private SolicitudEnsayo solicitudEnsayo;
-	
+
 	@Enumerated(EnumType.STRING)
 	private EstadoSolicitud estadoSolicitud;
-	
+
 	@Enumerated(EnumType.STRING)
 	private OrdenFlujo orden;
 
@@ -29,5 +29,7 @@ public class SolicitudHistorial extends SolicitudHistorialBase {
 		this.estadoSolicitud = solicitudEnsayo.getEstado();
 		this.orden = orden;
 	}
-	
+    public String getCodigoSolicitud(){
+        return this.solicitudEnsayo.getCodigo();
+    }
 }

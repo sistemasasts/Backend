@@ -1,8 +1,15 @@
 package com.isacore.quality.service.impl.se;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.isacore.quality.model.se.SolicitudEnsayo;
+import com.isacore.quality.model.spp.HistorialPPCompletoDto;
+import com.isacore.quality.model.spp.SolicitudPruebaProcesoHistorial;
+import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +24,26 @@ import com.isacore.quality.service.se.ISolicitudHistorialService;
 public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService {
 
 	private static final Log LOG = LogFactory.getLog(SolicitudHistorialServiceImpl.class);
-	
-	@Autowired
+
 	private ISolicitudHistorialRepo repo;
-	
-	@Autowired
 	private ISolicitudDocumentoRepo repoDocumento;
-	
-	@Override
+	private ISolicitudEnsayoRepo solicitudEnsayoRepo;
+
+    @Autowired
+    public SolicitudHistorialServiceImpl(ISolicitudHistorialRepo repo, ISolicitudDocumentoRepo repoDocumento, ISolicitudEnsayoRepo solicitudEnsayoRepo) {
+        this.repo = repo;
+        this.repoDocumento = repoDocumento;
+        this.solicitudEnsayoRepo = solicitudEnsayoRepo;
+    }
+
+    @Override
 	public List<SolicitudHistorial> findAll() {
 		return repo.findAll();
 	}
 
 	@Override
 	public SolicitudHistorial create(SolicitudHistorial obj) {
-		
+
 		LOG.info(String.format("Historial a guardar %s", obj));
 		return repo.save(obj);
 	}
@@ -55,13 +67,34 @@ public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService
 
 	@Override
 	public List<SolicitudHistorial> buscarHistorial(long solicitudId) {
-		
+
 		return repo.findBySolicitudEnsayo_IdOrderByFechaRegistroAsc(solicitudId).stream().map(x ->{
 			x.setTieneAdjuntos(repoDocumento.existsByEstadoAndOrdenFlujoAndSolicitudEnsayo_Id(x.getEstadoSolicitud(), x.getOrden(), solicitudId));
 			return x;
 		}).collect(Collectors.toList());
-		
+
 	}
+
+    @Override
+    public List<HistorialPPCompletoDto> buscarHistorialCompleto(long solicitudId) {
+        List<Long> ids = this.recuperarSolicitudIdsPadres(solicitudId);
+        if(ids.isEmpty())
+            return new ArrayList<>();
+        Map<String, List<SolicitudHistorial>> historialAgrupado = this.repo.findBySolicitudEnsayo_IdInOrderBySolicitudEnsayoId(ids)
+            .stream()
+            .collect(Collectors.groupingBy(SolicitudHistorial::getCodigoSolicitud));
+        return historialAgrupado.entrySet().stream().map( x -> {
+            List<SolicitudHistorial> historial = x.getValue().stream().sorted(Comparator.comparing(SolicitudHistorial::getFechaRegistro)).collect(Collectors.toList());
+            return new HistorialPPCompletoDto(historial, x.getKey());
+        }).sorted(Comparator.comparing(HistorialPPCompletoDto::getCodigo)).collect(Collectors.toList());
+    }
+
+    private List<Long> recuperarSolicitudIdsPadres(long solicitudId){
+        return this.solicitudEnsayoRepo.obtenerSolicitudesHija(solicitudId)
+            .stream()
+            .map(x -> Long.parseLong(x[0].toString()))
+            .collect(Collectors.toList());
+    }
 
 //	@Override
 //	public List<SolicitudHistorial> buscarHistorialPruebasProceso(long solicitudId) {
