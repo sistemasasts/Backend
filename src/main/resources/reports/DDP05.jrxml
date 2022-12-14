@@ -109,7 +109,7 @@
 	</queryString>
 	<field name="codigo" class="java.lang.String"/>
 	<field name="lote" class="java.lang.String"/>
-	<field name="fechaPrueba" class="java.time.LocalDate"/>
+	<field name="fechaPrueba" class="java.time.LocalDateTime"/>
 	<field name="producto" class="java.lang.String"/>
 	<field name="ordenFabricacion" class="java.lang.String"/>
 	<field name="lineaFabricacion" class="java.lang.String"/>
