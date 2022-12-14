@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacore.quality.exception.ApprobationCriteriaErrorException;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
+import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
+import com.isacore.quality.model.se.OrdenFlujo;
 import com.isacore.quality.model.se.SolicitudBase;
 import com.isacore.quality.model.se.SolicitudDocumentoDTO;
 import com.isacore.quality.model.spp.*;
@@ -208,6 +210,13 @@ public class SolicitudPruebaProcesoDocumentoServiceImpl implements ISolicitudPru
             throw new SolicitudEnsayoErrorException("Problemas al construir el documento.");
         }
         return null;
+    }
+
+    @Override
+    public void validarInformeSubidoResponsable(long solicitudId, EstadoSolicitudPP estado, OrdenFlujoPP orden) {
+        boolean existeAdjunto = repo.existsByEstadoAndOrdenFlujoAndSolicitudPruebasProceso_Id(estado, orden, solicitudId);
+        if(!existeAdjunto)
+            throw new SolicitudPruebaProcesoErrorException("Falta adjuntar el informe respectivo.");
     }
 
     private String crearRutaComprimido(String codigoSolicitud) {

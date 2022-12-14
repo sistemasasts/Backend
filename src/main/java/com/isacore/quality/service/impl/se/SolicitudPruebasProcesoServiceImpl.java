@@ -13,6 +13,7 @@ import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFl
 import com.isacore.quality.repository.spp.*;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
 import com.isacore.quality.service.spp.ISolicitudPPInformeService;
+import com.isacore.quality.service.spp.ISolicitudPruebaProcesoDocumentoService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
@@ -58,6 +59,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     private IMaterialFormulaRepo materialFormulaRepo;
     private ISolicitudPPInformeService informeServicio;
     private ModelMapper modelMapper;
+    private ISolicitudPruebaProcesoDocumentoService documentoService;
 
     @Autowired
     public SolicitudPruebasProcesoServiceImpl(
@@ -70,7 +72,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         IGeneradorJasperReports reporteServicio,
         IMaterialFormulaRepo materialFormulaRepo,
         ISolicitudPPInformeService informeServicio,
-        ModelMapper modelMapper) {
+        ModelMapper modelMapper,
+        ISolicitudPruebaProcesoDocumentoService documentoService) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -84,6 +87,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         this.materialFormulaRepo = materialFormulaRepo;
         this.informeServicio = informeServicio;
         this.modelMapper = modelMapper;
+        this.documentoService = documentoService;
     }
 
     @Override
@@ -403,6 +407,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     @Override
     public void procesar(SolicitudPruebasProceso solicitud) {
         SolicitudPruebasProceso solicitudRecargada = obtenerSolicitud(solicitud.getId());
+        if(solicitudRecargada.isRequiereInforme())
+            this.documentoService.validarInformeSubidoResponsable(solicitudRecargada.getId(),solicitudRecargada.getEstado(),solicitud.getOrden());
         switch (solicitud.getOrden()) {
             case PRODUCCION:
                 this.responderSolicitudPlanta(solicitudRecargada, solicitud.getObservacionFlujo());
