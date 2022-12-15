@@ -223,10 +223,6 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.imagen1Ruta = path;
     }
 
-    public String getFechaSolicitud() {
-        return UtilidadesFecha.formatear(getFechaCreacion(), "YYYY-MM-dd");
-    }
-
     public String getTipoAprobacionTexto() {
         return getTipoAprobacion() != null ? getTipoAprobacion().getDescripcion() : "";
     }

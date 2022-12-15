@@ -14,10 +14,7 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.isacore.util.LocalDateDeserializeIsa;
-import com.isacore.util.LocalDateSerializeIsa;
-import com.isacore.util.LocalDateTimeDeserialize;
-import com.isacore.util.LocalDateTimeSerialize;
+import com.isacore.util.*;
 
 import lombok.Data;
 
@@ -74,4 +71,8 @@ public abstract class SolicitudBase {
 	public void finalizarSolicitud() {
 		this.fechaFinalizacion = LocalDateTime.now();
 	}
+
+    public String getFechaSolicitud() {
+        return UtilidadesFecha.formatear(getFechaCreacion(), "YYYY-MM-dd");
+    }
 }

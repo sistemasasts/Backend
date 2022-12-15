@@ -4,9 +4,12 @@ import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudEnsayo;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
 import com.isacore.quality.model.Area;
+import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
+import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionAdjuntoRequeridoRepo;
+import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
 import com.isacore.quality.repository.se.IConfiguracionTiempoSolicitudRepo;
 import com.isacore.quality.repository.se.IConfiguracionUsuarioRolEnsayoRepo;
 import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
@@ -31,6 +34,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +61,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo;
     private ISolicitudPruebasProcesoService pruebasProcesoService;
     private ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo;
+    private IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
 
     @Autowired
     public SolicitudEnsayoServiceImpl(
@@ -70,7 +75,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         EntityManager entityManager,
         IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo,
         ISolicitudPruebasProcesoService pruebasProcesoService,
-        ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo) {
+        ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo,
+        IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -82,6 +88,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         this.configuracionAdjuntoRequeridoRepo = configuracionAdjuntoRequeridoRepo;
         this.pruebasProcesoService = pruebasProcesoService;
         this.servicioNotificacionSolicitudEnsayo = servicioNotificacionSolicitudEnsayo;
+        this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
     }
 
     @Override
@@ -234,8 +241,16 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                 solicitudRecargada.getTiempoEntrega()));
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.VALIDAR_SOLICITUD, solicitud.getObservacion());
-        solicitudRecargada.marcarSolicitudComoValidada(solicitud.getUsuarioGestion(), configuracionTiempoOP.get().getVigenciaDias());
+        int diaMaxEntregaInforme = this.obtenerDiaMaxEntregaInforme();
+        LocalDate fechaInicioEntregaInforme = this.obtenerFechaInicioEntregaInforme(diaMaxEntregaInforme);
+        solicitudRecargada.marcarSolicitudComoValidada(solicitud.getUsuarioGestion(), configuracionTiempoOP.get().getVigenciaDias() , fechaInicioEntregaInforme);
+
         LOG.info(String.format("Solicitud id=%s validada..", solicitudRecargada.getId()));
+        try {
+            this.servicioNotificacionSolicitudEnsayo.notificarIngresoMuestra(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Ingreso de muestra %s", e));
+        }
         return true;
     }
 
@@ -534,5 +549,23 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         if (!usuarioOp.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Usuario en sesión no tiene asignado una área"));
         return usuarioOp.get().getEmployee().getArea();
+    }
+
+    private LocalDate obtenerFechaInicioEntregaInforme(int diaMaxEntregaInforme) {
+        LocalDate fechaInicio = LocalDate.now();
+        int diaActual = LocalDate.now().getDayOfMonth();
+        if (diaActual > diaMaxEntregaInforme) {
+            fechaInicio = fechaInicio.plusMonths(1);
+        }
+        int mes = fechaInicio.getMonthValue();
+        int anio = fechaInicio.getYear();
+        return LocalDate.of(anio, mes, diaMaxEntregaInforme);
+    }
+
+    private int obtenerDiaMaxEntregaInforme() {
+        Optional<ConfiguracionGeneralFlujo> diaMaxEntregaInforme = this.configuracionGeneralFlujoRepo.findByTipoSolicitudAndNombreConfiguracionFlujo(TipoSolicitud.SOLICITUD_ENSAYOS, NombreConfiguracionFlujo.DIA_MAX_PERMITIDO_ENTREGAR_MUESTRAS);
+        if (!diaMaxEntregaInforme.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Configuración día máximo entrega muestras no existe"));
+        return Integer.parseInt(diaMaxEntregaInforme.get().getValorConfiguracion());
     }
 }

@@ -1,6 +1,7 @@
 package com.isacore.quality.model.se;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import com.isacore.util.LocalDateSerializeIsa;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.apache.tomcat.jni.Local;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -79,6 +81,9 @@ public class SolicitudEnsayo extends SolicitudBase {
     private Long muestraImagenId;
     private String muestraImagenRuta;
     private Long solicitudPruebaProcesoId;
+    @JsonSerialize(using = LocalDateSerializeIsa.class)
+    @JsonDeserialize(using = LocalDateDeserializeIsa.class)
+    private LocalDate fechaEntregaInforme;
     @Transient
     private String observacion;
 
@@ -105,11 +110,12 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.adjuntosRequeridos = adjuntos;
     }
 
-    public void marcarSolicitudComoValidada(String usuarioAsignado, int tiempoRespuesta) {
+    public void marcarSolicitudComoValidada(String usuarioAsignado, int tiempoRespuesta, LocalDate fechaInicioEntregaInforme) {
         setEstado(EstadoSolicitud.EN_PROCESO);
         setUsuarioGestion(usuarioAsignado);
         setTiempoRespuesta(tiempoRespuesta);
         this.fechaEntregaValidacion = LocalDate.now();
+        setFechaEntregaInforme(this.calcularFechaLimiteDiasLaborables(fechaInicioEntregaInforme, tiempoRespuesta));
     }
 
     public void marcarSolicitudComoEnviada(String usuarioAsignado) {
@@ -141,29 +147,30 @@ public class SolicitudEnsayo extends SolicitudBase {
     }
 
     public int getVigencia() {
-        if (getEstado().equals(EstadoSolicitud.EN_PROCESO) || getEstado().equals(EstadoSolicitud.REVISION_INFORME) ) {
-            LocalDate fechaLimite = this.fechaEntregaValidacion.plusDays(getTiempoRespuesta());
-            Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimite.atStartOfDay());
-            return (int) diff.toDays();
-        }
-
-        if (getEstado().equals(EstadoSolicitud.PENDIENTE_APROBACION)) {
-            if (this.getFechaRespuesta() != null) {
-                LocalDate fechaLimite = this.getFechaRespuesta().plusDays(getTiempoAprobacion());
+        if (this.fechaEntregaInforme != null) {
+            if (getEstado().equals(EstadoSolicitud.EN_PROCESO) || getEstado().equals(EstadoSolicitud.REVISION_INFORME)) {
+                LocalDate fechaLimite = this.fechaEntregaInforme.minusDays(getTiempoAprobacion());
                 Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimite.atStartOfDay());
                 return (int) diff.toDays();
-            } else
-                return 0;
+            }
 
+            if (getEstado().equals(EstadoSolicitud.PENDIENTE_APROBACION)) {
+                if (this.getFechaRespuesta() != null) {
+                    LocalDate fechaLimite = this.getFechaRespuesta().plusDays(getTiempoAprobacion());
+                    Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaLimite.atStartOfDay());
+                    return (int) diff.toDays();
+                } else
+                    return 0;
+            }
         }
         return 0;
     }
 
-    public LocalDate getFechaEntregaInforme() {
-        if (fechaEntregaValidacion != null)
-            return this.fechaEntregaValidacion.plusDays(getTiempoRespuesta());
-        return null;
-    }
+//    public LocalDate getFechaEntregaInforme() {
+//        if (fechaEntregaValidacion != null)
+//            return this.fechaEntregaValidacion.plusDays(getTiempoRespuesta());
+//        return null;
+//    }
 
     public void anular() {
         this.setFechaFinalizacion(LocalDateTime.now());
@@ -193,5 +200,22 @@ public class SolicitudEnsayo extends SolicitudBase {
 
     public void marcarAdjuntoRespaldoComoObligatorio(boolean obligatorio) {
         this.adjuntosRequeridos.stream().filter(x -> x.getNombre().equalsIgnoreCase("Respaldo")).findFirst().ifPresent(adjuntoRequerido -> adjuntoRequerido.setObligatorio(obligatorio));
+    }
+
+    private LocalDate calcularFechaLimiteDiasLaborables(LocalDate fechaInicio, int dias) {
+        int agregarDias = 0;
+        while (agregarDias < dias) {
+            fechaInicio = fechaInicio.plusDays(1);
+            if (!(fechaInicio.getDayOfWeek() == DayOfWeek.SATURDAY || fechaInicio.getDayOfWeek() == DayOfWeek.SUNDAY)) {
+                ++agregarDias;
+            }
+        }
+        return fechaInicio;
+    }
+
+    public String getTipoAprobacionTexto() {
+        if (this.tipoAprobacion != null)
+            return this.tipoAprobacion.getDescripcion();
+        return "";
     }
 }
