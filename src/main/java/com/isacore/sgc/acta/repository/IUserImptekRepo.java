@@ -26,4 +26,6 @@ public interface IUserImptekRepo extends JpaRepository<UserImptek, String>{
 
 	Optional<UserImptek> findByIdUser(String idUser);
 
+	List<UserImptek> findByEmployeeStateTrue();
+
 }

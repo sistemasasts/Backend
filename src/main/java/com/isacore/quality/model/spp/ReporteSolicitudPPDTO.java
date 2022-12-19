@@ -39,6 +39,7 @@ public class ReporteSolicitudPPDTO implements Serializable {
     private String imagen1Ruta;
     private BigDecimal cantidadRequeridaProducir = BigDecimal.ZERO;
     private String unidadRequeridaProducir;
+    private boolean contieneAdjuntoDescripcionProducto;
     private List<String> motivosSeleccionados = new ArrayList<>();
     private List<String> materialesSeleccionados = new ArrayList<>();
     private List<MaterialFormula> materialesFormula = new ArrayList<>();
@@ -65,6 +66,7 @@ public class ReporteSolicitudPPDTO implements Serializable {
         this.materialesFormula = solicitud.getMaterialesFormula();
         this.cantidadRequeridaProducir = solicitud.getCantidadRequeridaProducir();
         this.unidadRequeridaProducir = solicitud.getUnidadRequeridaProducir();
+        this.contieneAdjuntoDescripcionProducto = solicitud.isContieneAdjuntoDescripcionProducto();
         this.motivosParaImprimir();
         this.materialesParaImprimir();
     }

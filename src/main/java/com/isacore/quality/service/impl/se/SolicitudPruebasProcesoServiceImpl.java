@@ -116,7 +116,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             obj.getOrigen(),
             obj.isRequiereInforme(),
             obj.getCantidadRequeridaProducir(),
-            obj.getUnidadRequeridaProducir());
+            obj.getUnidadRequeridaProducir(),
+            obj.isContieneAdjuntoDescripcionProducto());
 
         LOG.info(String.format("Solicitud Prueba en proceso a guardar %s", nuevo));
         return repo.save(nuevo);
@@ -145,6 +146,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         solicitud.setUnidadRequeridaProducir(obj.getUnidadRequeridaProducir());
         solicitud.setVerificacionAdicional(obj.getVerificacionAdicional());
         solicitud.setObservacion(obj.getObservacion());
+        solicitud.setContieneAdjuntoDescripcionProducto(obj.isContieneAdjuntoDescripcionProducto());
         LOG.info(String.format("Solicitud actualizada %s", solicitud));
         return repo.save(solicitud);
     }

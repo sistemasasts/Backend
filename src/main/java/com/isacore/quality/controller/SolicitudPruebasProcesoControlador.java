@@ -167,7 +167,7 @@ public class SolicitudPruebasProcesoControlador {
 
 	@GetMapping("/areas")
 	public ResponseEntity<List<Area>> listarAreas() {
-		List<Area> areas = servicioArea.findAll();
+		List<Area> areas = servicioArea.listarActivasPruebasProcesos();
 		return ResponseEntity.ok(areas);
 	}
 

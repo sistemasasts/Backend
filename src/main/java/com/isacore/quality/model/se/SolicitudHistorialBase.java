@@ -20,6 +20,7 @@ public abstract class SolicitudHistorialBase {
     @JsonDeserialize(using = LocalDateTimeDeserialize.class)
     private LocalDateTime fechaRegistro;
 
+    @Column(columnDefinition = "varchar(max)")
     private String observacion;
 
     private String usuarioId;
