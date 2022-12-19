@@ -166,6 +166,11 @@ public class UserImptekServiceImpl implements IUserImptekService {
         return true;
     }
 
+    @Override
+    public List<UserImptek> listarActivos() {
+        return this.repo.findByEmployeeStateTrue();
+    }
+
     private void validarUnicoUsuario(String usuario) {
         Optional<UserImptek> usuarioOP = this.repo.findByIdUser(usuario);
         if (usuarioOP.isPresent())

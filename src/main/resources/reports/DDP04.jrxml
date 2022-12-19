@@ -79,6 +79,7 @@
 	<field name="materialesFormula" class="java.util.List"/>
 	<field name="cantidadRequeridaProducir" class="java.math.BigDecimal"/>
 	<field name="unidadRequeridaProducir" class="java.lang.String"/>
+	<field name="contieneAdjuntoDescripcionProducto" class="java.lang.Boolean"/>
 	<background>
 		<band height="802" splitType="Stretch">
 			<image>
@@ -381,6 +382,13 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 					<font size="8"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{motivoOtro}== null?"    Otro":"x   Otro :"+$F{motivoOtro}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="232" y="71" width="111" height="20" forecolor="#FC0317" uuid="7e68e52d-c65a-430f-a4f9-05c6929ad522"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{contieneAdjuntoDescripcionProducto} ? "(Leer adjunto)":""]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="86">

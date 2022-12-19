@@ -15,7 +15,7 @@ public class AreaServiceImpl implements IAreasService{
 
 	@Autowired
 	private IAreasRepo repo;
-	
+
 	@Override
 	public List<Area> findAll() {
 		return this.repo.findAll();
@@ -28,11 +28,11 @@ public class AreaServiceImpl implements IAreasService{
 
 	@Override
 	public Area findById(Area area) {
-		
+
 		Optional<Area> o = this.repo.findById(area.getIdArea());
 		if(o.isPresent())
 			return o.get();
-		else 
+		else
 			return null;
 	}
 
@@ -44,7 +44,11 @@ public class AreaServiceImpl implements IAreasService{
 	@Override
 	public boolean delete(String id) {
 		return true;
-		
+
 	}
 
+    @Override
+    public List<Area> listarActivasPruebasProcesos() {
+        return this.repo.findByActivoPruebasProcesoTrue();
+    }
 }

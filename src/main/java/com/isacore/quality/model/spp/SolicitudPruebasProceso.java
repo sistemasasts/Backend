@@ -102,6 +102,8 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private List<MaterialFormula> materialesFormula;
     private LocalDate fechaLimiteValidarSolicitud;
     private int tiempoValidarSolicitud;
+    @Column(columnDefinition = "bit default 0")
+    private boolean contieneAdjuntoDescripcionProducto;
 
     @Transient
     private String observacionFlujo;
@@ -119,7 +121,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
             String codigo, LocalDate fechaEntrega, String lineaAplicacion, String motivo, String motivoOtro,
             String materialLineaProceso, String materialLineaProOtro, String descripcionProducto,
             String variablesProceso, String verificacionAdicional, String observacion, String nombreSolicitante, Area area,
-            OrigenSolicitudPP origen, boolean requiereInforme, BigDecimal cantidadRequeridaProducir, String unidadRequeridaProducir) {
+            OrigenSolicitudPP origen, boolean requiereInforme, BigDecimal cantidadRequeridaProducir, String unidadRequeridaProducir, boolean contieneAdjuntoDescripcionProducto) {
         super(codigo, nombreSolicitante);
         this.fechaEntrega = fechaEntrega;
         this.lineaAplicacion = lineaAplicacion;
@@ -137,6 +139,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         this.estado = EstadoSolicitudPP.NUEVO;
         this.cantidadRequeridaProducir = cantidadRequeridaProducir;
         this.unidadRequeridaProducir = unidadRequeridaProducir;
+        this.contieneAdjuntoDescripcionProducto = contieneAdjuntoDescripcionProducto;
     }
 
     public void marcarSolicitudComoEnviada(String usuarioAsignado, int diasPlazoValidarSolicitud) {

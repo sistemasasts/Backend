@@ -102,4 +102,10 @@ public class UserImptekController {
         return ResponseEntity.ok(areas);
     }
 
+    @GetMapping("/activos")
+    public ResponseEntity<List<UserImptek>> listarActivos() {
+        List<UserImptek> areas = userImptekService.listarActivos();
+        return ResponseEntity.ok(areas);
+    }
+
 }

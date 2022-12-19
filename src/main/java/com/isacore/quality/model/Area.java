@@ -15,9 +15,14 @@ public class Area {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "AREA_ID")
 	private Integer idArea;
-	
+
 	@Column(name = "AREA_NAME", nullable = false, length = 512)
 	private String nameArea;
+
+	@Column(columnDefinition = "bit default 0")
+	private boolean activo;
+    @Column(columnDefinition = "bit default 0")
+    private boolean activoPruebasProceso;
 
 	public Integer getIdArea() {
 		return idArea;
@@ -34,6 +39,20 @@ public class Area {
 	public void setNameArea(String nameArea) {
 		this.nameArea = nameArea;
 	}
-	
-	
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public boolean isActivoPruebasProceso() {
+        return activoPruebasProceso;
+    }
+
+    public void setActivoPruebasProceso(boolean activoPruebasProceso) {
+        this.activoPruebasProceso = activoPruebasProceso;
+    }
 }
