@@ -28,6 +28,12 @@ public class SolicitudPlanAccionControlador {
         return ResponseEntity.ok(solicitudPlanAccion);
     }
 
+    @PutMapping("/marcarCumplimiento")
+    public ResponseEntity<SolicitudPlanAccion> marcarCumplimiento(@RequestBody SolicitudPlanAccion planAccion) {
+        SolicitudPlanAccion solicitudPlanAccion = this.servicio.marcarCumplimiento(planAccion);
+        return ResponseEntity.ok(solicitudPlanAccion);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> eliminar(@PathVariable("solicitudId") long solicitudId) {
         boolean resultadoConsulta = this.servicio.eliminar(solicitudId);

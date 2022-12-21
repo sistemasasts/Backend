@@ -47,5 +47,9 @@ public interface ISolicitudEnsayoService extends CRUD<SolicitudEnsayo> {
 
     boolean finalizarProceso(SolicitudEnsayo solicitud);
 
+    boolean confirmarPlanesAccion(SolicitudEnsayo solicitud);
+
     SolicitudPruebasProceso iniciarPruebaEnProceso(SolicitudEnsayo solicitud);
+
+    List<SolicitudEnsayo> obtenerSolicitudesPendientesPlanesAccion();
 }

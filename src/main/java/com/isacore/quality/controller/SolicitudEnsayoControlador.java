@@ -178,4 +178,16 @@ public class SolicitudEnsayoControlador {
         return ResponseEntity.ok(respuesta);
     }
 
+    @PostMapping("/confirmarPlanesAccion")
+    public ResponseEntity<Object> confirmarPlanesAccion(@RequestBody SolicitudEnsayo obj) {
+        boolean respuesta = servicio.confirmarPlanesAccion(obj);
+        return ResponseEntity.ok(respuesta);
+    }
+
+    @GetMapping("/pendienteRevisarPlanAccion")
+    public ResponseEntity<List<SolicitudEnsayo>> listarPendientesPlanAccion() {
+        List<SolicitudEnsayo> respuesta = servicio.obtenerSolicitudesPendientesPlanesAccion();
+        return ResponseEntity.ok(respuesta);
+    }
+
 }

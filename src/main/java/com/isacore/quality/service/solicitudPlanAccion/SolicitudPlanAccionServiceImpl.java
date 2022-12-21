@@ -48,6 +48,16 @@ public class SolicitudPlanAccionServiceImpl {
         return this.repo.save(planAccion);
     }
 
+    @Transactional
+    public SolicitudPlanAccion marcarCumplimiento(SolicitudPlanAccion dto){
+        SolicitudPlanAccion planAccion = this.repo.findById(dto.getId()).orElse(null);
+        if(planAccion == null)
+            throw new SolicitudEnsayoErrorException(String.format("Plan de acción no encontrado %s", dto.getId()));
+        planAccion.marcarComoCumplida(dto.getCumplido());
+        LOG.info(String.format("Plan de accion marcado cumplimiento %s", planAccion));
+        return this.repo.save(planAccion);
+    }
+
     @Transactional(readOnly = true)
     public List<SolicitudPlanAccion> listarPorTipoSolicitudYSolicitudId(TipoSolicitud tipo, long solicitudId){
         return this.repo.findByTipoSolicitudAndSolicitudIdOrderByFechaRegistro(tipo, solicitudId);

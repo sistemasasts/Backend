@@ -427,6 +427,16 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     @Transactional
     @Override
+    public boolean confirmarPlanesAccion(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudEnsayo = this.obtenerSolicitudPorId(solicitud.getId());
+        String observacion = noEsNuloNiBlanco(solicitud.getObservacion()) ? solicitud.getObservacion() : "PLANES DE ACCIÓN INGRESADOS";
+        this.agregarHistorial(solicitudEnsayo,OrdenFlujo.SOLICITANTE_PLANES_ACCION, observacion);
+        solicitudEnsayo.setEstado(EstadoSolicitud.PENDIENTE_PLANES_ACCION);
+        return true;
+    }
+
+    @Transactional
+    @Override
     public SolicitudPruebasProceso iniciarPruebaEnProceso(SolicitudEnsayo solicitud) {
         SolicitudEnsayo solicitudEnsayo = this.obtenerSolicitudPorId(solicitud.getId());
         SolicitudPruebasProceso nuevo = this.pruebasProcesoService.create(new SolicitudPruebasProceso(
@@ -440,6 +450,13 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitudEnsayo.setEstado(EstadoSolicitud.GESTION_PRUEBAS_PROCESO);
         solicitudEnsayo.setSolicitudPruebaProcesoId(nuevo.getId());
         return nuevo;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<SolicitudEnsayo> obtenerSolicitudesPendientesPlanesAccion() {
+        String usuario = nombreUsuarioEnSesion();
+        return this.repo.findByEstadoAndValidadorOrderByFechaCreacionDesc(EstadoSolicitud.PENDIENTE_PLANES_ACCION, usuario);
     }
 
     private List<SolicitudDTO> obtenerSolicitudesEnsayo(ConsultaSolicitudDTO consulta) {

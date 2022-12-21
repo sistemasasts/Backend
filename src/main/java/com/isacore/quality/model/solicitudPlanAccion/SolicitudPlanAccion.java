@@ -20,6 +20,7 @@ public class SolicitudPlanAccion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaCumplimiento;
 
     @NotNull
     private LocalDate fechaInicio;
@@ -48,5 +49,10 @@ public class SolicitudPlanAccion {
         this.tipoSolicitud = tipoSolicitud;
         this.solicitudId = solicitudId;
         this.fechaRegistro = LocalDateTime.now();
+    }
+
+    public void marcarComoCumplida(boolean cumplimiento){
+       this.cumplido = cumplimiento;
+       this.fechaCumplimiento = LocalDateTime.now();
     }
 }
