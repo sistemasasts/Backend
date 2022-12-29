@@ -121,7 +121,7 @@
 		<dependency>
 			<groupId>net.sf.jasperreports</groupId>
 			<artifactId>jasperreports</artifactId>
-			<version>6.13.0</version>
+			<version>6.20.0</version>
 		</dependency>
 		
 		<dependency>
@@ -129,7 +129,7 @@
 		    <artifactId>jasperreports-fonts</artifactId>
 		    <version>6.16.0</version>
 		</dependency>
-		
+
 		<!-- SEGURIDAD -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -148,35 +148,11 @@
 		</dependency>
 		<!-- SEGURIDAD -->
 
-		<!--<dependency>
-			<groupId>com.lowagie</groupId>
-			<artifactId>itext</artifactId>
-			<version>2.1.7</version>
-		</dependency>-->
-
 		<dependency>
 			<groupId>poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>3.1-FINAL</version>
 		</dependency>
-
-		<!--<dependency>
-			<groupId>com.lowagie</groupId>
-			<artifactId>itext-rtf</artifactId>
-			<version>2.1.7</version>
-		</dependency>-->
-
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>3.12</version>
-		</dependency>
-
-		<!--<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>2.3.5</version>
-		</dependency>-->
 
 		<!-- Dependencia para leer archivos planos -->
 		<!-- https://mvnrepository.com/artifact/net.sf.opencsv/opencsv -->
@@ -241,19 +217,23 @@
 	</build>
 
 	<repositories>
-		<repository>
-			<id>pentaho-public</id>
-			<name>Pentaho Public</name>
-			<url>http://nexus.pentaho.org/content/groups/omni</url>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
+<!--		<repository>-->
+<!--			<id>jaspersoft-third-party</id>-->
+<!--			<url>http://jaspersoft.jfrog.io/jaspersoft/third-party-ce-artifacts/</url>-->
+<!--		</repository>-->
+<!--		<repository>-->
+<!--			<id>pentaho-public</id>-->
+<!--			<name>Pentaho Public</name>-->
+<!--			<url>http://nexus.pentaho.org/content/groups/omni</url>-->
+<!--			<releases>-->
+<!--				<enabled>true</enabled>-->
+<!--				<updatePolicy>always</updatePolicy>-->
+<!--			</releases>-->
+<!--			<snapshots>-->
+<!--				<enabled>true</enabled>-->
+<!--				<updatePolicy>always</updatePolicy>-->
+<!--			</snapshots>-->
+<!--		</repository>-->
 	</repositories>
 
 </project>

@@ -1,6 +1,7 @@
 package com.isacore.quality.repository.se;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,4 +38,6 @@ public interface ISolicitudEnsayoRepo extends JpaRepository<SolicitudEnsayo, Lon
         ")\n" +
         "SELECT * FROM TreeCTE ", nativeQuery = true)
     List<Object[]> obtenerSolicitudesHija(@Param("solicitudId")long solicitudId);
+
+    Optional<SolicitudEnsayo> findBySolicitudPruebaProcesoId(long solicitudPruebaProcesoId);
 }

@@ -89,31 +89,31 @@
 		</band>
 	</background>
 	<title>
-		<band height="195" splitType="Stretch">
+		<band height="186" splitType="Stretch">
 			<staticText>
-				<reportElement x="230" y="0" width="324" height="40" uuid="0bb26eea-a0b6-4b60-9dd7-1b63ec366ac7"/>
+				<reportElement x="160" y="0" width="394" height="20" uuid="0bb26eea-a0b6-4b60-9dd7-1b63ec366ac7"/>
 				<textElement textAlignment="Right">
 					<font size="13" isBold="true" isItalic="true"/>
 				</textElement>
-				<text><![CDATA[LABORATORIO DE INVESTIGACIÓN, DESARROLLO Y CALIDAD]]></text>
+				<text><![CDATA[CENTRO DE INVESTIGACIÓN DE MATERIALES IMPTEK]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="342" y="30" width="212" height="26" uuid="12c697cb-864f-4cb4-abf4-c9d62dc2c504"/>
+				<reportElement x="342" y="18" width="212" height="26" uuid="12c697cb-864f-4cb4-abf4-c9d62dc2c504"/>
 				<textElement textAlignment="Right">
 					<font isItalic="true"/>
 				</textElement>
-				<text><![CDATA[E35 KM 11 vía Pifo. Sector Industrial El Inga
+				<text><![CDATA[E35 KM 14 vía Pifo. Sector Industrial El Inga
 Teléfono: (+593)6003450 ext. 1212]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="455" y="56" width="100" height="18" uuid="f7fa572c-2d1e-4f1e-b6da-2f26f3254279"/>
+				<reportElement x="455" y="44" width="100" height="18" uuid="f7fa572c-2d1e-4f1e-b6da-2f26f3254279"/>
 				<textElement textAlignment="Right">
 					<font isItalic="true" isUnderline="true"/>
 				</textElement>
 				<text><![CDATA[www.imptek.com]]></text>
 			</staticText>
 			<image vAlign="Middle">
-				<reportElement x="0" y="70" width="97" height="52" uuid="0f6eb59c-505a-44c4-91ed-ea07d98a4563">
+				<reportElement x="0" y="60" width="97" height="52" uuid="0f6eb59c-505a-44c4-91ed-ea07d98a4563">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<box>
@@ -122,10 +122,10 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<imageExpression><![CDATA["C:/CRIMPTEK/ReporteRolDePagos/imagenes/LOGO-IMPTEK.PNG"]]></imageExpression>
+				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/LOGO-CIMI.jpg"]]></imageExpression>
 			</image>
 			<staticText>
-				<reportElement x="97" y="70" width="360" height="30" uuid="6dca62ca-fb7d-4947-b98c-0930fbf57cb8">
+				<reportElement x="97" y="60" width="360" height="30" uuid="6dca62ca-fb7d-4947-b98c-0930fbf57cb8">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
@@ -140,7 +140,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<text><![CDATA[FORMATO DE REGISTRO]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="457" y="70" width="97" height="30" uuid="f1ac47c6-4c27-4668-a8b7-1d64f4c2b740">
+				<reportElement x="457" y="60" width="97" height="30" uuid="f1ac47c6-4c27-4668-a8b7-1d64f4c2b740">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
@@ -155,7 +155,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<text><![CDATA[REV. 01]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="97" y="123" width="360" height="22" uuid="52034b13-8ee0-42a7-813e-f4e785a7f5be">
+				<reportElement x="97" y="113" width="360" height="22" uuid="52034b13-8ee0-42a7-813e-f4e785a7f5be">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
@@ -171,7 +171,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<text><![CDATA[Solicitud de Pruebas de Proceso]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="97" y="100" width="360" height="22" uuid="caf69762-66b0-467e-a3de-9f71679aa048">
+				<reportElement x="97" y="90" width="360" height="22" uuid="caf69762-66b0-467e-a3de-9f71679aa048">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
@@ -186,7 +186,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<text><![CDATA[Referencia: MP - DDP]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="123" width="97" height="22" uuid="5fbcd093-cd39-4da9-a48e-2713fcef3ebf"/>
+				<reportElement x="0" y="113" width="97" height="22" uuid="5fbcd093-cd39-4da9-a48e-2713fcef3ebf"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
@@ -199,7 +199,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<text><![CDATA[DDP-04]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="457" y="122" width="97" height="23" uuid="84c22784-a740-46ed-80b3-77bdbd321028"/>
+				<reportElement x="457" y="112" width="97" height="23" uuid="84c22784-a740-46ed-80b3-77bdbd321028"/>
 				<box>
 					<leftPen lineWidth="1.0"/>
 					<bottomPen lineWidth="1.0"/>
@@ -209,40 +209,40 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<text><![CDATA[Pág. 1 de 1]]></text>
 			</staticText>
 			<rectangle>
-				<reportElement mode="Transparent" x="0" y="145" width="554" height="50" uuid="3710b506-a476-43b7-b71d-12747ae1096e">
+				<reportElement mode="Transparent" x="0" y="135" width="554" height="50" uuid="3710b506-a476-43b7-b71d-12747ae1096e">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 			</rectangle>
 			<staticText>
-				<reportElement x="0" y="150" width="97" height="19" uuid="5e43e9a1-4b98-4b6d-a385-49fe2586e9f2"/>
+				<reportElement x="0" y="140" width="97" height="19" uuid="5e43e9a1-4b98-4b6d-a385-49fe2586e9f2"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[Solicitado por:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="260" y="150" width="90" height="19" uuid="b0332c92-08b9-4aee-ac9a-91deb73dfe7e"/>
+				<reportElement x="260" y="140" width="90" height="19" uuid="b0332c92-08b9-4aee-ac9a-91deb73dfe7e"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[Área / Dept.:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="169" width="97" height="19" uuid="efc40bbe-563c-4dcf-aca5-83a404dba262"/>
+				<reportElement x="0" y="159" width="97" height="19" uuid="efc40bbe-563c-4dcf-aca5-83a404dba262"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[Fecha de Solicitud:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="260" y="169" width="90" height="19" uuid="63c0e9e6-a008-4a0a-8ae7-3acafb38d17d"/>
+				<reportElement x="260" y="159" width="90" height="19" uuid="63c0e9e6-a008-4a0a-8ae7-3acafb38d17d"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
 				<text><![CDATA[Fecha de Entrega:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="97" y="150" width="163" height="19" uuid="4bc7af51-464a-4bf9-a6c2-a3e656b7b9fa"/>
+				<reportElement x="97" y="140" width="163" height="19" uuid="4bc7af51-464a-4bf9-a6c2-a3e656b7b9fa"/>
 				<box>
 					<pen lineWidth="1.0" lineStyle="Dotted"/>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -256,7 +256,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textFieldExpression><![CDATA[$F{nombreSolicitante}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="350" y="169" width="180" height="19" uuid="8827152f-00d0-4532-a84b-daf7bbc3458d"/>
+				<reportElement x="350" y="159" width="180" height="19" uuid="8827152f-00d0-4532-a84b-daf7bbc3458d"/>
 				<box>
 					<pen lineWidth="1.0" lineStyle="Dotted"/>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -267,10 +267,10 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{fechaEntrega}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{fechaEntrega}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="350" y="150" width="180" height="19" uuid="bd728e22-89ae-4629-9245-22afb87fa3da"/>
+				<reportElement x="350" y="140" width="180" height="19" uuid="bd728e22-89ae-4629-9245-22afb87fa3da"/>
 				<box>
 					<pen lineWidth="1.0" lineStyle="Dotted"/>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -284,7 +284,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textFieldExpression><![CDATA[$F{nombreArea}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="97" y="169" width="163" height="19" uuid="f237e4b9-f73c-4319-9999-eb7b2a918f28"/>
+				<reportElement x="97" y="159" width="163" height="19" uuid="f237e4b9-f73c-4319-9999-eb7b2a918f28"/>
 				<box>
 					<pen lineWidth="1.0" lineStyle="Dotted"/>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -295,10 +295,10 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{fechaCreacion}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{fechaCreacion}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-				<reportElement x="457" y="100" width="97" height="22" uuid="38473f32-0e3c-4e24-aedb-b43982da4525"/>
+				<reportElement x="457" y="90" width="97" height="22" uuid="38473f32-0e3c-4e24-aedb-b43982da4525"/>
 				<box>
 					<bottomPen lineWidth="1.0"/>
 					<rightPen lineWidth="1.0"/>
@@ -516,7 +516,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 							</textField>
 						</jr:columnFooter>
 						<jr:detailCell style="Table_TD" height="20">
-							<textField>
+							<textField isBlankWhenNull="true">
 								<reportElement mode="Transparent" x="0" y="0" width="114" height="20" uuid="53a89a43-587d-4d23-9c9a-20261aec4836"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="9"/>
@@ -746,14 +746,14 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement verticalAlignment="Middle">
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{fechaCreacion}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{fechaCreacion}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="428" y="61" width="122" height="12" uuid="aa43157a-8aa2-4b70-91d3-9f9ac74316b2"/>
 				<textElement verticalAlignment="Middle">
 					<font size="7"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{fechaAprobacion}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{fechaAprobacion}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="0" y="20" width="190" height="58" uuid="1fce81ad-ad95-446e-a1a7-fd31ca84410f"/>

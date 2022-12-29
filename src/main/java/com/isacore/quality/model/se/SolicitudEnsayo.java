@@ -202,6 +202,11 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.adjuntosRequeridos.stream().filter(x -> x.getNombre().equalsIgnoreCase("Respaldo")).findFirst().ifPresent(adjuntoRequerido -> adjuntoRequerido.setObligatorio(obligatorio));
     }
 
+    public void marcarEstadoFinal(EstadoSolicitud estado, TipoAprobacionSolicitud tipoAprobacion){
+        setEstado(estado);
+        setTipoAprobacion(tipoAprobacion);
+    }
+
     private LocalDate calcularFechaLimiteDiasLaborables(LocalDate fechaInicio, int dias) {
         int agregarDias = 0;
         while (agregarDias < dias) {

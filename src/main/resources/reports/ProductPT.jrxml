@@ -144,7 +144,7 @@
 					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<imageExpression><![CDATA["C:/CRIMPTEK/ReporteRolDePagos/imagenes/LOGO-IMPTEK.PNG"]]></imageExpression>
+				<imageExpression><![CDATA["C:/CRIMPTEK/ReporteRolDePagos/imagenes/LOGO-CIMI.jpg"]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="113" y="41" width="347" height="20" uuid="fee93f22-fb7f-4fd1-ad8c-19d726bb7f50">

@@ -68,7 +68,7 @@ public class ReporteSolicitudPPDTO implements Serializable {
         this.unidadRequeridaProducir = solicitud.getUnidadRequeridaProducir();
         this.contieneAdjuntoDescripcionProducto = solicitud.isContieneAdjuntoDescripcionProducto();
         this.motivosParaImprimir();
-        this.materialesParaImprimir();
+//        this.materialesParaImprimir();
     }
 
     public String getNombreArea() {
