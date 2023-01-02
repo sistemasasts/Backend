@@ -3,6 +3,7 @@ package com.isacore.quality.api;
 import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.service.IProviderService;
 import com.isacore.quality.service.IUnidadMedidaService;
+import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/unidadesMedida")
@@ -25,8 +27,8 @@ public class UnidadMedidaController {
 	}
 
     @GetMapping("activos")
-    public ResponseEntity<List<UnidadMedida>> listarActivos() {
-        List<UnidadMedida> unidades = service.listarActivos();
+    public ResponseEntity<List<CatalogDTO>> listarActivos() {
+        List<CatalogDTO> unidades = service.listarActivos().stream().map(x -> new CatalogDTO(x.getId(), x.getNombre())).collect(Collectors.toList());
         return ResponseEntity.ok(unidades);
     }
 
