@@ -93,7 +93,7 @@
 	</subDataset>
 	<subDataset name="Empty Dataset4" uuid="edfb1579-6c58-471f-b7ef-e20c652352c7">
 		<field name="nombre" class="java.lang.String"/>
-		<field name="unidad" class="java.lang.String"/>
+		<field name="unidadTexto" class="java.lang.String"/>
 		<field name="cantidadSolicitada" class="java.math.BigDecimal"/>
 		<field name="cantidadUtilizada" class="java.math.BigDecimal"/>
 		<field name="porcentajeVariacion" class="java.math.BigDecimal"/>
@@ -126,6 +126,10 @@
 	<field name="observacionCalidad" class="java.lang.String"/>
 	<field name="observacionProduccion" class="java.lang.String"/>
 	<field name="tipoAprobacion" class="java.lang.String"/>
+	<field name="unidadProductoTerminadoTexto" class="java.lang.String"/>
+	<field name="unidadDesperdicioTexto" class="java.lang.String"/>
+	<field name="unidadProductoPruebaTexto" class="java.lang.String"/>
+	<field name="unidadProductoNoConformeTexto" class="java.lang.String"/>
 	<background>
 		<band height="802" splitType="Stretch">
 			<image>
@@ -344,7 +348,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{fechaPrueba}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{fechaPrueba}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="457" y="40" width="97" height="19" uuid="fba53a26-68c5-40db-97d5-c97f509b60cb"/>
@@ -520,7 +524,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="9"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{unidad}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$F{unidadTexto}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
@@ -889,7 +893,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{lineaFabricacionUnidad}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{unidadProductoTerminadoTexto}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="372" y="58" width="182" height="20" uuid="0c0680d7-7541-463f-8f57-daa55e4e7f7e"/>
@@ -902,7 +906,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{lineaFabricacionUnidad}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{unidadProductoNoConformeTexto}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="372" y="78" width="182" height="20" uuid="3d815ffe-0d41-4baa-a091-f0505dd46864"/>
@@ -915,7 +919,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{lineaFabricacionUnidad}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{unidadDesperdicioTexto}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="372" y="98" width="182" height="20" uuid="e9a2d47d-4262-44d2-b33a-a8598b193cea"/>
@@ -928,7 +932,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{lineaFabricacionUnidad}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{unidadProductoPruebaTexto}]]></textFieldExpression>
 			</textField>
 		</band>
 		<band height="38">

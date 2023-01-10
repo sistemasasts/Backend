@@ -15,6 +15,8 @@ public class ProductPropertyDTO {
 	private Double maxProperty;
 	
 	private String unitProperty;
+
+	private long unitId;
 	
 	private String propertyNorm;
 	
@@ -30,13 +32,14 @@ public class ProductPropertyDTO {
 	
 	public ProductPropertyDTO() {}
 	
-	public ProductPropertyDTO(Integer idProduct, String idPropertyList, String nameProperty, Double min, Double max, String unit, String norm, String asUser,String type, String viewProperty) {
+	public ProductPropertyDTO(Integer idProduct, String idPropertyList, String nameProperty, Double min, Double max, String unit, long unitId, String norm, String asUser,String type, String viewProperty) {
 		this.idProduct = idProduct;
 		this.idPropertyList = idPropertyList;
 		this.nameProperty = nameProperty;
 		this.minProperty = min;
 		this.maxProperty = max;
 		this.unitProperty = unit;
+		this.unitId = unitId;
 		this.propertyNorm = norm;
 		this.asUser = asUser;
 		this.typeProperty = type;
@@ -127,11 +130,19 @@ public class ProductPropertyDTO {
 		this.nameProperty = nameProperty;
 	}
 
+	public long getUnitId() {
+		return unitId;
+	}
+
+	public void setUnitId(long unitId) {
+		this.unitId = unitId;
+	}
+
 	@Override
 	public String toString() {
 		return " [idProduct=" + idProduct + ", idPropertyList=" + idPropertyList + ", nameProperty="
 				+ nameProperty + ", action=" + action + ", minProperty=" + minProperty + ", maxProperty=" + maxProperty
-				+ ", unitProperty=" + unitProperty + ", propertyNorm=" + propertyNorm + ", asUser=" + asUser
+				+ ", unitProperty=" + unitProperty + ", unitId=" + unitId + " , propertyNorm=" + propertyNorm + ", asUser=" + asUser
 				+ ", typeProperty=" + typeProperty + ", viewProperty=" + viewProperty + "]";
 	}	
 	

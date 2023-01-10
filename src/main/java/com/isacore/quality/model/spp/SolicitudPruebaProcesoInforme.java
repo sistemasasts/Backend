@@ -1,5 +1,6 @@
 package com.isacore.quality.model.spp;
 
+import com.isacore.quality.model.UnidadMedida;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -38,10 +39,14 @@ public class SolicitudPruebaProcesoInforme {
     private BigDecimal cantidadDesperdicio;
     private BigDecimal cantidadProductoPrueba;
 
-    private String unidadProductoTerminado;
-    private String unidadProductoNoConforme;
-    private String unidadDesperdicio;
-    private String unidadProductoPrueba;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidadProductoTerminado;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidadProductoNoConforme;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidadDesperdicio;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidadProductoPrueba;
 
     @Column(columnDefinition = "varchar(max)")
     private String conclucion;
@@ -106,5 +111,21 @@ public class SolicitudPruebaProcesoInforme {
         if (this.getSolicitudPruebasProceso().getTipoAprobacion() == null)
             return "";
         return String.format("%s - %s", this.getSolicitudPruebasProceso().getTipoAprobacion().isAprobado() ? "APROBADO" : "NO APROBADO", this.getSolicitudPruebasProceso().getTipoAprobacion().getDescripcion());
+    }
+
+    public String getUnidadProductoTerminadoTexto() {
+        return this.unidadProductoTerminado != null ? this.unidadProductoTerminado.getAbreviatura() : "";
+    }
+
+    public String getUnidadDesperdicioTexto() {
+        return this.unidadDesperdicio != null ? this.unidadDesperdicio.getAbreviatura() : "";
+    }
+
+    public String getUnidadProductoPruebaTexto() {
+        return this.unidadProductoPrueba != null ? this.unidadProductoPrueba.getAbreviatura() : "";
+    }
+
+    public String getUnidadProductoNoConformeTexto() {
+        return this.unidadProductoNoConforme != null ? this.unidadProductoNoConforme.getAbreviatura() : "";
     }
 }

@@ -3,6 +3,7 @@ package com.isacore.quality.model.spp;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.Area;
+import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.se.SolicitudBase;
 import com.isacore.util.*;
 import lombok.Data;
@@ -94,7 +95,11 @@ public class SolicitudPruebasProceso extends SolicitudBase {
     private LocalDate fechaSolicitudValidada;
 
     private BigDecimal cantidadRequeridaProducir = BigDecimal.ZERO;
-    private String unidadRequeridaProducir;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidadRequeridaProducir;
+
+    //private String unidadRequeridaProducir;
 
     @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "solicitud_pruebas_proceso_id")
@@ -120,7 +125,7 @@ public class SolicitudPruebasProceso extends SolicitudBase {
             String codigo, LocalDate fechaEntrega, String lineaAplicacion, String motivo, String motivoOtro,
             String materialLineaProceso, String materialLineaProOtro, String descripcionProducto,
             String variablesProceso, String verificacionAdicional, String observacion, String nombreSolicitante, Area area,
-            OrigenSolicitudPP origen, boolean requiereInforme, BigDecimal cantidadRequeridaProducir, String unidadRequeridaProducir, boolean contieneAdjuntoDescripcionProducto) {
+            OrigenSolicitudPP origen, boolean requiereInforme, BigDecimal cantidadRequeridaProducir, UnidadMedida unidadRequeridaProducir, boolean contieneAdjuntoDescripcionProducto) {
         super(codigo, nombreSolicitante);
         this.fechaEntrega = fechaEntrega;
         this.lineaAplicacion = lineaAplicacion;

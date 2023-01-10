@@ -28,8 +28,8 @@ public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
 
     @Override
     public UnidadMedida create(UnidadMedida obj) {
-        this.aseguraraUnidadUnica(obj.getId());
-        UnidadMedida unidad = new UnidadMedida(obj.getId(), obj.getNombre());
+        this.aseguraraUnidadUnica(obj.getAbreviatura());
+        UnidadMedida unidad = new UnidadMedida(obj.getAbreviatura(), obj.getNombre());
         return this.unidadMedidadRepo.save(unidad);
     }
 
@@ -41,13 +41,13 @@ public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
     @Transactional
     @Override
     public UnidadMedida update(UnidadMedida obj) {
-        Optional<UnidadMedida> unidadMedida = this.unidadMedidadRepo.findById(obj.getIdOriginal());
+        Optional<UnidadMedida> unidadMedida = this.unidadMedidadRepo.findById(obj.getId());
         if(!unidadMedida.isPresent())
             throw new ConfiguracionErrorException("Unidad de medida no encontrada");
-        if(!unidadMedida.get().getId().equalsIgnoreCase(obj.getId())){
-            this.aseguraraUnidadUnica(obj.getId());
-            unidadMedida.get().setId(obj.getId());
+        if(!unidadMedida.get().getAbreviatura().equalsIgnoreCase(obj.getAbreviatura())){
+            this.aseguraraUnidadUnica(obj.getAbreviatura());
         }
+        unidadMedida.get().setAbreviatura(obj.getAbreviatura());
         unidadMedida.get().setNombre(obj.getNombre());
         unidadMedida.get().setActivo(obj.isActivo());
         return unidadMedida.get();
@@ -59,7 +59,7 @@ public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
     }
 
     private void aseguraraUnidadUnica(String id){
-        Optional<UnidadMedida> unidadMedida = this.unidadMedidadRepo.findById(id);
+        Optional<UnidadMedida> unidadMedida = this.unidadMedidadRepo.findByAbreviatura(id);
         if(unidadMedida.isPresent())
             throw new ConfiguracionErrorException("Unidad de medida ya registrada");
     }
@@ -69,4 +69,5 @@ public class UnidadMedidaServiceImpl implements IUnidadMedidaService {
     public List<UnidadMedida> listarActivos() {
         return this.unidadMedidadRepo.findByActivoTrue();
     }
+
 }

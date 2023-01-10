@@ -1,5 +1,6 @@
 package com.isacore.quality.model.spp;
 
+import com.isacore.quality.model.UnidadMedida;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,8 @@ public class Condicion {
     private String maquinaria;
     private String nombre;
     private BigDecimal valor;
-    private String unidad;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidad;
 
     @Transient
     private long condicionOperacionId;
@@ -28,7 +30,7 @@ public class Condicion {
     @Transient
     private CondicionOperacionTipo tipo;
 
-    public Condicion(String maquinaria, String nombre, BigDecimal valor, String unidad) {
+    public Condicion(String maquinaria, String nombre, BigDecimal valor, UnidadMedida unidad) {
         this.maquinaria = maquinaria;
         this.nombre = nombre;
         this.valor = valor;
@@ -36,10 +38,14 @@ public class Condicion {
         this.fechaRegistro = LocalDateTime.now();
     }
 
-    public void actualizar(String maquinaria, String nombre, BigDecimal valor, String unidad){
+    public void actualizar(String maquinaria, String nombre, BigDecimal valor, UnidadMedida unidad) {
         this.maquinaria = maquinaria;
         this.nombre = nombre;
         this.valor = valor;
         this.unidad = unidad;
+    }
+
+    public String getUnidadTexto() {
+        return this.unidad != null ? this.unidad.getAbreviatura() : "";
     }
 }

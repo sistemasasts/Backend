@@ -4,9 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 @Data
 @NoArgsConstructor
@@ -14,16 +12,16 @@ import javax.persistence.Transient;
 @Entity
 public class UnidadMedida {
     @Id
-    private String Id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String abreviatura;
     private String nombre;
     private boolean activo;
 
-    @Transient
-    private String idOriginal;
-
-    public UnidadMedida(String id, String nombre) {
-        Id = id;
-        this.nombre = nombre;
+    public UnidadMedida(String abreviatura, String descripcion) {
+        this.nombre = descripcion;
+        this.abreviatura = abreviatura;
         this.activo = true;
     }
 }

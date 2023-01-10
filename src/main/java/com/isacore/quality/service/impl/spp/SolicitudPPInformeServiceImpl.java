@@ -3,7 +3,9 @@ package com.isacore.quality.service.impl.spp;
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
+import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.spp.*;
+import com.isacore.quality.repository.IUnidadMedidadRepo;
 import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoInformeRepo;
 import com.isacore.quality.service.spp.ISolicitudPPInformeService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
@@ -21,13 +23,16 @@ import java.util.stream.Collectors;
 public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService {
     private static final Log LOG = LogFactory.getLog(SolicitudPPInformeServiceImpl.class);
     private ISolicitudPruebaProcesoInformeRepo informeRepo;
+    private IUnidadMedidadRepo unidadMedidadRepo;
     private IGeneradorJasperReports reporteServicio;
 
     @Autowired
     public SolicitudPPInformeServiceImpl(
         ISolicitudPruebaProcesoInformeRepo informeRepo,
+        IUnidadMedidadRepo unidadMedidadRepo,
         IGeneradorJasperReports reporteServicio) {
         this.informeRepo = informeRepo;
+        this.unidadMedidadRepo = unidadMedidadRepo;
         this.reporteServicio = reporteServicio;
     }
 
@@ -97,7 +102,8 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
     @Override
     public List<MaterialUtilizado> agregarMaterialUtilizado(long solicitudInformeId, MaterialUtilizado material) {
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
-        solicitudInforme.agregarMaterialUtilizado(new MaterialUtilizado(material.getNombre(), material.getUnidad(),
+        UnidadMedida unidad = this.buscarUnidadMedida(material.getUnidad().getId());
+        solicitudInforme.agregarMaterialUtilizado(new MaterialUtilizado(material.getNombre(), unidad,
             material.getCantidadSolicitada(), material.getCantidadUtilizada()));
         LOG.info(String.format("Material utilizado agregado %s", material));
         return solicitudInforme.getMaterialesUtilizado();
@@ -110,8 +116,9 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         Optional<MaterialUtilizado> materialRecargado =
             solicitudInforme.getMaterialesUtilizado().stream().filter(x -> x.getId().compareTo(material.getId()) == 0).findFirst();
         if (materialRecargado.isPresent()) {
+            UnidadMedida unidad = this.buscarUnidadMedida(material.getUnidad().getId());
             materialRecargado.get().modificar(material.getNombre(),
-                material.getUnidad(), material.getCantidadSolicitada(), material.getCantidadUtilizada());
+                unidad, material.getCantidadSolicitada(), material.getCantidadUtilizada());
             LOG.info(String.format("Material utilizado modificado %s", materialRecargado.get()));
         }
         return solicitudInforme.getMaterialesUtilizado();
@@ -164,8 +171,9 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
     public List<CondicionOperacion> agregarCondicion(long solicitudInformeId, Condicion condicion) {
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
         CondicionOperacion condicionOperacion = obtenerCondicionOperacionPorId(solicitudInforme, condicion.getCondicionOperacionId());
+        UnidadMedida unidad = this.buscarUnidadMedida(condicion.getUnidad().getId());
         condicionOperacion.agregarCondicion(new Condicion(condicion.getMaquinaria(), condicion.getNombre(),
-            condicion.getValor(), condicion.getUnidad()));
+            condicion.getValor(), unidad));
         LOG.info(String.format("Condicion agregado %s", condicion));
         return solicitudInforme.getCondicionesOperacion().stream().filter(x -> x.getTipo().equals(condicionOperacion.getTipo())).collect(Collectors.toList());
     }
@@ -178,7 +186,8 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         Optional<Condicion> condicionRecargado =
             condicionOperacion.getCondiciones().stream().filter(x -> x.getId().compareTo(condicion.getId()) == 0).findFirst();
         if(condicionRecargado.isPresent()){
-            condicionRecargado.get().actualizar(condicion.getMaquinaria(), condicion.getNombre(), condicion.getValor(), condicion.getUnidad());
+            UnidadMedida unidad = this.buscarUnidadMedida(condicion.getUnidad().getId());
+            condicionRecargado.get().actualizar(condicion.getMaquinaria(), condicion.getNombre(), condicion.getValor(), unidad);
             LOG.info(String.format("Condicion actualizada %s", condicion));
         }
         return solicitudInforme.getCondicionesOperacion().stream().filter(x -> x.getTipo().equals(condicionOperacion.getTipo())).collect(Collectors.toList());
@@ -228,10 +237,29 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         condiciones.add(new CondicionOperacion("Laminación", "N/A", CondicionOperacionTipo.PRODUCCION));
         condiciones.add(new CondicionOperacion("Mezcla", "N/A", CondicionOperacionTipo.PRODUCCION));
         condiciones.forEach(x -> {
-            x.agregarCondicion(new Condicion(null,"Temperatura", BigDecimal.ZERO,"°C"));
-            x.agregarCondicion(new Condicion(null,"Tiempo", BigDecimal.ZERO,"min"));
-            x.agregarCondicion(new Condicion(null,"Velocidad", BigDecimal.ZERO,"rpm"));
+            UnidadMedida unidad1 = this.buscarUnidadMedida("°c");
+            if(unidad1 != null)
+                x.agregarCondicion(new Condicion(null,"Temperatura", BigDecimal.ZERO,unidad1));
+            UnidadMedida unidad2 = this.buscarUnidadMedida("min");
+            if(unidad2 != null)
+                x.agregarCondicion(new Condicion(null,"Tiempo", BigDecimal.ZERO,unidad2));
+            UnidadMedida unidad3 = this.buscarUnidadMedida("rpm");
+            if(unidad3 != null)
+                x.agregarCondicion(new Condicion(null,"Velocidad", BigDecimal.ZERO,unidad3));
             informe.agregarCondicionOperacion(x);
         });
+    }
+
+    private UnidadMedida buscarUnidadMedida(long id){
+        UnidadMedida unidad = this.unidadMedidadRepo.findById(id).orElse(null);
+        if(unidad == null){
+            throw new SolicitudPruebaProcesoErrorException("Unidad de medida no encontrada");
+        }
+        return unidad;
+    }
+
+    private UnidadMedida buscarUnidadMedida(String abreviatura){
+        UnidadMedida unidad = this.unidadMedidadRepo.findByAbreviatura(abreviatura).orElse(null);
+        return unidad;
     }
 }

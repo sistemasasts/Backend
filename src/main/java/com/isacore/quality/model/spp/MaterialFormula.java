@@ -1,13 +1,12 @@
 package com.isacore.quality.model.spp;
 
+import com.isacore.quality.model.UnidadMedida;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -27,9 +26,11 @@ public class MaterialFormula {
     private String nombre;
     private BigDecimal cantidad;
     private BigDecimal porcentaje;
-    private String unidad;
+    //private String unidad;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidad;
 
-    public MaterialFormula(String nombre, BigDecimal cantidadRequerida, BigDecimal porcentaje, String unidad) {
+    public MaterialFormula(String nombre, BigDecimal cantidadRequerida, BigDecimal porcentaje, UnidadMedida unidad) {
         this.nombre = nombre;
         this.porcentaje = porcentaje;
         this.unidad = unidad;
@@ -44,5 +45,10 @@ public class MaterialFormula {
 
     private void calcularCantidad(BigDecimal cantidadRequerida){
         this.cantidad = cantidadRequerida.multiply(this.porcentaje).divide(CIEN).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @JsonIgnore
+    public String getUnidadTexto(){
+        return this.unidad != null ? this.unidad.getAbreviatura(): "";
     }
 }

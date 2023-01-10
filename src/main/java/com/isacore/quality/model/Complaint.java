@@ -3,17 +3,7 @@ package com.isacore.quality.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -86,6 +76,9 @@ public class Complaint {
 	
 	@Column(name = "COM_UNIT", nullable = true, length = 16)
 	private String unitP;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	private UnidadMedida unit;
 	
 	@Column(name = "COM_DATECREATE", nullable = true)
 	@JsonSerialize(using = LocalDateTimeSerializeIsa.class)
@@ -318,7 +311,7 @@ public class Complaint {
 	}
 
 	public String getUnitP() {
-		return unitP;
+		return this.unit != null ? this.unit.getAbreviatura() : "";
 	}
 
 	public void setUnitP(String unitP) {
@@ -360,5 +353,12 @@ public class Complaint {
 	public void setNumber(long number) {
 		this.number = number;
 	}
-	
+
+	public UnidadMedida getUnit() {
+		return unit;
+	}
+
+	public void setUnit(UnidadMedida unit) {
+		this.unit = unit;
+	}
 }

@@ -13,6 +13,7 @@ import javax.persistence.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.isacore.quality.model.UnidadMedida;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
 
@@ -61,7 +62,8 @@ public class SolicitudEnsayo extends SolicitudBase {
 
     private BigDecimal cantidad;
 
-    private String unidad;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidad;
 
     private Boolean dataSheet;
 
@@ -92,7 +94,7 @@ public class SolicitudEnsayo extends SolicitudBase {
 
     public SolicitudEnsayo(String codigo, String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String objetivo,
                            PrioridadNivel prioridad, TiempoEntrega tiempoEntrega, String detalleMaterial, String lineaAplicacion, BigDecimal cantidad,
-                           String unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
+                           UnidadMedida unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
         super(codigo, nombreSolicitante);
         this.proveedorNombre = proveedorNombre;
         this.proveedorId = proveedorId;

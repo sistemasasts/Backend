@@ -16,7 +16,7 @@
 	<field name="_THIS" class="java.lang.String"/>
 	<field name="nombre" class="java.lang.String"/>
 	<field name="valor" class="java.math.BigDecimal"/>
-	<field name="unidad" class="java.lang.String"/>
+	<field name="unidadTexto" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -65,7 +65,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{unidad}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{unidadTexto}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

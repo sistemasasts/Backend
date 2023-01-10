@@ -1,13 +1,11 @@
 package com.isacore.quality.model.spp;
 
+import com.isacore.quality.model.UnidadMedida;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -25,10 +23,12 @@ public class MaterialUtilizado {
     private String nombre;
     private BigDecimal cantidadSolicitada = BigDecimal.ZERO;
     private BigDecimal cantidadUtilizada = BigDecimal.ZERO;
-    private String unidad;
+    //private String unidad;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private UnidadMedida unidad;
     private BigDecimal porcentajeVariacion = BigDecimal.ZERO;
 
-    public MaterialUtilizado(String nombre, String unidad, BigDecimal cantidadSolicitada, BigDecimal cantidadUtilizada) {
+    public MaterialUtilizado(String nombre, UnidadMedida unidad, BigDecimal cantidadSolicitada, BigDecimal cantidadUtilizada) {
         this.nombre = nombre;
         this.cantidadSolicitada = cantidadSolicitada;
         this.cantidadUtilizada = cantidadUtilizada;
@@ -45,7 +45,7 @@ public class MaterialUtilizado {
         this.calcularVariacion();
     }
 
-    public void modificar(String nombre, String unidad, BigDecimal cantidadSolicitada, BigDecimal cantidadUtilizada) {
+    public void modificar(String nombre, UnidadMedida unidad, BigDecimal cantidadSolicitada, BigDecimal cantidadUtilizada) {
         this.nombre = nombre;
         this.cantidadSolicitada = cantidadSolicitada;
         this.cantidadUtilizada = cantidadUtilizada;
@@ -55,7 +55,11 @@ public class MaterialUtilizado {
 
     private void calcularVariacion() {
         this.porcentajeVariacion = (this.cantidadSolicitada.subtract(this.cantidadUtilizada))
-            .divide(this.cantidadSolicitada, 2, RoundingMode.HALF_UP)
-            .multiply(new BigDecimal(100));
+                .divide(this.cantidadSolicitada, 2, RoundingMode.HALF_UP)
+                .multiply(new BigDecimal(100));
+    }
+
+    public String getUnidadTexto() {
+        return this.unidad != null ? this.unidad.getAbreviatura() : "";
     }
 }

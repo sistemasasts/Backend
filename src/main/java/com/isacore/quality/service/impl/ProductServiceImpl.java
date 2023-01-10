@@ -278,14 +278,15 @@ public class ProductServiceImpl implements IProductService {
 			listProperties.forEach(y -> {
 				y.setProduct(p);
 				y.setDateUpdate(LocalDateTime.now());
+				Long unidad = p.getUnit() != null ? y.getUnit().getId() : null;
 				List<Object> propertyDescription = this.repoProperty
 						.validateExistProperty(y.getProduct().getIdProduct(), y.getPropertyList().getIdProperty());
 				if (propertyDescription == null)
 					this.repoProperty.createProperty(y.getProduct().getIdProduct(), y.getPropertyList().getIdProperty(),
-							y.getMinProperty(), y.getMaxProperty(), y.getUnitProperty(), y.getViewProperty(),
+							y.getMinProperty(), y.getMaxProperty(), unidad, y.getViewProperty(),
 							dateUpdate, y.getTypeProperty(), y.getPropertyNorm(), user);
 				else
-					this.repoProperty.updateProperty(y.getMinProperty(), y.getMaxProperty(), y.getUnitProperty(),
+					this.repoProperty.updateProperty(y.getMinProperty(), y.getMaxProperty(), unidad,
 							y.getViewProperty(), dateUpdate, y.getTypeProperty(), y.getPropertyNorm(), user,
 							y.getProduct().getIdProduct(), y.getPropertyList().getIdProperty());
 			});
