@@ -338,6 +338,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         SolicitudPruebaProcesoResponsable responsable = this.obtenerResponsable(dto.getOrden(),
                 Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
         responsable.asignarUsuario(dto.getUsuarioAsignado());
+        String observacion = String.format("SOLICITUD REASIGNADA AL USUARIO %s", dto.getUsuarioAsignado());
         switch (dto.getOrden()) {
             case PRODUCCION:
                 solicitud.setUsuarioGestionPlanta(dto.getUsuarioAsignado());
@@ -349,6 +350,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                 solicitud.marcarSolicitudComoAsignadaMantenimiento(dto.getUsuarioAsignado());
                 break;
         }
+        this.agregarHistorial(solicitud, dto.getOrden(), observacion);
         LOG.info(String.format("Solicitud %s reasignada a responsable %s - %s", solicitud.getCodigo(), dto.getOrden(), dto.getUsuarioAsignado()));
         return true;
     }
@@ -578,6 +580,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     }
 
     private void responderSolicitudMantenimiento(SolicitudPruebasProceso solicitud, String observacion) {
+        this.informeServicio.validarConclusionesMantenimientoDDP05(solicitud.getId());
         SolicitudPruebaProcesoResponsable responsable = obtenerResponsable(OrdenFlujoPP.MANTENIMIENTO,
                 Arrays.asList(EstadoSolicitudPPResponsable.PENDIENTE), solicitud.getId());
         responsable.marcarComoPendientePorAprobar();

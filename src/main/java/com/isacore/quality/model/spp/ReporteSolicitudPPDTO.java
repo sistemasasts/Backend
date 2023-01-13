@@ -13,8 +13,9 @@ import java.util.List;
 @Data
 public class ReporteSolicitudPPDTO implements Serializable {
 
-    private final String[] OpcionesMotivos = {"Desarrollo Proveedores", "Desarrollo Materias Primas", "Desarrollo Productos", "Reclamos Clientes",
-            "Reingeniería", "Reducción Costos", "Mejora de Producto", "Mejora del Proceso", "Verificación de Equipos"};
+    private final String[] OpcionesMotivos = {"Desarrollo Proveedores", "Disponibilidad Materias Primas", "Ampliación Portafolio", "Reclamos Clientes",
+            "Rotura de Inventario", "Reducción Costos", "Mejora de Producto", "Mejora del Proceso", "Nueva Línea de Negocio",
+    "Puesta a Punto Maquinaria Nueva", "Puesta a Punto Maquinaria Posterior al Mantenimiento"};
 
     private final String[] OpcionesMaterialDesc = {"Materia Prima", "Láminas Impermeabilizantes", "Prod. en Proceso", "Prod. Terminado",
             "Suministros", "Accesorios", "Prod. Viales", "Rev. Líquidos", "Pinturas", "Prod. Metálicos", "Paneles PUR"};

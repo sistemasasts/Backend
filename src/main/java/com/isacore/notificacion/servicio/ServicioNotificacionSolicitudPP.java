@@ -1,5 +1,7 @@
 package com.isacore.notificacion.servicio;
 
+import static com.isacore.util.UtilidadesCadena.*;
+
 import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
@@ -45,6 +47,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
         UserImptek usuarioPlantaResponsable = this.obtenerUsuario(solicitud.getUsuarioGestionPlanta());
         UserImptek usuarioProduccion = this.obtenerUsuario(solicitud.getUsuarioGestion());
+        UserImptek usuarioValidacion = this.obtenerUsuario(solicitud.getUsuarioValidador());
 
         DireccionesDestino destinos = new DireccionesDestino();
         destinos.agregarDireccionA(usuarioCalidad.getCorreo());
@@ -52,7 +55,8 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         destinos.agregarDireccionA(usuarioMantenimiento.getCorreo());
         destinos.agregarDireccionA(usuarioProduccion.getCorreo());
         destinos.agregarDireccionA(usuarioPlantaResponsable.getCorreo());
-
+        destinos.agregarDireccionA(usuarioValidacion.getCorreo());
+        this.agregarUsuariosComprasLogistica(destinos);
         enviarHtml(destinos, asunto, "emailPruebaEjecutada", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("usuarioResponsable", usuarioPlantaResponsable.getEmployee().getCompleteName());
@@ -121,7 +125,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         });
     }
 
-    public void notificarAjusteMaquinaria(SolicitudPruebasProceso solicitud, String observacion) throws Exception{
+    public void notificarAjusteMaquinaria(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
         String asunto = String.format("Solicitud %s %s", solicitud.getCodigo(), solicitud.getTipoAprobacion().getDescripcion());
         UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
         UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getUsuarioAprobador());
@@ -140,6 +144,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         if (usuario == null)
             throw new Exception(String.format("Usuario %s no encontrado", usuarioId));
         return usuario;
+    }
+
+    private void agregarUsuariosComprasLogistica(DireccionesDestino destinos) {
+        this.userImptekRepo.findByActivoAndAreaComprasLogistica().forEach(x -> {
+            if (noEsNuloNiBlanco(x.getCorreo()))
+                destinos.agregarDireccionA(x.getCorreo());
+        });
     }
 
     @Override

@@ -27,4 +27,6 @@ public interface ISolicitudPPInformeService {
     List<CondicionOperacion> eliminarCondicion(long solicitudInformeId,long condicionOperacionId ,long condicionId, CondicionOperacionTipo tipo);
 
     byte[] generateReporte(long solicitudPruebaProcesoId);
+
+    void validarConclusionesMantenimientoDDP05(long solicitudId);
 }

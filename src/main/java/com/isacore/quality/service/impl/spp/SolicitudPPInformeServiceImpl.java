@@ -1,5 +1,7 @@
 package com.isacore.quality.service.impl.spp;
 
+import static com.isacore.util.UtilidadesCadena.*;
+
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
@@ -28,9 +30,9 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
 
     @Autowired
     public SolicitudPPInformeServiceImpl(
-        ISolicitudPruebaProcesoInformeRepo informeRepo,
-        IUnidadMedidadRepo unidadMedidadRepo,
-        IGeneradorJasperReports reporteServicio) {
+            ISolicitudPruebaProcesoInformeRepo informeRepo,
+            IUnidadMedidadRepo unidadMedidadRepo,
+            IGeneradorJasperReports reporteServicio) {
         this.informeRepo = informeRepo;
         this.unidadMedidadRepo = unidadMedidadRepo;
         this.reporteServicio = reporteServicio;
@@ -104,7 +106,7 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
         UnidadMedida unidad = this.buscarUnidadMedida(material.getUnidad().getId());
         solicitudInforme.agregarMaterialUtilizado(new MaterialUtilizado(material.getNombre(), unidad,
-            material.getCantidadSolicitada(), material.getCantidadUtilizada()));
+                material.getCantidadSolicitada(), material.getCantidadUtilizada()));
         LOG.info(String.format("Material utilizado agregado %s", material));
         return solicitudInforme.getMaterialesUtilizado();
     }
@@ -114,11 +116,11 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
     public List<MaterialUtilizado> modificarMaterialUtilizado(long solicitudInformeId, MaterialUtilizado material) {
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
         Optional<MaterialUtilizado> materialRecargado =
-            solicitudInforme.getMaterialesUtilizado().stream().filter(x -> x.getId().compareTo(material.getId()) == 0).findFirst();
+                solicitudInforme.getMaterialesUtilizado().stream().filter(x -> x.getId().compareTo(material.getId()) == 0).findFirst();
         if (materialRecargado.isPresent()) {
             UnidadMedida unidad = this.buscarUnidadMedida(material.getUnidad().getId());
             materialRecargado.get().modificar(material.getNombre(),
-                unidad, material.getCantidadSolicitada(), material.getCantidadUtilizada());
+                    unidad, material.getCantidadSolicitada(), material.getCantidadUtilizada());
             LOG.info(String.format("Material utilizado modificado %s", materialRecargado.get()));
         }
         return solicitudInforme.getMaterialesUtilizado();
@@ -138,7 +140,7 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
     public List<CondicionOperacion> agregarCondicionOperacion(long solicitudInformeId, CondicionOperacion condicionOperacion) {
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
         solicitudInforme.agregarCondicionOperacion(new CondicionOperacion(condicionOperacion.getProceso(), condicionOperacion.getObservacion(),
-            condicionOperacion.getTipo()));
+                condicionOperacion.getTipo()));
         LOG.info(String.format("Operacion condicion agregado %s", condicionOperacion));
         return solicitudInforme.getCondicionesOperacion().stream().filter(x -> x.getTipo().equals(condicionOperacion.getTipo())).collect(Collectors.toList());
     }
@@ -148,7 +150,7 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
     public List<CondicionOperacion> modificarCondicionOperacion(long solicitudInformeId, CondicionOperacion condicionOperacion) {
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
         Optional<CondicionOperacion> condicionOperacionRecargado =
-            solicitudInforme.getCondicionesOperacion().stream().filter(x -> x.getId().compareTo(condicionOperacion.getId()) == 0).findFirst();
+                solicitudInforme.getCondicionesOperacion().stream().filter(x -> x.getId().compareTo(condicionOperacion.getId()) == 0).findFirst();
         if (condicionOperacionRecargado.isPresent()) {
             condicionOperacionRecargado.get().setProceso(condicionOperacion.getProceso());
             condicionOperacionRecargado.get().setObservacion(condicionOperacion.getObservacion());
@@ -173,7 +175,7 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         CondicionOperacion condicionOperacion = obtenerCondicionOperacionPorId(solicitudInforme, condicion.getCondicionOperacionId());
         UnidadMedida unidad = this.buscarUnidadMedida(condicion.getUnidad().getId());
         condicionOperacion.agregarCondicion(new Condicion(condicion.getMaquinaria(), condicion.getNombre(),
-            condicion.getValor(), unidad));
+                condicion.getValor(), unidad));
         LOG.info(String.format("Condicion agregado %s", condicion));
         return solicitudInforme.getCondicionesOperacion().stream().filter(x -> x.getTipo().equals(condicionOperacion.getTipo())).collect(Collectors.toList());
     }
@@ -184,8 +186,8 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         SolicitudPruebaProcesoInforme solicitudInforme = this.obtenerInforme(solicitudInformeId);
         CondicionOperacion condicionOperacion = obtenerCondicionOperacionPorId(solicitudInforme, condicion.getCondicionOperacionId());
         Optional<Condicion> condicionRecargado =
-            condicionOperacion.getCondiciones().stream().filter(x -> x.getId().compareTo(condicion.getId()) == 0).findFirst();
-        if(condicionRecargado.isPresent()){
+                condicionOperacion.getCondiciones().stream().filter(x -> x.getId().compareTo(condicion.getId()) == 0).findFirst();
+        if (condicionRecargado.isPresent()) {
             UnidadMedida unidad = this.buscarUnidadMedida(condicion.getUnidad().getId());
             condicionRecargado.get().actualizar(condicion.getMaquinaria(), condicion.getNombre(), condicion.getValor(), unidad);
             LOG.info(String.format("Condicion actualizada %s", condicion));
@@ -207,7 +209,7 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
     @Override
     public byte[] generateReporte(long solicitudPruebaProcesoId) {
         Optional<SolicitudPruebaProcesoInforme> informe = this.informeRepo.findBySolicitudPruebasProceso_Id(solicitudPruebaProcesoId);
-        if(!informe.isPresent())
+        if (!informe.isPresent())
             throw new SolicitudPruebaProcesoErrorException("Informe DDP05 no encontrada");
         try {
             return reporteServicio.generarReporte("DDP05", Collections.singleton(informe.get()), new HashMap<>());
@@ -215,6 +217,16 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
             LOG.error(String.format("Error DDP05 Reporte: %s", e));
             throw new ReporteExeption("DDP04");
         }
+    }
+
+
+    @Override
+    public void validarConclusionesMantenimientoDDP05(long solicitudId) {
+        Optional<SolicitudPruebaProcesoInforme> informe = this.informeRepo.findBySolicitudPruebasProceso_Id(solicitudId);
+        if (!informe.isPresent())
+            throw new SolicitudPruebaProcesoErrorException("Informe DDP05 no encontrada");
+        if (esNuloOBlanco(informe.get().getObservacionMantenimiento()))
+            throw new SolicitudPruebaProcesoErrorException("Las conclusiones son obligatorias en el informe DDP05");
     }
 
     private SolicitudPruebaProcesoInforme obtenerInforme(long id) {
@@ -231,34 +243,34 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         return condicionOperacionRecargada.get();
     }
 
-    private void cargarCondicionesOperacionPorDefecto(SolicitudPruebaProcesoInforme informe){
+    private void cargarCondicionesOperacionPorDefecto(SolicitudPruebaProcesoInforme informe) {
         List<CondicionOperacion> condiciones = new ArrayList<>();
         condiciones.add(new CondicionOperacion("Polimerización", "N/A", CondicionOperacionTipo.PRODUCCION));
         condiciones.add(new CondicionOperacion("Laminación", "N/A", CondicionOperacionTipo.PRODUCCION));
         condiciones.add(new CondicionOperacion("Mezcla", "N/A", CondicionOperacionTipo.PRODUCCION));
         condiciones.forEach(x -> {
             UnidadMedida unidad1 = this.buscarUnidadMedida("°c");
-            if(unidad1 != null)
-                x.agregarCondicion(new Condicion(null,"Temperatura", BigDecimal.ZERO,unidad1));
+            if (unidad1 != null)
+                x.agregarCondicion(new Condicion(null, "Temperatura", BigDecimal.ZERO, unidad1));
             UnidadMedida unidad2 = this.buscarUnidadMedida("min");
-            if(unidad2 != null)
-                x.agregarCondicion(new Condicion(null,"Tiempo", BigDecimal.ZERO,unidad2));
+            if (unidad2 != null)
+                x.agregarCondicion(new Condicion(null, "Tiempo", BigDecimal.ZERO, unidad2));
             UnidadMedida unidad3 = this.buscarUnidadMedida("rpm");
-            if(unidad3 != null)
-                x.agregarCondicion(new Condicion(null,"Velocidad", BigDecimal.ZERO,unidad3));
+            if (unidad3 != null)
+                x.agregarCondicion(new Condicion(null, "Velocidad", BigDecimal.ZERO, unidad3));
             informe.agregarCondicionOperacion(x);
         });
     }
 
-    private UnidadMedida buscarUnidadMedida(long id){
+    private UnidadMedida buscarUnidadMedida(long id) {
         UnidadMedida unidad = this.unidadMedidadRepo.findById(id).orElse(null);
-        if(unidad == null){
+        if (unidad == null) {
             throw new SolicitudPruebaProcesoErrorException("Unidad de medida no encontrada");
         }
         return unidad;
     }
 
-    private UnidadMedida buscarUnidadMedida(String abreviatura){
+    private UnidadMedida buscarUnidadMedida(String abreviatura) {
         UnidadMedida unidad = this.unidadMedidadRepo.findByAbreviatura(abreviatura).orElse(null);
         return unidad;
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DDP04Motivos" columnCount="5" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="119" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e3ee4072-0ee6-474d-a23a-f1b0a3dca95f">
+<!-- Created with Jaspersoft Studio version 6.13.0.final using JasperReports Library version 6.13.0-46ada4d1be8f3c5985fd0b6146f3ed44caed6f05  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="DDP04Motivos" columnCount="3" printOrder="Horizontal" pageWidth="595" pageHeight="842" columnWidth="198" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e3ee4072-0ee6-474d-a23a-f1b0a3dca95f">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<property name="com.jaspersoft.studio.unit." value="pixel"/>
 	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
@@ -42,21 +42,22 @@
 		<band splitType="Stretch"/>
 	</columnHeader>
 	<detail>
-		<band height="18" splitType="Stretch">
+		<band height="20" splitType="Stretch">
 			<rectangle>
 				<reportElement x="2" y="5" width="10" height="10" uuid="a303138b-30db-4e15-82c7-0802c5c0f546">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 			</rectangle>
-			<textField>
-				<reportElement x="5" y="0" width="104" height="18" uuid="11b2f2c3-61d0-4406-8e99-303b374ee01e">
+			<textField textAdjust="ScaleFont" isBlankWhenNull="false">
+				<reportElement x="5" y="0" width="140" height="20" uuid="11b2f2c3-61d0-4406-8e99-303b374ee01e">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{_THIS}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{_THIS}.equalsIgnoreCase( "Puesta a Punto Maquinaria Posterior al Mantenimiento")? "Puesta a Punto Maquinaria Posterior al                  Mantenimiento": $F{_THIS}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

@@ -11,21 +11,28 @@ import org.springframework.stereotype.Repository;
 import com.isacore.sgc.acta.model.UserImptek;
 
 @Repository
-public interface IUserImptekRepo extends JpaRepository<UserImptek, String>{
+public interface IUserImptekRepo extends JpaRepository<UserImptek, String> {
 
-	@Query(value = "select ui.user_iduser, ui.user_lastaccess, ui.user_lastkeydatechange, ui.user_nickname, ui.emp_ciemployee, ui.role_name, em.area_id,em.emp_name, em.emp_lastname, em.emp_job, em.emp_state, em.emp_email, a.area_name, ui.user_pass  from userimptek ui "
-			+ "inner join employee em on ui.emp_ciemployee = em.emp_ciemployee "
-			+ "inner join area a on a.area_id=em.area_id"
-			+ " where ui.user_nickname = :user", nativeQuery = true)
-	List<Object[]> findUserByNickname(@Param("user") String user);
+    @Query(value = "select ui.user_iduser, ui.user_lastaccess, ui.user_lastkeydatechange, ui.user_nickname, ui.emp_ciemployee, ui.role_name, em.area_id,em.emp_name, em.emp_lastname, em.emp_job, em.emp_state, em.emp_email, a.area_name, ui.user_pass  from userimptek ui "
+            + "inner join employee em on ui.emp_ciemployee = em.emp_ciemployee "
+            + "inner join area a on a.area_id=em.area_id"
+            + " where ui.user_nickname = :user", nativeQuery = true)
+    List<Object[]> findUserByNickname(@Param("user") String user);
 
-	@Query("select new com.isacore.sgc.acta.model.UserImptek(ui.idUser,ui.employee,ui.nickName,ui.userPass,ui.lastKeyDateChange,ui.lastAccess) from userImptek ui where ui.nickName = :user")
-	UserImptek findOnlyUserByNickname(@Param("user") String user);
+    @Query("select new com.isacore.sgc.acta.model.UserImptek(ui.idUser,ui.employee,ui.nickName,ui.userPass,ui.lastKeyDateChange,ui.lastAccess) from userImptek ui where ui.nickName = :user")
+    UserImptek findOnlyUserByNickname(@Param("user") String user);
 
-	UserImptek findOneByNickName(String nickName);
+    UserImptek findOneByNickName(String nickName);
 
-	Optional<UserImptek> findByIdUser(String idUser);
+    Optional<UserImptek> findByIdUser(String idUser);
 
-	List<UserImptek> findByEmployeeStateTrue();
+    List<UserImptek> findByEmployeeStateTrue();
 
+    @Query(value = "SELECT u.*\n" +
+            "FROM userimptek u\n" +
+            "     INNER JOIN employee e ON u.emp_ciemployee = e.emp_ciemployee\n" +
+            "     INNER JOIN area a ON a.area_id = e.area_id\n" +
+            "WHERE a.area_id = 6\n" +
+            "      AND e.emp_state = 1;", nativeQuery = true)
+    List<UserImptek> findByActivoAndAreaComprasLogistica();
 }
