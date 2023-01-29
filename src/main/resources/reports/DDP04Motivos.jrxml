@@ -42,14 +42,14 @@
 		<band splitType="Stretch"/>
 	</columnHeader>
 	<detail>
-		<band height="20" splitType="Stretch">
+		<band height="24" splitType="Stretch">
 			<rectangle>
 				<reportElement x="2" y="5" width="10" height="10" uuid="a303138b-30db-4e15-82c7-0802c5c0f546">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 			</rectangle>
-			<textField textAdjust="ScaleFont" isBlankWhenNull="false">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="false">
 				<reportElement x="5" y="0" width="140" height="20" uuid="11b2f2c3-61d0-4406-8e99-303b374ee01e">
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -57,8 +57,18 @@
 				<textElement verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{_THIS}.equalsIgnoreCase( "Puesta a Punto Maquinaria Posterior al Mantenimiento")? "Puesta a Punto Maquinaria Posterior al                  Mantenimiento": $F{_THIS}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{_THIS}.equalsIgnoreCase( "    Puesta a Punto Maquinaria Posterior al Mantenimiento")? "    Puesta a Punto Maquinaria Posterior": $F{_THIS}.equalsIgnoreCase( "x  Puesta a Punto Maquinaria Posterior al Mantenimiento")? "x  Puesta a Punto Maquinaria Posterior":$F{_THIS}]]></textFieldExpression>
 			</textField>
+			<staticText>
+				<reportElement x="14" y="12" width="76" height="11" uuid="7847a039-31b4-4699-aec1-3ba655dca6e9">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$F{_THIS}.equalsIgnoreCase( "    Puesta a Punto Maquinaria Posterior al Mantenimiento" ) || $F{_THIS}.equalsIgnoreCase( "x  Puesta a Punto Maquinaria Posterior al Mantenimiento" )]]></printWhenExpression>
+				</reportElement>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[al Mantenimiento]]></text>
+			</staticText>
 		</band>
 	</detail>
 	<columnFooter>
