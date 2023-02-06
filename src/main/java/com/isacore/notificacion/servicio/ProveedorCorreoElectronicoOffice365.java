@@ -62,6 +62,7 @@ public class ProveedorCorreoElectronicoOffice365 {
 
         } catch (MessagingException e) {
 //            log(LOG, mensaje, "Mensaje no enviado");
+            LOG.error(String.format("Mensaje no enviadao %s", e));
 //            return "Error";
             throw new ProveedorCorreoElectronicoException(e);
         }

@@ -274,6 +274,12 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         agregarHistorial(solicitudRecargada, OrdenFlujoPP.INGRESO_SOLICITUD, observacion);
         solicitudRecargada.marcarSolicitudComoEnviada(configuracionOP.get().getUsuarioId(), Integer.parseInt(config.getValorConfiguracion()));
         LOG.info(String.format("Solicitud id=%s enviada..", solicitudRecargada.getId()));
+        try {
+            this.servicioNotificacion.notificarIngresoSolicitud(solicitudRecargada, observacion);
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar SOLICITUD INGRESO: %s", e));
+        }
+
         return true;
     }
 
@@ -308,6 +314,12 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         solicitudRecargada.marcarSolicitudComoValidada(configuracionOP.get().getUsuarioId());
 
         LOG.info(String.format("Solicitud %s marcada como validada..", solicitudRecargada.getCodigo()));
+
+        try {
+            this.servicioNotificacion.notificarSolicitudValidada(solicitudRecargada, observacion);
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar SOLICITUD DDP04 VALIDAD: %s", e));
+        }
         return true;
     }
 
@@ -352,6 +364,11 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         }
         this.agregarHistorial(solicitud, dto.getOrden(), observacion);
         LOG.info(String.format("Solicitud %s reasignada a responsable %s - %s", solicitud.getCodigo(), dto.getOrden(), dto.getUsuarioAsignado()));
+        try {
+            servicioNotificacion.notificarSolicitudReasignada(solicitud, dto.getUsuarioAsignado(), nombreUsuarioEnSesion(), dto.getOrden().getDescripcion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar PRUEBA NO EJECUTADA: %s", e));
+        }
         return true;
     }
 

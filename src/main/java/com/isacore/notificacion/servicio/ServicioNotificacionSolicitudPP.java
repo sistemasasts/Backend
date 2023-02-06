@@ -5,6 +5,7 @@ import static com.isacore.util.UtilidadesCadena.*;
 import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
+import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
@@ -136,6 +137,49 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("usuario", usuarioMantenimiento.getEmployee().getCompleteName());
             context.setVariable("tipoAprobacion", solicitud.getTipoAprobacion().getDescripcion());
             context.setVariable("observacion", observacion);
+        });
+    }
+
+    public void notificarIngresoSolicitud(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
+        String asunto = String.format("INGRESO DE SOLICITUD DDP04 %s", solicitud.getCodigo());
+        UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getUsuarioValidador());
+        UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
+        DireccionesDestino destinos = new DireccionesDestino();
+        destinos.agregarDireccionA(usuarioValidador.getCorreo());
+        destinos.agregarDireccionCC(usuarioSolicitante.getCorreo());
+        enviarHtml(destinos, asunto, "emailIngresoSolicitudDDP04", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("nombreUsuario", usuarioValidador.getEmployee().getCompleteName());
+            context.setVariable("nombreSolicitante", usuarioSolicitante.getEmployee().getCompleteName());
+            context.setVariable("observacion", observacion);
+        });
+    }
+
+    public void notificarSolicitudValidada(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
+        String asunto = String.format("INGRESO DE SOLICITUD DDP04 %s", solicitud.getCodigo());
+        UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getUsuarioValidador());
+        UserImptek usuarioGestion = this.obtenerUsuario(solicitud.getUsuarioGestion());
+        DireccionesDestino destinos = new DireccionesDestino();
+        destinos.agregarDireccionA(usuarioGestion.getCorreo());
+        destinos.agregarDireccionCC(usuarioValidador.getCorreo());
+        enviarHtml(destinos, asunto, "emailIngresoSolicitudDDP04", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("nombreUsuario", usuarioGestion.getEmployee().getCompleteName());
+            context.setVariable("observacion", observacion);
+        });
+    }
+
+    public void notificarSolicitudReasignada(SolicitudPruebasProceso solicitud, String usuarioAsignado, String jefe, String orden) throws Exception {
+        String asunto = String.format("SOLICITUD DDP04 %s REASIGNADA", solicitud.getCodigo());
+        UserImptek usuarioAsignadoNuevo = this.obtenerUsuario(usuarioAsignado);
+        UserImptek usuarioJefe = this.obtenerUsuario(jefe);
+        DireccionesDestino destinos = new DireccionesDestino(usuarioAsignadoNuevo.getCorreo(), usuarioJefe.getCorreo());
+        enviarHtml(destinos, asunto, "emailSolicitudReasignada", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("nombreUsuario", usuarioAsignadoNuevo.getEmployee().getCompleteName());
+            context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO.getDescripcion());
+            context.setVariable("nombreJefe", usuarioJefe.getEmployee().getCompleteName());
+            context.setVariable("orden", orden);
         });
     }
 
