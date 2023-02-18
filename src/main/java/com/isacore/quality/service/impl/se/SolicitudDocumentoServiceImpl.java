@@ -164,11 +164,10 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 
 	private String crearPathArchivo(SolicitudBase solicitudBase, String nombreArchivo) {
 
-
 		String path = crearRutaAlmacenamiento(solicitudBase).concat(File.separator).concat(nombreArchivo);
 
 		if (PassFileToRepository.fileExists(path))
-			path = crearRutaAlmacenamiento(solicitudBase).concat(PassFileToRepository.generateDateAsId()).concat("_").concat(nombreArchivo);
+			path = crearRutaAlmacenamiento(solicitudBase).concat(File.separator).concat(PassFileToRepository.generateDateAsId()).concat("_").concat(nombreArchivo);
 
 		LOG.info(String.format("Ruta creada %s para guardar archivo %s", path, nombreArchivo));
 
