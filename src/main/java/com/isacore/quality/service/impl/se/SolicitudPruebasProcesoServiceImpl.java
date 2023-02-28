@@ -483,6 +483,12 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         solicitudRecargada.setEstado(EstadoSolicitudPP.REGRESADO_NOVEDAD_FORMA);
         this.agregarHistorial(solicitudRecargada, OrdenFlujoPP.VALIDAR_SOLICITUD, solicitud.getObservacionFlujo());
         LOG.info(String.format("Solicitud %s regresada por novedad en forma", solicitudRecargada.getCodigo()));
+
+        try {
+            this.servicioNotificacion.notificarSolicitudEstado(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud regresada %s", e));
+        }
         return true;
     }
 
@@ -647,6 +653,11 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         solicitudRecargada.setEstado(EstadoSolicitudPP.RECHAZADO);
         this.agregarHistorial(solicitudRecargada, solicitud.getOrden(), solicitud.getObservacionFlujo());
         LOG.info(String.format("Solicitud %s rechazada", solicitudRecargada.getCodigo()));
+        try {
+            this.servicioNotificacion.notificarSolicitudEstado(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud rechazada %s", e));
+        }
         return true;
     }
 

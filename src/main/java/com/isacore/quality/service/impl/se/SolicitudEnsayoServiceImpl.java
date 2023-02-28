@@ -367,16 +367,18 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     @Transactional
     public boolean rechazarSolicitud(SolicitudEnsayo solicitud) {
         Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
-
         if (!solicitudOP.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
 
         SolicitudEnsayo solicitudRecargada = solicitudOP.get();
-
         agregarHistorial(solicitudRecargada, solicitud.getOrden(), solicitud.getObservacion());
-
         solicitudRecargada.rechazar();
 
+        try{
+            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudEstado(solicitudRecargada,solicitud.getObservacion());
+        }catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud rechazada %s", e));
+        }
         LOG.info(String.format("Solicitud id=%s rechazada..", solicitudRecargada.getId()));
         return true;
     }
@@ -542,7 +544,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                         c.getEstado(),
                         c.getProveedorNombre(),
                         c.getProveedorId(),
-                        c.getFechaEntrega(),
+                        c.getMuestraEntrega(),
                         c.getDetalleMaterial(),
                         TipoSolicitud.SOLICITUD_ENSAYOS,
                         c.getTipoAprobacion()

@@ -1,7 +1,5 @@
 package com.isacore.notificacion.servicio;
 
-import static com.isacore.util.UtilidadesCadena.*;
-
 import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
@@ -16,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import static com.isacore.util.UtilidadesCadena.noEsNuloNiBlanco;
 
 @Service
 @Async
@@ -36,8 +36,8 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
     }
 
     public void mensajePrueba(String correo) {
-        enviarHtml(new DireccionesDestino(correo), "Correo prueba módulo civiles", "emailCivilesPrueba", (context) -> {
-            context.setVariable("texto", "Correo de prueba módulo civiles.");
+        enviarHtml(new DireccionesDestino(correo), "Correo prueba portal ISA", "emailCivilesPrueba", (context) -> {
+            context.setVariable("texto", "Correo de prueba  portal ISA.");
         });
     }
 
@@ -180,6 +180,21 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO.getDescripcion());
             context.setVariable("nombreJefe", usuarioJefe.getEmployee().getCompleteName());
             context.setVariable("orden", orden);
+        });
+    }
+
+    public void notificarSolicitudEstado(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
+        String asunto = String.format("SOLICITUD DDP04 %s %s", solicitud.getCodigo(), solicitud.getEstado().toString());
+        UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
+        UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getUsuarioValidador());
+        DireccionesDestino destinos = new DireccionesDestino(usuarioSolicitante.getCorreo(), usuarioValidador.getCorreo());
+        enviarHtml(destinos, asunto, "emailSolicitudEstado", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO.getDescripcion());
+            context.setVariable("nombreUsuario", usuarioSolicitante.getEmployee().getCompleteName());
+            context.setVariable("estado", solicitud.getEstado().toString());
+            context.setVariable("observacion", observacion);
+            context.setVariable("revisadoPor", usuarioValidador.getEmployee().getCompleteName());
         });
     }
 

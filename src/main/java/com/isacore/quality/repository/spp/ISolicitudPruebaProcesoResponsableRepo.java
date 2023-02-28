@@ -22,4 +22,6 @@ public interface ISolicitudPruebaProcesoResponsableRepo extends JpaRepository<So
 
     List<SolicitudPruebaProcesoResponsable> findBySolicitudPruebasProceso_Id(long solicitudId);
 
+    List<SolicitudPruebaProcesoResponsable> findByEstado(EstadoSolicitudPPResponsable estado);
+
 }

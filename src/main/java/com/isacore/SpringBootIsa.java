@@ -10,6 +10,7 @@ import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.unit.DataSize;
 
@@ -17,6 +18,7 @@ import org.springframework.util.unit.DataSize;
 
 @SpringBootApplication
 @EnableAsync
+@EnableScheduling
 @EnableTransactionManagement
 public class SpringBootIsa extends SpringBootServletInitializer  {
 

@@ -74,4 +74,8 @@ public class SolicitudDTO implements Serializable{
 		this.tipoSolicitud = tipoSolicitud;
 		this.tipoAprobacion = tipoAprobacion;
 	}
+
+	public LocalDate getFechaCreacion2() {
+		return this.fechaCreacion.toLocalDate();
+	}
 }

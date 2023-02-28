@@ -1,12 +1,11 @@
 package com.isacore.notificacion.servicio;
 
-import static com.isacore.util.UtilidadesCadena.*;
-
 import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
 import com.isacore.quality.model.se.SolicitudEnsayo;
 import com.isacore.quality.model.se.TipoAprobacionSolicitud;
+import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.util.UtilidadesFecha;
@@ -63,6 +62,21 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("nombreUsuario", usuarioSolicitante.getEmployee().getCompleteName());
             context.setVariable("fechaEntregaResultados", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaEntregaInforme(), "dd-MM-yyyy"));
+        });
+    }
+
+    public void notificarSolicitudEstado(SolicitudEnsayo solicitud, String observacion) throws Exception {
+        String asunto = String.format("SOLICITUD %s %s", solicitud.getCodigo(), solicitud.getEstado().toString());
+        UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
+        UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getValidador());
+        DireccionesDestino destinos = new DireccionesDestino(usuarioSolicitante.getCorreo());
+        enviarHtml(destinos, asunto, "emailSolicitudEstado", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_ENSAYOS.getDescripcion());
+            context.setVariable("nombreUsuario", usuarioSolicitante.getEmployee().getCompleteName());
+            context.setVariable("estado", solicitud.getEstado().toString());
+            context.setVariable("observacion", observacion);
+            context.setVariable("revisadoPor", usuarioValidador.getEmployee().getCompleteName());
         });
     }
 

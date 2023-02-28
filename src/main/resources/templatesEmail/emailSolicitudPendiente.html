@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>Solicitud Estado</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Solicitudes Pendientes</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;"
+           dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p style="font-size: 16px">Estimado(a) Usuario: <b th:text="${nombreUsuario}">WILFRIDO LOACHAMIN</b>
+                    </p>
+                    <p>La(s) siguiente(es) solicitud(es) están pendientes y próximas a su fecha límite:
+                    </p>
+                    <table class="detalle">
+                        <tr class="detalle">
+                            <th class="detalle" style="text-align:center; width:30%">N°. de Solicitud</th>
+                            <th class="detalle" style="text-align:center; width:35%">Tipo</th>
+                            <th class="detalle" style="text-align:center; width:15%">Fecha Límite</th>
+                            <th class="detalle" style="text-align:center; width:20%">Vigencia</th>
+                        </tr>
+                        <th:block th:each="solicitud : ${solicitudes}" >
+                            <tr class="detalle">
+                                <td th:text="${solicitud.codigo}" style="text-align:center; width:35%">SPP-000000001</td>
+                                <td th:text="${solicitud.tipoSolicitud}" style="text-align:center; width:35%">SOLICITUD ENSAYOS</td>
+                                <td th:text="${solicitud.fechaLimite}"  style="text-align:center; width:15%">2022/02/01</td>
+                                <td th:text="${solicitud.vigencia}" style="text-align:center; width:20%" >2 DÍAS</td>
+                            </tr>
+                        </th:block>
+
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
