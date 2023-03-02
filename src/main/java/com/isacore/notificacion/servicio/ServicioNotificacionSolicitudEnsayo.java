@@ -35,7 +35,7 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
     }
 
     public void notificarSolicitudFinalizada(SolicitudEnsayo solicitud, String observacion) throws Exception {
-        String asunto = String.format("SOLICITUD %s FINALIZADA", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("SOLICITUD %s FINALIZADA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getValidador());
         DireccionesDestino destinos = new DireccionesDestino();
@@ -46,11 +46,14 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             context.setVariable("usuarioSolicitante", usuarioSolicitante.getEmployee().getCompleteName());
             context.setVariable("tipoAprobacion", this.castearTipoAprobacion(solicitud.getTipoAprobacion()));
             context.setVariable("observacion", observacion);
+            context.setVariable("prioridad", solicitud.getPrioridad().toString());
+            context.setVariable("proveedor", solicitud.getProveedorNombre());
+            context.setVariable("nombreComercial", solicitud.getNombreComercial());
         });
     }
 
     public void notificarIngresoMuestra(SolicitudEnsayo solicitud, String observacion) throws Exception {
-        String asunto = String.format("SOLICITUD %s INGRESO DE MUESTRA", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("SOLICITUD %s INGRESO DE MUESTRA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioResponsable = this.obtenerUsuario(solicitud.getUsuarioGestion());
         UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getValidador());
@@ -62,11 +65,14 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("nombreUsuario", usuarioSolicitante.getEmployee().getCompleteName());
             context.setVariable("fechaEntregaResultados", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaEntregaInforme(), "dd-MM-yyyy"));
+            context.setVariable("prioridad", solicitud.getPrioridad().toString());
+            context.setVariable("proveedor", solicitud.getProveedorNombre());
+            context.setVariable("nombreComercial", solicitud.getNombreComercial());
         });
     }
 
     public void notificarSolicitudEstado(SolicitudEnsayo solicitud, String observacion) throws Exception {
-        String asunto = String.format("SOLICITUD %s %s", solicitud.getCodigo(), solicitud.getEstado().toString());
+        String asunto = this.crearAsunto(String.format("SOLICITUD %s %s - ", solicitud.getCodigo(), solicitud.getEstado().toString()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getValidador());
         DireccionesDestino destinos = new DireccionesDestino(usuarioSolicitante.getCorreo());
@@ -77,6 +83,9 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             context.setVariable("estado", solicitud.getEstado().toString());
             context.setVariable("observacion", observacion);
             context.setVariable("revisadoPor", usuarioValidador.getEmployee().getCompleteName());
+            context.setVariable("prioridad", solicitud.getPrioridad().toString());
+            context.setVariable("proveedor", solicitud.getProveedorNombre());
+            context.setVariable("nombreComercial", solicitud.getNombreComercial());
         });
     }
 
@@ -99,6 +108,16 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             default:
                 return "";
         }
+    }
+
+    private String crearAsunto(String trama, SolicitudEnsayo solicitud){
+        String asunto = trama + " " +
+                solicitud.getPrioridad().toString() + " " +
+                solicitud.getNombreComercial() + " " +
+                solicitud.getProveedorNombre();
+        if(asunto.length() > 200)
+            asunto = asunto.substring(0,200);
+        return asunto;
     }
 
     @Override

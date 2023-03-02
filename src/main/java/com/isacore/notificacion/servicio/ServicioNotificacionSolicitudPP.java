@@ -42,7 +42,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
     }
 
     public void notificarPruebaEjecutada(SolicitudPruebasProceso solicitud) throws Exception {
-        String asunto = String.format("SOLICITUD %s PRUEBA EJECUTADA", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("SOLICITUD %s PRUEBA EJECUTADA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioCalidad = this.obtenerUsuario(solicitud.getUsuarioGestionCalidadJefe());
         UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
@@ -63,11 +63,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("usuarioResponsable", usuarioPlantaResponsable.getEmployee().getCompleteName());
             context.setVariable("fechaPrueba", UtilidadesFecha.formatear(solicitud.getFechaPrueba(), "dd-MM-yyyy hh:mm"));
             context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaEntregaInforme(), "dd-MM-yyyy"));
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarPruebaNoEjecutada(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
-        String asunto = String.format("SOLICITUD %s PRUEBA NO EJECUTADA", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("SOLICITUD %s PRUEBA NO EJECUTADA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioCalidad = this.obtenerUsuario(solicitud.getUsuarioGestionCalidadJefe());
         UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
@@ -87,11 +89,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("usuarioResponsable", usuarioPlantaResponsable.getEmployee().getCompleteName());
             context.setVariable("fechaPrueba", UtilidadesFecha.formatear(solicitud.getFechaPrueba(), "dd-MM-yyyy hh:mm"));
             context.setVariable("fechaEntregaInforme", UtilidadesFecha.formatearLocalDateATexto(solicitud.getFechaEntregaInforme(), "dd-MM-yyyy"));
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarPruebaNoEjecutadaDefinitiva(SolicitudPruebasProceso solicitud, String observacion, UserImptek usuarioAprobador) throws Exception {
-        String asunto = String.format("SOLICITUD FINALIZADA %s PRUEBA NO EJECUTADA", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("SOLICITUD FINALIZADA %s PRUEBA NO EJECUTADA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioCalidad = this.obtenerUsuario(solicitud.getUsuarioGestionCalidadJefe());
         UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
@@ -107,12 +111,14 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         enviarHtml(destinos, asunto, "emailPruebaNoEjecutadaDefinitiva", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("observacion", observacion);
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarSolicitudAprobada(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
         String mensajeAprobado = solicitud.isAprobado() ? "APROBADA" : "NO APROBADA";
-        String asunto = String.format("Solicitud %s %s", solicitud.getCodigo(), mensajeAprobado);
+        String asunto = this.crearAsunto(String.format("Solicitud %s %s - ", solicitud.getCodigo(), mensajeAprobado), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getUsuarioAprobador());
         DireccionesDestino destinatarios = new DireccionesDestino(usuarioSolicitante.getCorreo());
@@ -123,11 +129,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("aprobado", mensajeAprobado);
             context.setVariable("tipoAprobacion", solicitud.getTipoAprobacion().getDescripcion());
             context.setVariable("observacion", observacion);
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarAjusteMaquinaria(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
-        String asunto = String.format("Solicitud %s %s", solicitud.getCodigo(), solicitud.getTipoAprobacion().getDescripcion());
+        String asunto = this.crearAsunto(String.format("Solicitud %s %s - ", solicitud.getCodigo(), solicitud.getTipoAprobacion().getDescripcion()), solicitud);
         UserImptek usuarioMantenimiento = this.obtenerUsuario(solicitud.getUsuarioGestionMantenimientoJefe());
         UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getUsuarioAprobador());
         DireccionesDestino destinatarios = new DireccionesDestino(usuarioMantenimiento.getCorreo());
@@ -137,11 +145,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("usuario", usuarioMantenimiento.getEmployee().getCompleteName());
             context.setVariable("tipoAprobacion", solicitud.getTipoAprobacion().getDescripcion());
             context.setVariable("observacion", observacion);
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarIngresoSolicitud(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
-        String asunto = String.format("INGRESO DE SOLICITUD DDP04 %s", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("INGRESO DE SOLICITUD DDP04 %s - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getUsuarioValidador());
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         DireccionesDestino destinos = new DireccionesDestino();
@@ -152,11 +162,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("nombreUsuario", usuarioValidador.getEmployee().getCompleteName());
             context.setVariable("nombreSolicitante", usuarioSolicitante.getEmployee().getCompleteName());
             context.setVariable("observacion", observacion);
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarSolicitudValidada(SolicitudPruebasProceso solicitud, String observacion) throws Exception {
-        String asunto = String.format("INGRESO DE SOLICITUD DDP04 %s", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("INGRESO DE SOLICITUD DDP04 %s - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getUsuarioValidador());
         UserImptek usuarioGestion = this.obtenerUsuario(solicitud.getUsuarioGestion());
         DireccionesDestino destinos = new DireccionesDestino();
@@ -166,11 +178,13 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("nombreUsuario", usuarioGestion.getEmployee().getCompleteName());
             context.setVariable("observacion", observacion);
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
     public void notificarSolicitudReasignada(SolicitudPruebasProceso solicitud, String usuarioAsignado, String jefe, String orden) throws Exception {
-        String asunto = String.format("SOLICITUD DDP04 %s REASIGNADA", solicitud.getCodigo());
+        String asunto = this.crearAsunto(String.format("SOLICITUD DDP04 %s REASIGNADA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioAsignadoNuevo = this.obtenerUsuario(usuarioAsignado);
         UserImptek usuarioJefe = this.obtenerUsuario(jefe);
         DireccionesDestino destinos = new DireccionesDestino(usuarioAsignadoNuevo.getCorreo(), usuarioJefe.getCorreo());
@@ -180,6 +194,8 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO.getDescripcion());
             context.setVariable("nombreJefe", usuarioJefe.getEmployee().getCompleteName());
             context.setVariable("orden", orden);
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
@@ -188,13 +204,15 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getUsuarioValidador());
         DireccionesDestino destinos = new DireccionesDestino(usuarioSolicitante.getCorreo(), usuarioValidador.getCorreo());
-        enviarHtml(destinos, asunto, "emailSolicitudEstado", (context) -> {
+        enviarHtml(destinos, asunto, "emailSolicitudDDP04Estado", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO.getDescripcion());
             context.setVariable("nombreUsuario", usuarioSolicitante.getEmployee().getCompleteName());
             context.setVariable("estado", solicitud.getEstado().toString());
             context.setVariable("observacion", observacion);
             context.setVariable("revisadoPor", usuarioValidador.getEmployee().getCompleteName());
+            context.setVariable("area", solicitud.getArea().getNameArea());
+            context.setVariable("motivoPrueba", solicitud.getObservacion());
         });
     }
 
@@ -210,6 +228,15 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
             if (noEsNuloNiBlanco(x.getCorreo()))
                 destinos.agregarDireccionA(x.getCorreo());
         });
+    }
+
+    private String crearAsunto(String trama, SolicitudPruebasProceso solicitud) {
+        String asunto = trama + " " +
+                solicitud.getArea().getNameArea() + " " +
+                solicitud.getObservacion();
+        if (asunto.length() > 200)
+            asunto = asunto.substring(0, 200);
+        return asunto;
     }
 
     @Override

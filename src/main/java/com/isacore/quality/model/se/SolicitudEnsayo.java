@@ -86,6 +86,9 @@ public class SolicitudEnsayo extends SolicitudBase {
     @JsonSerialize(using = LocalDateSerializeIsa.class)
     @JsonDeserialize(using = LocalDateDeserializeIsa.class)
     private LocalDate fechaEntregaInforme;
+
+    private String nombreComercial;
+
     @Transient
     private String observacion;
 
@@ -94,7 +97,7 @@ public class SolicitudEnsayo extends SolicitudBase {
 
     public SolicitudEnsayo(String codigo, String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String objetivo,
                            PrioridadNivel prioridad, TiempoEntrega tiempoEntrega, String detalleMaterial, String lineaAplicacion, BigDecimal cantidad,
-                           UnidadMedida unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
+                           UnidadMedida unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, String nombreComercial, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
         super(codigo, nombreSolicitante);
         this.proveedorNombre = proveedorNombre;
         this.proveedorId = proveedorId;
@@ -110,6 +113,7 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.muestraEntrega = muestraEntrega;
         this.muestraUbicacion = muestraUbicacion;
         this.adjuntosRequeridos = adjuntos;
+        this.nombreComercial = nombreComercial;
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado, int tiempoRespuesta, LocalDate fechaInicioEntregaInforme) {
@@ -204,7 +208,7 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.adjuntosRequeridos.stream().filter(x -> x.getNombre().equalsIgnoreCase("Respaldo")).findFirst().ifPresent(adjuntoRequerido -> adjuntoRequerido.setObligatorio(obligatorio));
     }
 
-    public void marcarEstadoFinal(EstadoSolicitud estado, TipoAprobacionSolicitud tipoAprobacion){
+    public void marcarEstadoFinal(EstadoSolicitud estado, TipoAprobacionSolicitud tipoAprobacion) {
         setEstado(estado);
         setTipoAprobacion(tipoAprobacion);
     }

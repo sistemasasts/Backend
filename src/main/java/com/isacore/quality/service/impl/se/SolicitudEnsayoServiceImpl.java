@@ -115,6 +115,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                 nombreUsuarioEnSesion(),
                 obj.getMuestraEntrega(),
                 obj.getMuestraUbicacion(),
+                obj.getNombreComercial(),
                 this.crearAdjuntosRequeridos());
         nuevo.marcarAdjuntoRespaldoComoObligatorio(obj.getPrioridad().equals(PrioridadNivel.ALTO));
         LOG.info(String.format("Solicitud Ensayo a guardar %s", nuevo));
@@ -147,6 +148,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitud.setLineaAplicacion(obj.getLineaAplicacion());
         solicitud.setMuestraEntrega(obj.getMuestraEntrega());
         solicitud.setMuestraUbicacion(obj.getMuestraUbicacion());
+        solicitud.setNombreComercial(obj.getNombreComercial());
         LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
         return solicitud;
     }
@@ -342,6 +344,21 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitudRecargada.marcarSolicitudComoRegresada();
 
         LOG.info(String.format("Solicitud id=%s regresada..", solicitudRecargada.getId()));
+        return true;
+    }
+
+    @Transactional
+    @Override
+    public boolean regresarSolicitudForma(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
+        agregarHistorial(solicitudRecargada, OrdenFlujo.VALIDAR_SOLICITUD, solicitud.getObservacion());
+        solicitudRecargada.setEstado(EstadoSolicitud.REGRESADO_NOVEDAD_FORMA);
+        LOG.info(String.format("Solicitud %s regresada por novedad solicitud..", solicitudRecargada.getCodigo()));
+        try {
+            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudEstado(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud Finalizada %s", e));
+        }
         return true;
     }
 
@@ -547,7 +564,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                         c.getMuestraEntrega(),
                         c.getDetalleMaterial(),
                         TipoSolicitud.SOLICITUD_ENSAYOS,
-                        c.getTipoAprobacion()
+                        c.getTipoAprobacion() == null ? "":c.getTipoAprobacion().getDescripcion(),
+                        c.getPrioridad()
                 );
             }).collect(Collectors.toList());
 

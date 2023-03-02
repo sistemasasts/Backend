@@ -52,12 +52,14 @@ public class SolicitudDTO implements Serializable{
 	
 	private TipoSolicitud tipoSolicitud;
 	
-	private TipoAprobacionSolicitud tipoAprobacion;
+	private String tipoAprobacion;
+
+	private PrioridadNivel prioridad;
 
 	public SolicitudDTO(Long id, String codigo, LocalDateTime fechaCreacion, LocalDate fechaAprobacion,
 			String nombreSolicitante, String usuarioGestion, String usuarioAprobador, EstadoSolicitud estado,
 			String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String detalleMaterial,
-			TipoSolicitud tipoSolicitud, TipoAprobacionSolicitud tipoAprobacion) {
+			TipoSolicitud tipoSolicitud, String tipoAprobacion, PrioridadNivel prioridad) {
 		super();
 		this.id = id;
 		this.codigo = codigo;
@@ -73,6 +75,7 @@ public class SolicitudDTO implements Serializable{
 		this.detalleMaterial = detalleMaterial;
 		this.tipoSolicitud = tipoSolicitud;
 		this.tipoAprobacion = tipoAprobacion;
+		this.prioridad = prioridad;
 	}
 
 	public LocalDate getFechaCreacion2() {
