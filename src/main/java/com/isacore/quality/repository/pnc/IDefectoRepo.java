@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface IDefectoRepo extends JpaRepository<Defecto, Long> {
 
-    List<Defecto> findByActivoTrue();
+    List<Defecto> findByActivoTrueOrderByNombreAsc();
 }

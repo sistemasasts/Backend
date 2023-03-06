@@ -27,6 +27,10 @@ public class PncSalidaMaterial {
     private TipoDestino destino;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    private EstadoSalidaMaterial estado;
+
+    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     private ProductoNoConforme productoNoConforme;
 

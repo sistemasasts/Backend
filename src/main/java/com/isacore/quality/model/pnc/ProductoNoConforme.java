@@ -16,6 +16,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -25,6 +26,9 @@ public class ProductoNoConforme {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    private long numero;
 
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;
@@ -64,6 +68,10 @@ public class ProductoNoConforme {
     private String observacionCincoMs;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    private EstadoPnc estado;
+
+    @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
     private Area area;
 
@@ -71,5 +79,37 @@ public class ProductoNoConforme {
     @ManyToOne(fetch = FetchType.EAGER)
     private Product producto;
 
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "producto_no_conforme_id", nullable = false)
+    List<PncDefecto> defectos;
 
+    public ProductoNoConforme(long numero, String usuario, LocalDate fechaProduccion, LocalDate fechaDeteccion,
+                              BigDecimal cantidadProducida, BigDecimal cantidadNoConforme, UnidadMedida unidad,
+                              BigDecimal porcentajeValidez, BigDecimal pesoNoConforme, String ordenProduccion,
+                              String lote, String hcc, String observacionCincoMs,
+                              Area area, Product producto) {
+        this.numero = numero;
+        this.usuario = usuario;
+        this.fechaProduccion = fechaProduccion;
+        this.fechaDeteccion = fechaDeteccion;
+        this.cantidadProducida = cantidadProducida;
+        this.cantidadNoConforme = cantidadNoConforme;
+        this.unidad = unidad;
+        this.porcentajeValidez = porcentajeValidez;
+        this.pesoNoConforme = pesoNoConforme;
+        this.ordenProduccion = ordenProduccion;
+        this.lote = lote;
+        this.hcc = hcc;
+        this.observacionCincoMs = observacionCincoMs;
+        this.area = area;
+        this.producto = producto;
+        this.fechaCreacion = LocalDateTime.now();
+        this.fechaModificacion = LocalDateTime.now();
+        this.saldo = this.cantidadNoConforme;
+        this.estado = EstadoPnc.CREADO;
+    }
+
+    public void agregarDefecto(PncDefecto defecto){
+        this.defectos.add(defecto);
+    }
 }

@@ -20,10 +20,6 @@ public class PncDefecto {
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
-    private ProductoNoConforme productoNoConforme;
-
-    @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
     private Defecto defecto;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -34,7 +30,8 @@ public class PncDefecto {
     @Column(columnDefinition = "decimal(19,2)")
     private BigDecimal validez;
 
-    private String imagenPath;
-    private String imagenNombre;
-    private String imagenTipo;
+    private long idImagen;
+
+    @Transient
+    private long productoNoConformeId;
 }

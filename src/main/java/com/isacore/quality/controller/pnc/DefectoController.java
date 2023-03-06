@@ -1,4 +1,4 @@
-package com.isacore.quality.api;
+package com.isacore.quality.controller.pnc;
 
 
 import com.isacore.quality.model.pnc.Defecto;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/pncDefectos")
+@RequestMapping(value = "/defectos")
 public class DefectoController {
 
     @Autowired

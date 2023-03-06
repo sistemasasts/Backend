@@ -6,6 +6,7 @@ import com.isacore.quality.repository.pnc.IDefectoRepo;
 import com.isacore.quality.service.pnc.IDefectoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class DefectoServiceImpl implements IDefectoService {
 
     @Override
     public List<Defecto> findAll() {
-        return this.defectodRepo.findAll();
+        return this.defectodRepo.findAll(Sort.by(Sort.Direction.ASC, "Nombre"));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class DefectoServiceImpl implements IDefectoService {
     @Transactional(readOnly = true)
     @Override
     public List<Defecto> listarActivos() {
-        return this.defectodRepo.findByActivoTrue();
+        return this.defectodRepo.findByActivoTrueOrderByNombreAsc();
     }
 
 }
