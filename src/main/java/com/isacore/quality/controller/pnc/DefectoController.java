@@ -25,11 +25,11 @@ public class DefectoController {
     }
 
     @GetMapping("activos")
-    public ResponseEntity<List<CatalogDTO>> listarActivos() {
-        List<CatalogDTO> catalogoDefecto = service.listarActivos()
-                .stream()
-                .map(x -> new CatalogDTO(x.getNombre(), String.valueOf(x.getId())))
-                .collect(Collectors.toList());
+    public ResponseEntity<List<Defecto>> listarActivos() {
+        List<Defecto> catalogoDefecto = service.listarActivos();
+//                .stream()
+//                .map(x -> new CatalogDTO(x.getNombre(), String.valueOf(x.getId())))
+//                .collect(Collectors.toList());
         return ResponseEntity.ok(catalogoDefecto);
     }
 

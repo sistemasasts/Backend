@@ -3,6 +3,7 @@ package com.isacore.quality.service;
 import java.util.List;
 
 import com.isacore.quality.dto.ProductDto;
+import com.isacore.quality.dto.ProductoDto;
 import com.isacore.quality.model.InformationAditional;
 import com.isacore.quality.model.Product;
 import com.isacore.util.CRUD;
@@ -32,4 +33,6 @@ public interface IProductService extends CRUD<Product> {
 	byte[] generateReport(Integer id);
 	
 	String updateReview(Integer productId);
+
+	List<ProductoDto> listarPorNombreCriterio(String nombre);
 }

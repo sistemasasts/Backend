@@ -12,13 +12,17 @@ public interface IProductoNoConformeService {
 
     ProductoNoConforme actualizar(ProductoNoConforme dto);
 
+    ProductoNoConforme listarPorId(long id);
+
     Page<PncDTO> listar(Pageable pageabe, ConsultaPncDTO dto);
 
     boolean anular(ProductoNoConforme dto);
 
     List<PncDefecto> agregarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
 
-    List<PncDefecto> eliminarDefecto(PncDefecto dto);
+    List<PncDefecto> eliminarDefecto(long pncId, long defectoId);
 
-    List<PncDefecto> actualizarDefecto(PncDefecto dto);
+    //List<PncDefecto> actualizarDefecto(PncDefecto dto);
+
+    List<PncDefecto> actualizarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
 }

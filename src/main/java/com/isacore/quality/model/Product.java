@@ -88,7 +88,8 @@ public class Product {
 	@OneToOne(cascade = {CascadeType.ALL})
 	@JoinColumn(name = "FEA_ID", nullable = true)
 	private Feature feature;
-	
+
+	@JsonIgnore
 	@OneToMany(mappedBy = "product", cascade = {CascadeType.DETACH}, fetch = FetchType.LAZY)
 	private List<Property> properties;
 	

@@ -5,10 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacore.quality.dto.InformationAditionalFileDTO;
 import com.isacore.quality.exception.ApprobationCriteriaErrorException;
 import com.isacore.quality.exception.PncErrorException;
+import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.pnc.*;
+import com.isacore.quality.repository.IUnidadMedidadRepo;
+import com.isacore.quality.repository.pnc.IPncDefectoRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncDocumentoService;
 import com.isacore.quality.service.pnc.IProductoNoConformeService;
+import com.isacore.util.PassFileToRepository;
+import com.isacore.util.UtilidadesCadena;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,9 +28,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.isacore.util.UtilidadesSeguridad.usuarioEnSesion;
@@ -38,6 +41,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     private final IProductoNoConformeRepo repositorio;
     private final EntityManager entityManager;
     private final IPncDocumentoService documentoService;
+    private final IPncDefectoRepo defectoRepositorio;
+    private final IUnidadMedidadRepo unidadMedidadRepo;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     @Transactional
@@ -58,7 +63,10 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                 dto.getHcc(),
                 dto.getObservacionCincoMs(),
                 dto.getArea(),
-                dto.getProducto()
+                dto.getProducto(),
+                dto.getProcedenciaLinea(),
+                dto.getLineaAfecta(),
+                dto.getNombreCliente()
         );
         this.repositorio.save(pnc);
         log.info(String.format("PNC registrado %s", pnc));
@@ -78,6 +86,13 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         pnc.setLote(dto.getLote());
         pnc.setOrdenProduccion(dto.getOrdenProduccion());
         log.info(String.format("PNC actualizado %s", pnc));
+        return pnc;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ProductoNoConforme listarPorId(long id) {
+        ProductoNoConforme pnc = this.buscarPorId(id);
         return pnc;
     }
 
@@ -126,8 +141,18 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                         consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
             }
 
+            if (consulta.getProductoId() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("producto").get("idProduct"), consulta.getProductoId()));
+
+            if( null != consulta.getEstados() && !consulta.getEstados().isEmpty())
+                predicadosConsulta.add(criteriaBuilder.in(root.get("estado")).value(consulta.getEstados()));
+
+            if(consulta.getNumero() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("numero"), consulta.getNumero()));
+
+
             query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
-                    .orderBy(criteriaBuilder.desc(root.get("fechaCreacion")));
+                    .orderBy(criteriaBuilder.desc(root.get("numero")));
 
             final TypedQuery<ProductoNoConforme> statement = this.entityManager.createQuery(query);
 
@@ -140,6 +165,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                         c.getUsuario(),
                         c.getFechaProduccion(),
                         c.getFechaDeteccion(),
+                        c.getEstado(),
                         c.getCantidadProducida(),
                         c.getCantidadNoConforme(),
                         c.getSaldo(),
@@ -175,8 +201,12 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             PncDefecto dto = JSON_MAPPER.readValue(jsonCriteria, PncDefecto.class);
             if (dto != null) {
                 ProductoNoConforme pnc = this.buscarPorId(dto.getProductoNoConformeId());
-                PncDocumento documento = this.documentoService.registrar(pnc, file, nombreArchivo, tipo, null);
-                dto.setIdImagen(documento.getId());
+                if (file.length > 0) {
+                    PncDocumento documento = this.documentoService.registrar(pnc, file, nombreArchivo, tipo, null);
+                    dto.setIdImagen(documento.getId());
+                }
+                UnidadMedida unidad = buscarUnidadMedidaPorId(dto.getUnidad().getId());
+                dto.setUnidad(unidad);
                 pnc.agregarDefecto(dto);
                 log.info(String.format("PNC %s -> Defecto agregado %s", pnc.getId(), dto));
                 return pnc.getDefectos();
@@ -188,20 +218,62 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         return null;
     }
 
+    @Transactional
     @Override
-    public List<PncDefecto> eliminarDefecto(PncDefecto dto) {
-        return null;
+    public List<PncDefecto> eliminarDefecto(long pncId, long defectoId) {
+        ProductoNoConforme pnc = this.buscarPorId(pncId);
+        PncDefecto defecto = pnc.getDefectos().stream().filter(x -> x.getId().equals(defectoId)).findFirst().orElse(null);
+        if (defecto != null) {
+            pnc.eliminarDefecto(defectoId);
+            this.documentoService.eliminarDocumento(defecto.getIdImagen());
+            log.info(String.format("PNC %s -> Defecto eliminado %s", pnc.getNumero(), defecto));
+        }
+        return pnc.getDefectos();
     }
 
+    @Transactional
     @Override
-    public List<PncDefecto> actualizarDefecto(PncDefecto dto) {
-        return null;
+    public List<PncDefecto> actualizarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo) {
+        try {
+            PncDefecto dto = JSON_MAPPER.readValue(jsonCriteria, PncDefecto.class);
+            ProductoNoConforme pnc = this.buscarPorId(dto.getProductoNoConformeId());
+            PncDefecto defecto = pnc.getDefectos().stream().filter(x -> x.getId().equals(dto.getId())).findFirst().orElse(null);
+            if (defecto == null)
+                throw new PncErrorException(String.format("Defecto %s no encontrado", dto.getId()));
+            defecto.setDefecto(dto.getDefecto());
+            defecto.setUbicacion(dto.getUbicacion());
+            UnidadMedida unidad = buscarUnidadMedidaPorId(dto.getUnidad().getId());
+            defecto.setUnidad(unidad);
+            defecto.setValidez(dto.getValidez());
+            defecto.setCantidad(dto.getCantidad());
+
+            if (file.length > 0) {
+                if (defecto.getIdImagen() > 0) {
+                    this.documentoService.eliminarDocumento(defecto.getIdImagen());
+                }
+                PncDocumento documento = this.documentoService.registrar(pnc, file, nombreArchivo, tipo, null);
+                defecto.setIdImagen(documento.getId());
+            }
+
+            log.info(String.format("PNC %s -> Defecto actualizado %s", pnc.getNumero(), defecto));
+            return pnc.getDefectos();
+        } catch (JsonProcessingException e) {
+            log.error(String.format("Error al actualizar defecto %s", e.getMessage()));
+            throw new PncErrorException("Error al actualizar el defecto");
+        }
     }
 
     private ProductoNoConforme buscarPorId(long id) {
         Optional<ProductoNoConforme> pnc = this.repositorio.findById(id);
         if (!pnc.isPresent())
             throw new PncErrorException("Pnc no encontrado");
+        return pnc.get();
+    }
+
+    private UnidadMedida buscarUnidadMedidaPorId(long id) {
+        Optional<UnidadMedida> pnc = this.unidadMedidadRepo.findById(id);
+        if (!pnc.isPresent())
+            throw new PncErrorException("Unidad de medida no encontrada");
         return pnc.get();
     }
 }

@@ -25,6 +25,7 @@ public class PncDTO implements Serializable {
     @JsonDeserialize(using = LocalDateDeserializeIsa.class)
     private LocalDate fechaDeteccion;
 
+    private EstadoPnc estado;
     private BigDecimal cantidadProducida;
     private BigDecimal cantidadNoConforme;
     private BigDecimal saldo;
@@ -43,4 +44,7 @@ public class PncDTO implements Serializable {
     private String areaNombre;
     private String productoNombre;
 
+    public String getEstadoTexto(){
+        return this.estado.getDescripcion();
+    }
 }

@@ -7,6 +7,7 @@ import com.isacore.util.LocalDateTimeSerialize;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ConsultaPncDTO {
@@ -18,4 +19,8 @@ public class ConsultaPncDTO {
     @JsonSerialize(using = LocalDateTimeSerialize.class)
     @JsonDeserialize(using = LocalDateTimeDeserialize.class)
     private LocalDateTime fechaFin;
+
+    private Long productoId;
+    private List<EstadoPnc> estados;
+    private Long numero;
 }

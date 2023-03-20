@@ -3,6 +3,7 @@ package com.isacore.quality.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.isacore.quality.dto.ProductoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -100,6 +101,12 @@ public class ProductController {
 	public ResponseEntity<Object> generateNextReviewById(@PathVariable("id") Integer id) {
 		String review = service.updateReview(id);
 		return new ResponseEntity<Object>(review, HttpStatus.OK);
+	}
+
+	@GetMapping("/porNombre/{criterio}")
+	public ResponseEntity<List<ProductoDto>> listarPorCriterio(@PathVariable("criterio") String criterio) {
+		List<ProductoDto> product = service.listarPorNombreCriterio(criterio);
+		return ResponseEntity.ok(product);
 	}
 
 }

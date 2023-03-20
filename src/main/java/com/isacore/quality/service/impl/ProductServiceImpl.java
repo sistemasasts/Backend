@@ -4,17 +4,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import com.isacore.quality.dto.ProductoDto;
 import com.isacore.quality.model.*;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
 import org.apache.commons.lang3.StringUtils;
@@ -487,6 +484,17 @@ public class ProductServiceImpl implements IProductService {
         }
 
         return null;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProductoDto> listarPorNombreCriterio(String nombre) {
+        List<ProductoDto> productos = this.repo.findByNameProductContaining(nombre)
+                .stream()
+                .map(x -> new ProductoDto(x.getIdProduct(), x.getNameProduct(), x.getGenericName(),x.getDescProduct(),x.getTypeProduct()))
+                .sorted(Comparator.comparing(ProductoDto::getNameProduct))
+                .collect(Collectors.toList());
+        return productos;
     }
 
     private String generarNextReview(String review) {

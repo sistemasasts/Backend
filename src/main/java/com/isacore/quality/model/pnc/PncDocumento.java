@@ -31,6 +31,9 @@ public class PncDocumento {
     private PncOrdenFlujo ordenFlujo;
     private String tipo;
 
+    @Transient
+    private String base64;
+
     public PncDocumento(long productoNoConformeId, Long salidaMaterialId, Long pncDefectoId, String path,
                         EstadoSalidaMaterial estado, String nombreArchivo, PncOrdenFlujo ordenFlujo, String tipo) {
         this.productoNoConformeId = productoNoConformeId;

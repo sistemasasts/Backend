@@ -32,6 +32,9 @@ public class PncDefecto {
 
     private long idImagen;
 
+    @Column(columnDefinition = "decimal(19,2)")
+    private BigDecimal cantidad;
+
     @Transient
     private long productoNoConformeId;
 }

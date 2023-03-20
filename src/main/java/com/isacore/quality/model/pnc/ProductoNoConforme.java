@@ -83,11 +83,19 @@ public class ProductoNoConforme {
     @JoinColumn(name = "producto_no_conforme_id", nullable = false)
     List<PncDefecto> defectos;
 
+    @Enumerated(EnumType.STRING)
+    private ProcedenciaLinea procedenciaLinea;
+
+    @Enumerated(EnumType.STRING)
+    private LineaAfecta lineaAfecta;
+    private String nombreCliente;
+
     public ProductoNoConforme(long numero, String usuario, LocalDate fechaProduccion, LocalDate fechaDeteccion,
                               BigDecimal cantidadProducida, BigDecimal cantidadNoConforme, UnidadMedida unidad,
                               BigDecimal porcentajeValidez, BigDecimal pesoNoConforme, String ordenProduccion,
                               String lote, String hcc, String observacionCincoMs,
-                              Area area, Product producto) {
+                              Area area, Product producto, ProcedenciaLinea procedenciaLinea, LineaAfecta lineaAfecta,
+                              String nombreCliente) {
         this.numero = numero;
         this.usuario = usuario;
         this.fechaProduccion = fechaProduccion;
@@ -107,9 +115,33 @@ public class ProductoNoConforme {
         this.fechaModificacion = LocalDateTime.now();
         this.saldo = this.cantidadNoConforme;
         this.estado = EstadoPnc.CREADO;
+        this.procedenciaLinea = procedenciaLinea;
+        this.lineaAfecta = lineaAfecta;
+        this.nombreCliente = nombreCliente;
     }
 
-    public void agregarDefecto(PncDefecto defecto){
+    public void agregarDefecto(PncDefecto defecto) {
         this.defectos.add(defecto);
+    }
+
+    public void eliminarDefecto(long defectoId) {
+        this.defectos.removeIf(x -> x.getId() == defectoId);
+    }
+
+    public void reducirStock(BigDecimal cantidad) {
+        this.setSaldo(this.saldo.subtract(cantidad));
+    }
+
+    public void cambiarEnProceso() {
+        if (estado.equals(EstadoPnc.CREADO))
+            this.estado = EstadoPnc.EN_PROCESO;
+    }
+
+    public void cambiarAnulado() {
+        this.estado = EstadoPnc.ANULADO;
+    }
+
+    public void cambiarCerrado() {
+        this.estado = EstadoPnc.CERRADO;
     }
 }
