@@ -41,6 +41,12 @@ public class PncController {
         return ResponseEntity.ok(obj);
     }
 
+    @GetMapping("/consultarSaldo/{id}")
+    public ResponseEntity<Object> consultarSaldo(@PathVariable("id") long id) {
+        String saldo = this.service.consultarSaldoPorId(id);
+        return ResponseEntity.ok(saldo);
+    }
+
     @PutMapping
     public ResponseEntity<ProductoNoConforme> modificar(@RequestBody ProductoNoConforme proveedor) {
         ProductoNoConforme obj = service.actualizar(proveedor);

@@ -7,6 +7,7 @@ import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.model.pnc.*;
 import com.isacore.quality.repository.pnc.IPncDocumentoRepo;
+import com.isacore.quality.repository.pnc.IPncPlanAccionRepo;
 import com.isacore.quality.repository.pnc.IPncSalidaMaterialRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncDocumentoService;
@@ -35,6 +36,7 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
     private final ConfiguracionSolicitud configuracion;
     private final IProductoNoConformeRepo productoNoConformeRepo;
     private final IPncSalidaMaterialRepo salidaMaterialRepo;
+    private final IPncPlanAccionRepo planAccionRepo;
 
     @Transactional
     @Override
@@ -46,11 +48,13 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
                     productoNoConforme.getId(),
                     null,
                     null,
+                    null,
                     path,
                     null,
                     nombreArchivo,
                     orden,
-                    tipo
+                    tipo,
+                    null
             );
             this.repositorio.save(documento);
             log.info(String.format("PNC %s -> Documento guardado %s", productoNoConforme.getId(), documento));
@@ -64,7 +68,7 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
 
     @Transactional
     @Override
-    public PncDocumento registrar(PncSalidaMaterial salidaMaterial, byte[] bytes,
+    public PncDocumento registrar(PncSalidaMaterial salidaMaterial, Optional<PncPlanAccion> planAccion, byte[] bytes,
                                   String nombreArchivo, String tipo, PncOrdenFlujo orden) {
         try {
             String path = this.crearPathArchivo(salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId(), nombreArchivo);
@@ -73,11 +77,13 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
                     salidaMaterial.getProductoNoConforme().getId(),
                     salidaMaterial.getId(),
                     null,
+                    planAccion.map(PncPlanAccion::getId).orElse(null),
                     path,
                     salidaMaterial.getEstado(),
                     nombreArchivo,
                     orden,
-                    tipo
+                    tipo,
+                    planAccion.map(PncPlanAccion::getEstado).orElse(null)
             );
             this.repositorio.save(documento);
             log.info(String.format("PNC %s : Salida Material -> Documento guardado %s", salidaMaterial.getProductoNoConforme().getNumero(), documento));
@@ -99,8 +105,8 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
                 if (!salidaOp.isPresent())
                     throw new SolicitudEnsayoErrorException(String.format("PNC con id= %s -> salida de material %s no existe. no es posible subir archivo",
                             dto.getSalidaMaterialId(), dto.getSalidaMaterialId()));
-
-                return this.registrar(salidaOp.get(), file, nombreArchivo, tipo, dto.getOrden());
+                Optional<PncPlanAccion> planAccionOP = this.planAccionRepo.findById(dto.getPlanAccionId());
+                return this.registrar(salidaOp.get(), planAccionOP, file, nombreArchivo, tipo, dto.getOrden());
             }
             return null;
         } catch (JsonProcessingException e) {
@@ -113,12 +119,27 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
     @Override
     public List<PncDocumento> buscarPorEstadoYOrdenYSalidaId(EstadoSalidaMaterial estado, PncOrdenFlujo orden, long salidaId) {
         List<PncDocumento> documentos = new ArrayList<>();
-        List<PncDocumento> documentosOrdenCreado = this.repositorio.findByEstadoInAndOrdenFlujoAndSalidaMaterialId(Arrays.asList(EstadoSalidaMaterial.CREADO, estado),
-                PncOrdenFlujo.INGRESO_SALIDA_MATERIAL, salidaId);
-        documentos.addAll(documentosOrdenCreado);
+        if (!orden.equals(PncOrdenFlujo.INGRESO_SALIDA_MATERIAL)) {
+            List<PncDocumento> documentosOrdenCreado = this.repositorio.findByEstadoInAndOrdenFlujoAndSalidaMaterialId(Arrays.asList(EstadoSalidaMaterial.CREADO, estado),
+                    PncOrdenFlujo.INGRESO_SALIDA_MATERIAL, salidaId);
+            documentos.addAll(documentosOrdenCreado);
+        }
         List<PncDocumento> documentosActuales = this.repositorio.findByEstadoInAndOrdenFlujoAndSalidaMaterialId(Arrays.asList(EstadoSalidaMaterial.CREADO, estado),
                 orden, salidaId);
         documentos.addAll(documentosActuales);
+        return documentos;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PncDocumento> buscarPorOrdenYSalidaIdYPlanAccionId(PncOrdenFlujo orden, long salidaId, long planAccionId) {
+        List<PncDocumento> documentos = new ArrayList<>();
+        List<PncDocumento> documentosOrdenCreado = this.repositorio.findByEstadoInAndOrdenFlujoAndSalidaMaterialId(Arrays.asList(EstadoSalidaMaterial.CREADO),
+                PncOrdenFlujo.INGRESO_SALIDA_MATERIAL, salidaId);
+        documentos.addAll(documentosOrdenCreado);
+
+        List<PncDocumento> documentosPlanes = this.repositorio.findByOrdenFlujoAndSalidaMaterialIdAndPncPlanAccionId(orden, salidaId, planAccionId);
+        documentos.addAll(documentosPlanes);
         return documentos;
     }
 

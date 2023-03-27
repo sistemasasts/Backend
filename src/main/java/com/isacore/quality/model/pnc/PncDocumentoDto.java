@@ -13,6 +13,7 @@ public class PncDocumentoDto {
     private long id;
     private long productoNoConformeId;
     private Long salidaMaterialId;
+    private Long planAccionId;
     private PncOrdenFlujo orden;
 
     private EstadoSalidaMaterial estado;

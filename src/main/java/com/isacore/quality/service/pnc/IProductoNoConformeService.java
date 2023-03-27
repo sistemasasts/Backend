@@ -4,6 +4,7 @@ import com.isacore.quality.model.pnc.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IProductoNoConformeService {
@@ -25,4 +26,6 @@ public interface IProductoNoConformeService {
     //List<PncDefecto> actualizarDefecto(PncDefecto dto);
 
     List<PncDefecto> actualizarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
+
+    String consultarSaldoPorId(long id);
 }

@@ -10,6 +10,7 @@ import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFl
 import com.isacore.quality.repository.pnc.IPncSalidaMaterialRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncHistorialService;
+import com.isacore.quality.service.pnc.IPncPlanAccionService;
 import com.isacore.quality.service.pnc.IPncSalidaMaterialService;
 import com.isacore.util.UtilidadesCadena;
 import com.isacore.util.UtilidadesSeguridad;
@@ -32,11 +33,14 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     private final PncSalidaMaterialMapper mapper;
     private final IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
     private final IPncHistorialService historialService;
+    private final IPncPlanAccionService planAccionService;
 
 
     @Override
     public PncSalidaMaterialDto registrar(PncSalidaMaterialDto dto) {
         ProductoNoConforme pnc = this.buscarProductoNoConformePorId(dto.getIdPnc());
+        if (pnc.getSaldo().compareTo(dto.getCantidad()) < 0)
+            throw new PncErrorException("Cantidad de salida mayor a stock.");
         PncSalidaMaterial salidaMaterial = new PncSalidaMaterial(
                 dto.getFecha(),
                 dto.getCantidad(),
@@ -86,11 +90,12 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     @Transactional
     @Override
     public void enviarAprobacion(PncSalidaMaterialDto dto) {
+        PncSalidaMaterial salidaMaterial = this.buscarPorId(dto.getId());
+        this.validarStockDisponible(salidaMaterial);
         Optional<ConfiguracionGeneralFlujo> configuracion = this.configuracionGeneralFlujoRepo
                 .findByTipoSolicitudAndNombreConfiguracionFlujo(TipoSolicitud.SALIDA_MATERIAL, NombreConfiguracionFlujo.APROBADOR_SALIDA_MATERIAL);
         if (!configuracion.isPresent())
             throw new PncErrorException(String.format("Configuración %s no encontrada", NombreConfiguracionFlujo.APROBADOR_SALIDA_MATERIAL.getDescripcion()));
-        PncSalidaMaterial salidaMaterial = this.buscarPorId(dto.getId());
         String observacion = UtilidadesCadena.esNuloOBlanco(dto.getObservacionFlujo()) ? "SALIDA DE MATERIAL ENVIADA" :
                 dto.getObservacionFlujo();
         this.historialService.agregar(salidaMaterial, PncOrdenFlujo.INGRESO_SALIDA_MATERIAL, observacion);
@@ -122,15 +127,25 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         return this.mapper.map(salidaMateriales);
     }
 
+    @Transactional
+    @Override
+    public List<PncSalidaMaterialDto> eliminar(long pncId, long id) {
+        this.planAccionService.eliminarPorSalidaMaterialId(id);
+        this.repositorio.deleteById(id);
+        log.info(String.format("Salida de Material id=%s eliminado", id));
+        return this.listarPorPncId(pncId);
+    }
+
     private void aprobar(PncSalidaMaterial salidaMaterial) {
         List<TipoDestino> destinos = Arrays.asList(TipoDestino.DESPERDICIO, TipoDestino.DONACION);
+        this.validarStockDisponible(salidaMaterial);
+        salidaMaterial.getProductoNoConforme().reducirStock(salidaMaterial.getCantidad());
         if (destinos.contains(salidaMaterial.getDestino())) {
-            this.validarStockDisponible(salidaMaterial);
-            salidaMaterial.getProductoNoConforme().reducirStock(salidaMaterial.getCantidad());
             salidaMaterial.marcarComoCerrada();
             log.info(String.format("PNC %s -> Salida material %s aprobada y cerrada", salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId()));
         } else {
             salidaMaterial.marcarComoAprobada();
+            planAccionService.iniciarGestionPlanes(salidaMaterial.getId());
             log.info(String.format("PNC %s -> Salida material %s aprobada", salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId()));
         }
     }

@@ -74,10 +74,26 @@ public class PncSalidaMaterialController {
         return ResponseEntity.ok(obj);
     }
 
+    @DeleteMapping("/{pncId}/{id}")
+    public ResponseEntity<List<PncSalidaMaterialDto>> eliminar(@PathVariable("pncId") long pncId, @PathVariable("id") long id) {
+        List<PncSalidaMaterialDto> salidas = service.eliminar(pncId, id);
+        return ResponseEntity.ok(salidas);
+    }
+
     @GetMapping("/catalogoDestino")
     public ResponseEntity<List<CatalogDTO>> obtenerDestinosFinal() {
         List<CatalogDTO> catalgo = new ArrayList<>();
         for (TipoDestino origen : TipoDestino.values()) {
+            catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
+        }
+        catalgo.stream().sorted(Comparator.comparing(CatalogDTO::getLabel));
+        return ResponseEntity.ok(catalgo);
+    }
+
+    @GetMapping("/catalogoEstados")
+    public ResponseEntity<List<CatalogDTO>> obtenerEstados() {
+        List<CatalogDTO> catalgo = new ArrayList<>();
+        for (EstadoSalidaMaterial origen : EstadoSalidaMaterial.values()) {
             catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
         }
         catalgo.stream().sorted(Comparator.comparing(CatalogDTO::getLabel));

@@ -23,4 +23,6 @@ public interface IPncSalidaMaterialService {
     void aprobarSalidaMaterial(PncSalidaMaterialDto dto);
 
     List<PncSalidaMaterialDto> listarPorEstado(EstadoSalidaMaterial estadoSalidaMaterial);
+
+    List<PncSalidaMaterialDto> eliminar(long pncId, long id);
 }

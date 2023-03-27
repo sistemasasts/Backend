@@ -263,6 +263,13 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public String consultarSaldoPorId(long id) {
+        ProductoNoConforme pnc = this.buscarPorId(id);
+        return String.format("%s %s", pnc.getSaldo(), pnc.getUnidad().getAbreviatura());
+    }
+
     private ProductoNoConforme buscarPorId(long id) {
         Optional<ProductoNoConforme> pnc = this.repositorio.findById(id);
         if (!pnc.isPresent())

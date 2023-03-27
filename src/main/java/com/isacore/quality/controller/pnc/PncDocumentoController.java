@@ -24,9 +24,17 @@ public class PncDocumentoController {
 
     @GetMapping("/{estado}/{orden}/{salidaId}")
     public ResponseEntity<List<PncDocumento>> listarArchivos(@PathVariable("estado") EstadoSalidaMaterial estado,
-                                                                           @PathVariable("orden") PncOrdenFlujo orden,
-                                                                           @PathVariable("salidaId") Long salidaId) throws IOException {
+                                                             @PathVariable("orden") PncOrdenFlujo orden,
+                                                             @PathVariable("salidaId") Long salidaId) throws IOException {
         List<PncDocumento> files = service.buscarPorEstadoYOrdenYSalidaId(estado, orden, salidaId);
+        return ResponseEntity.ok(files);
+    }
+
+    @GetMapping("/planAccion/{orden}/{salidaId}/{planAccionId}")
+    public ResponseEntity<List<PncDocumento>> listarArchivosParaPlanesAccion(@PathVariable("orden") PncOrdenFlujo orden,
+                                                                             @PathVariable("salidaId") Long salidaId,
+                                                                             @PathVariable("planAccionId") Long planAccionId) throws IOException {
+        List<PncDocumento> files = service.buscarPorOrdenYSalidaIdYPlanAccionId(orden, salidaId, planAccionId);
         return ResponseEntity.ok(files);
     }
 
