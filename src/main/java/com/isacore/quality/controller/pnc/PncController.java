@@ -85,6 +85,12 @@ public class PncController {
         return ResponseEntity.ok(defectos);
     }
 
+    @PostMapping("/anular")
+    public ResponseEntity<Object> listarPorCriterios(@RequestBody ProductoNoConforme pnc) {
+        final boolean resultadoConsulta = this.service.anular(pnc);
+        return ResponseEntity.ok(resultadoConsulta);
+    }
+
     @GetMapping("/catalogoProcedencia")
     public ResponseEntity<List<CatalogDTO>> obtenerProcedenciaLinea() {
         List<CatalogDTO> catalgo = new ArrayList<>();

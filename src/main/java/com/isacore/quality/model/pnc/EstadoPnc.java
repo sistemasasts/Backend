@@ -3,7 +3,7 @@ package com.isacore.quality.model.pnc;
 public enum EstadoPnc {
     CREADO("CREADO"),
     EN_PROCESO("EN PROCESO"),
-    CERRADO("CERRADO"),
+    FINALIZADO("FINALIZADO"),
     ANULADO("ANULADO");
 
     private String descripcion;

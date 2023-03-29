@@ -2,8 +2,6 @@ package com.isacore.quality.service.impl.pnc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.isacore.quality.dto.InformationAditionalFileDTO;
-import com.isacore.quality.exception.ApprobationCriteriaErrorException;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.pnc.*;
@@ -12,8 +10,6 @@ import com.isacore.quality.repository.pnc.IPncDefectoRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncDocumentoService;
 import com.isacore.quality.service.pnc.IProductoNoConformeService;
-import com.isacore.util.PassFileToRepository;
-import com.isacore.util.UtilidadesCadena;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,7 +24,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.isacore.util.UtilidadesSeguridad.usuarioEnSesion;
@@ -80,11 +79,27 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         pnc.setArea(dto.getArea());
         pnc.setFechaDeteccion(dto.getFechaDeteccion());
         pnc.setFechaProduccion(dto.getFechaProduccion());
-        pnc.setCantidadNoConforme(dto.getCantidadNoConforme());
+        if (pnc.getEstado().equals(EstadoPnc.EN_PROCESO)) {
+            if (pnc.getCantidadNoConforme().compareTo(dto.getCantidadNoConforme()) > 0) {
+                throw new PncErrorException("No se puede actualizar cantidad no conforme inferior a la actual, debido al estado EN PROCESO");
+            } else {
+                pnc.setCantidadNoConforme(dto.getCantidadNoConforme());
+                BigDecimal aumento = dto.getCantidadNoConforme().subtract(pnc.getSaldo());
+                pnc.setSaldo(pnc.getSaldo().add(aumento));
+            }
+        }
         pnc.setCantidadProducida(dto.getCantidadProducida());
+        pnc.setUnidad(dto.getUnidad());
+        pnc.setNombreCliente(dto.getNombreCliente());
+        pnc.setLineaAfecta(dto.getLineaAfecta());
+        pnc.setProcedenciaLinea(dto.getProcedenciaLinea());
+        pnc.setProducto(dto.getProducto());
         pnc.setHcc(dto.getHcc());
         pnc.setLote(dto.getLote());
         pnc.setOrdenProduccion(dto.getOrdenProduccion());
+        pnc.setObservacionCincoMs(dto.getObservacionCincoMs());
+        pnc.setVentaTotalMes(dto.getVentaTotalMes());
+        pnc.setProduccionTotalMes(dto.getProduccionTotalMes());
         log.info(String.format("PNC actualizado %s", pnc));
         return pnc;
     }
@@ -144,10 +159,10 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             if (consulta.getProductoId() != null)
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("producto").get("idProduct"), consulta.getProductoId()));
 
-            if( null != consulta.getEstados() && !consulta.getEstados().isEmpty())
+            if (null != consulta.getEstados() && !consulta.getEstados().isEmpty())
                 predicadosConsulta.add(criteriaBuilder.in(root.get("estado")).value(consulta.getEstados()));
 
-            if(consulta.getNumero() != null)
+            if (consulta.getNumero() != null)
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("numero"), consulta.getNumero()));
 
 
@@ -189,8 +204,14 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         }
     }
 
+    @Transactional
     @Override
     public boolean anular(ProductoNoConforme dto) {
+        ProductoNoConforme pnc = this.buscarPorId(dto.getId());
+        if (!pnc.getEstado().equals(EstadoPnc.CREADO))
+            throw new PncErrorException("Pnc no puede ser anulado por estado actual");
+        pnc.cambiarAnulado();
+        log.info(String.format("PNC %s ANULADO", pnc.getNumero()));
         return false;
     }
 

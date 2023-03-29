@@ -141,7 +141,39 @@ public class ProductoNoConforme {
         this.estado = EstadoPnc.ANULADO;
     }
 
-    public void cambiarCerrado() {
-        this.estado = EstadoPnc.CERRADO;
+    public void cambiarFinalizado() {
+        this.estado = EstadoPnc.FINALIZADO;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductoNoConforme{" +
+                "id=" + id +
+                ", numero=" + numero +
+                ", fechaCreacion=" + fechaCreacion +
+                ", fechaModificacion=" + fechaModificacion +
+                ", usuario='" + usuario + '\'' +
+                ", fechaProduccion=" + fechaProduccion +
+                ", fechaDeteccion=" + fechaDeteccion +
+                ", cantidadProducida=" + cantidadProducida +
+                ", cantidadNoConforme=" + cantidadNoConforme +
+                ", saldo=" + saldo +
+                ", unidad=" + unidad +
+                ", porcentajeValidez=" + porcentajeValidez +
+                ", pesoNoConforme=" + pesoNoConforme +
+                ", produccionTotalMes=" + produccionTotalMes +
+                ", ventaTotalMes=" + ventaTotalMes +
+                ", ordenProduccion='" + ordenProduccion + '\'' +
+                ", lote='" + lote + '\'' +
+                ", hcc='" + hcc + '\'' +
+                ", observacionCincoMs='" + observacionCincoMs + '\'' +
+                ", estado=" + estado +
+                ", area=" + area +
+                ", defectos=" + defectos +
+                ", procedenciaLinea=" + procedenciaLinea +
+                ", lineaAfecta=" + lineaAfecta +
+                ", nombreCliente='" + nombreCliente + '\'' +
+                ", producto=" + producto.getIdProduct() + producto.getNameProduct() +
+                '}';
     }
 }
