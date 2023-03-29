@@ -84,11 +84,11 @@ public class AprobacionSolicitudService {
             case SOLICITUD_ENSAYOS:
                 SolicitudEnsayo solicitud = (SolicitudEnsayo) obj;
                 return new SolicitudAprobacionDto(solicitud.getId(), solicitud.getCodigo(), solicitud.getFechaCreacion(), solicitud.getProveedorNombre(), solicitud.getEstado().toString(),
-                    solicitud.getNombreSolicitante(), solicitud.getFechaEntrega(), solicitud.getDetalleMaterial(), solicitud.getFechaEntregaInforme(), solicitud.getVigencia(), TipoSolicitud.SOLICITUD_ENSAYOS);
+                    solicitud.getNombreSolicitante(), solicitud.getFechaEntrega(), solicitud.getDetalleMaterial(), solicitud.getFechaEntregaInforme(), solicitud.getVigencia(), TipoSolicitud.SOLICITUD_ENSAYOS, "");
             case SOLICITUD_PRUEBAS_EN_PROCESO:
                 SolicitudPruebasProceso solicitudPP = (SolicitudPruebasProceso) obj;
                 SolicitudAprobacionDto pp = new SolicitudAprobacionDto(solicitudPP.getId(), solicitudPP.getCodigo(), solicitudPP.getFechaCreacion(), "", solicitudPP.getEstado().toString(),
-                    solicitudPP.getNombreSolicitante(), solicitudPP.getFechaEntrega(), "", solicitudPP.getFechaEntregaInforme(), solicitudPP.getVigencia(), TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO);
+                    solicitudPP.getNombreSolicitante(), solicitudPP.getFechaEntrega(), "", solicitudPP.getFechaEntregaInforme(), solicitudPP.getVigencia(), TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO, solicitudPP.getObservacion());
                 pp.setLineaAplicacion(solicitudPP.getLineaAplicacion());
                 pp.setMotivo(solicitudPP.getMotivo());
                 return pp;

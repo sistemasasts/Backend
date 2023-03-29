@@ -56,6 +56,7 @@ public class SolicitudPPDTO implements Serializable {
     private String usuarioGestionMantenimiento;
     private LocalDate fechaPrueba;
     private LocalDate fechaEntregaInforme;
+    private String observacion;
 
     public LocalDate getFechaCreacion2() {
         return this.fechaCreacion.toLocalDate();
