@@ -222,13 +222,24 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             PncDefecto dto = JSON_MAPPER.readValue(jsonCriteria, PncDefecto.class);
             if (dto != null) {
                 ProductoNoConforme pnc = this.buscarPorId(dto.getProductoNoConformeId());
-                if (file.length > 0) {
-                    PncDocumento documento = this.documentoService.registrar(pnc, file, nombreArchivo, tipo, null);
-                    dto.setIdImagen(documento.getId());
-                }
+
                 UnidadMedida unidad = buscarUnidadMedidaPorId(dto.getUnidad().getId());
                 dto.setUnidad(unidad);
+                List<Long> defectosIds = pnc.getDefectos().stream().map(PncDefecto::getId).collect(Collectors.toList());
                 pnc.agregarDefecto(dto);
+                //pnc.getDefectos().stream().filter(x -> !defectosIds.contains(x.getId())).findFirst().orElse(null);
+
+                this.repositorio.save(pnc);
+                pnc.getDefectos().forEach(x -> {
+                    if (!defectosIds.contains(x.getId())) {
+                        x.setNuevo(true);
+                        dto.setId(x.getId());
+                    }
+                });
+                if (file.length > 0) {
+                    PncDocumento documento = this.documentoService.registrar(pnc, file, nombreArchivo, tipo, null);
+                    pnc.agregarIdDocumentoADefecto(dto.getId(), documento.getId());
+                }
                 log.info(String.format("PNC %s -> Defecto agregado %s", pnc.getId(), dto));
                 return pnc.getDefectos();
             }

@@ -145,6 +145,13 @@ public class ProductoNoConforme {
         this.estado = EstadoPnc.FINALIZADO;
     }
 
+    public void agregarIdDocumentoADefecto(long defecto, long documento){
+        this.defectos.forEach(x ->{
+            if(x.getId().compareTo(defecto) == 0)
+                x.setIdImagen(documento);
+        });
+    }
+
     @Override
     public String toString() {
         return "ProductoNoConforme{" +

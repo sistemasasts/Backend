@@ -15,7 +15,11 @@ public interface IPncDocumentoRepo extends JpaRepository<PncDocumento, Long> {
     List<PncDocumento> findByEstadoInAndOrdenFlujoAndSalidaMaterialId(Collection<EstadoSalidaMaterial> estados, PncOrdenFlujo orden,
                                                                       long idSalidaMaterial);
 
+    List<PncDocumento> findByOrdenFlujoAndSalidaMaterialId(PncOrdenFlujo orden, long idSalidaMaterial);
+
     List<PncDocumento> findByOrdenFlujoAndSalidaMaterialIdAndPncPlanAccionId(PncOrdenFlujo orden, long idSalidaMaterial, long planAccionId);
+
+    List<PncDocumento> findByProductoNoConformeId(long pncId);
 
     boolean existsBySalidaMaterialIdAndEstadoAndOrdenFlujo(long salidaMaterialId, EstadoSalidaMaterial estado, PncOrdenFlujo orden);
 }

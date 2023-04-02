@@ -38,6 +38,12 @@ public class PncDocumentoController {
         return ResponseEntity.ok(files);
     }
 
+    @GetMapping("/pnc/{pncId}")
+    public ResponseEntity<List<PncDocumento>> listarArchivosPorPncId(@PathVariable("pncId") Long pncId)  {
+        List<PncDocumento> files = service.buscarPorPncId(pncId);
+        return ResponseEntity.ok(files);
+    }
+
     @GetMapping(value = "/ver/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> ver(@PathVariable("id") Long id) {
         byte[] data = null;
@@ -51,10 +57,23 @@ public class PncDocumentoController {
         return ResponseEntity.ok(imgBase64);
     }
 
+    @PostMapping("/subirPnc")
+    public ResponseEntity<Object> subirArchivoPnc(@RequestPart("info") String info, @RequestPart("file") MultipartFile file) throws IOException {
+        PncDocumento imgBase64 = service.subirArchivoPnc(info, file.getBytes(), file.getOriginalFilename(), file.getContentType());
+        return ResponseEntity.ok(imgBase64);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> eliminarPP(@PathVariable("id") Long id) {
         boolean resultado = service.eliminarDocumento(id);
         return ResponseEntity.ok(resultado);
+    }
+
+    @GetMapping(value = "/comprimido/{historialId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> descargarComprimido(@PathVariable("historialId") Long id) {
+        byte[] data = null;
+        data = service.descargarPorHistorialId(id);
+        return new ResponseEntity<byte[]>(data, HttpStatus.OK);
     }
 
 }

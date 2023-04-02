@@ -37,4 +37,7 @@ public class PncDefecto {
 
     @Transient
     private long productoNoConformeId;
+
+    @Transient
+    private boolean nuevo;
 }

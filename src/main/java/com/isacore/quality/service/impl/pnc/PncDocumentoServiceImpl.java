@@ -6,10 +6,9 @@ import com.isacore.quality.exception.ApprobationCriteriaErrorException;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.model.pnc.*;
-import com.isacore.quality.repository.pnc.IPncDocumentoRepo;
-import com.isacore.quality.repository.pnc.IPncPlanAccionRepo;
-import com.isacore.quality.repository.pnc.IPncSalidaMaterialRepo;
-import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
+import com.isacore.quality.model.se.SolicitudDocumento;
+import com.isacore.quality.model.se.SolicitudHistorial;
+import com.isacore.quality.repository.pnc.*;
 import com.isacore.quality.service.pnc.IPncDocumentoService;
 import com.isacore.quality.service.se.ConfiguracionSolicitud;
 import com.isacore.util.PassFileToRepository;
@@ -20,11 +19,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -37,17 +41,19 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
     private final IProductoNoConformeRepo productoNoConformeRepo;
     private final IPncSalidaMaterialRepo salidaMaterialRepo;
     private final IPncPlanAccionRepo planAccionRepo;
+    private final IPncHistorialRepo historialRepo;
 
     @Transactional
     @Override
     public PncDocumento registrar(ProductoNoConforme productoNoConforme, byte[] bytes, String nombreArchivo, String tipo, PncOrdenFlujo orden) {
         try {
-            String path = this.crearPathArchivo(productoNoConforme.getId(), null, nombreArchivo);
+            Long idDefecto = productoNoConforme.getDefectos().stream().filter(PncDefecto::isNuevo).findFirst().map(PncDefecto::getId).orElse(null);
+            String path = this.crearPathArchivo(productoNoConforme.getNumero(), null, nombreArchivo);
             PassFileToRepository.saveLocalFile(path, bytes);
             PncDocumento documento = new PncDocumento(
                     productoNoConforme.getId(),
                     null,
-                    null,
+                    idDefecto,
                     null,
                     path,
                     null,
@@ -115,6 +121,25 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
         }
     }
 
+    @Transactional
+    @Override
+    public PncDocumento subirArchivoPnc(String jsonDTO, byte[] file, String nombreArchivo, String tipo) {
+        try {
+            PncDocumentoDto dto = JSON_MAPPER.readValue(jsonDTO, PncDocumentoDto.class);
+            if (dto != null) {
+                Optional<ProductoNoConforme> pnc = productoNoConformeRepo.findById(dto.getProductoNoConformeId());
+                if (!pnc.isPresent())
+                    throw new SolicitudEnsayoErrorException(String.format("PNC con id= %s no existe. no es posible subir archivo",
+                            dto.getProductoNoConformeId()));
+                return this.registrar(pnc.get(), file, nombreArchivo, tipo,null);
+            }
+            return null;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new ApprobationCriteriaErrorException();
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<PncDocumento> buscarPorEstadoYOrdenYSalidaId(EstadoSalidaMaterial estado, PncOrdenFlujo orden, long salidaId) {
@@ -140,6 +165,14 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
 
         List<PncDocumento> documentosPlanes = this.repositorio.findByOrdenFlujoAndSalidaMaterialIdAndPncPlanAccionId(orden, salidaId, planAccionId);
         documentos.addAll(documentosPlanes);
+        return documentos;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<PncDocumento> buscarPorPncId(long pncId) {
+        List<PncDocumento> documentos = this.repositorio.findByProductoNoConformeId(pncId)
+                .stream().filter(x -> x.getPncDefectoId() == null).collect(Collectors.toList());
         return documentos;
     }
 
@@ -188,6 +221,53 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
         }
     }
 
+    @Override
+    public byte[] descargarPorHistorialId(long historialId) {
+        Optional<PncHistorial> historialOP = historialRepo.findById(historialId);
+        if (historialOP.isPresent()) {
+            PncHistorial historial = historialOP.get();
+
+            List<PncDocumento> archivos = new ArrayList<>();
+            archivos = this.repositorio.findByOrdenFlujoAndSalidaMaterialId(
+                    historial.getOrden(),historial.getSalidaMaterialId());
+
+            try {
+                String rutaComprimido = crearRutaComprimido(historial.getSalidaMaterialId());
+                compressZip(archivos, rutaComprimido);
+                return PassFileToRepository.readLocalFile(rutaComprimido);
+
+            } catch (Exception e) {
+                log.error(String.format("Error al comprimir archivo de PNC %s: %s", historial.getPncId(), e.getMessage()));
+                throw new PncErrorException("Error al momento de descargar los archivos.");
+            }
+        }
+        return null;
+    }
+
+    private void compressZip(List<PncDocumento> archivos, String ruta) throws Exception {
+        // crea un buffer temporal para ir poniendo los archivos a comprimir
+        ZipOutputStream zous = new ZipOutputStream(new FileOutputStream(ruta));
+        for (PncDocumento archivo : archivos) {
+
+            //nombre con el que se va guardar el archivo dentro del zip
+            ZipEntry entrada = new ZipEntry(archivo.getNombreArchivo());
+            zous.putNextEntry(entrada);
+
+            //System.out.println("Nombre del Archivo: " + entrada.getName());
+            System.out.println("Comprimiendo.....");
+            //obtiene el archivo para irlo comprimiendo
+            FileInputStream fis = new FileInputStream(archivo.getPath());
+            int leer;
+            byte[] buffer = new byte[1024];
+            while (0 < (leer = fis.read(buffer))) {
+                zous.write(buffer, 0, leer);
+            }
+            fis.close();
+            zous.closeEntry();
+        }
+        zous.close();
+    }
+
     private PncDocumento obtenerPorId(long id) {
         Optional<PncDocumento> documento = this.repositorio.findById(id);
         if (!documento.isPresent())
@@ -217,6 +297,14 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
             log.error(String.format("Error al subir Documento %s", e.getMessage()));
             throw new PncErrorException("Error al crear el directorio");
         }
+    }
+
+    private String crearRutaComprimido(long salidaMaterialId ) {
+        PncSalidaMaterial salidaMaterial = this.salidaMaterialRepo.findById(salidaMaterialId).orElse(null);
+        if(salidaMaterial == null)
+            throw new PncErrorException("Salida de material no encontrado");
+        String ruta = this.crearRutaAlmacenamiento(salidaMaterial.getProductoNoConforme().getNumero(),salidaMaterial.getId());
+        return ruta.concat(File.separator).concat(salidaMaterial.getId()+".zip");
     }
 
 
