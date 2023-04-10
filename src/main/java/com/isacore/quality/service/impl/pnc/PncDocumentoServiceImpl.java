@@ -111,7 +111,7 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
                 if (!salidaOp.isPresent())
                     throw new SolicitudEnsayoErrorException(String.format("PNC con id= %s -> salida de material %s no existe. no es posible subir archivo",
                             dto.getSalidaMaterialId(), dto.getSalidaMaterialId()));
-                Optional<PncPlanAccion> planAccionOP = this.planAccionRepo.findById(dto.getPlanAccionId());
+                Optional<PncPlanAccion> planAccionOP = this.planAccionRepo.findById(dto.getPlanAccionId() == null ? 0 : dto.getPlanAccionId());
                 return this.registrar(salidaOp.get(), planAccionOP, file, nombreArchivo, tipo, dto.getOrden());
             }
             return null;
@@ -131,7 +131,7 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
                 if (!pnc.isPresent())
                     throw new SolicitudEnsayoErrorException(String.format("PNC con id= %s no existe. no es posible subir archivo",
                             dto.getProductoNoConformeId()));
-                return this.registrar(pnc.get(), file, nombreArchivo, tipo,null);
+                return this.registrar(pnc.get(), file, nombreArchivo, tipo, null);
             }
             return null;
         } catch (JsonProcessingException e) {
@@ -172,7 +172,11 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
     @Override
     public List<PncDocumento> buscarPorPncId(long pncId) {
         List<PncDocumento> documentos = this.repositorio.findByProductoNoConformeId(pncId)
-                .stream().filter(x -> x.getPncDefectoId() == null).collect(Collectors.toList());
+                .stream()
+                .filter(x -> x.getPncDefectoId() == null)
+                .filter(x -> x.getPncPlanAccionId() == null)
+                .filter(x -> x.getSalidaMaterialId() == null)
+                .collect(Collectors.toList());
         return documentos;
     }
 
@@ -229,7 +233,7 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
 
             List<PncDocumento> archivos = new ArrayList<>();
             archivos = this.repositorio.findByOrdenFlujoAndSalidaMaterialId(
-                    historial.getOrden(),historial.getSalidaMaterialId());
+                    historial.getOrden(), historial.getSalidaMaterialId());
 
             try {
                 String rutaComprimido = crearRutaComprimido(historial.getSalidaMaterialId());
@@ -299,12 +303,12 @@ public class PncDocumentoServiceImpl implements IPncDocumentoService {
         }
     }
 
-    private String crearRutaComprimido(long salidaMaterialId ) {
+    private String crearRutaComprimido(long salidaMaterialId) {
         PncSalidaMaterial salidaMaterial = this.salidaMaterialRepo.findById(salidaMaterialId).orElse(null);
-        if(salidaMaterial == null)
+        if (salidaMaterial == null)
             throw new PncErrorException("Salida de material no encontrado");
-        String ruta = this.crearRutaAlmacenamiento(salidaMaterial.getProductoNoConforme().getNumero(),salidaMaterial.getId());
-        return ruta.concat(File.separator).concat(salidaMaterial.getId()+".zip");
+        String ruta = this.crearRutaAlmacenamiento(salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId());
+        return ruta.concat(File.separator).concat(salidaMaterial.getId() + ".zip");
     }
 
 

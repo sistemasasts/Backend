@@ -28,4 +28,6 @@ public interface IProductoNoConformeService {
     List<PncDefecto> actualizarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
 
     String consultarSaldoPorId(long id);
+
+    byte[] generateReporte(long id);
 }

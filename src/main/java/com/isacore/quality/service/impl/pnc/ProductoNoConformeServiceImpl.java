@@ -2,14 +2,24 @@ package com.isacore.quality.service.impl.pnc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.isacore.exception.reporte.JasperReportsException;
+import com.isacore.exception.reporte.ReporteExeption;
 import com.isacore.quality.exception.PncErrorException;
+import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
 import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.pnc.*;
+import com.isacore.quality.model.spp.ReporteSolicitudPPDTO;
+import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
 import com.isacore.quality.repository.pnc.IPncDefectoRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncDocumentoService;
+import com.isacore.quality.service.pnc.IPncPlanAccionService;
+import com.isacore.quality.service.pnc.IPncSalidaMaterialService;
 import com.isacore.quality.service.pnc.IProductoNoConformeService;
+import com.isacore.servicio.reporte.IGeneradorJasperReports;
+import com.isacore.sgc.acta.model.UserImptek;
+import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,9 +35,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.isacore.util.UtilidadesSeguridad.usuarioEnSesion;
@@ -42,6 +50,10 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     private final IPncDocumentoService documentoService;
     private final IPncDefectoRepo defectoRepositorio;
     private final IUnidadMedidadRepo unidadMedidadRepo;
+    private final IGeneradorJasperReports reporteServicio;
+    private final IUserImptekRepo usuarioRepositorio;
+    private final IPncSalidaMaterialService pncSalidaMaterialService;
+    private final IPncPlanAccionService planAccionService;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     @Transactional
@@ -300,6 +312,31 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     public String consultarSaldoPorId(long id) {
         ProductoNoConforme pnc = this.buscarPorId(id);
         return String.format("%s %s", pnc.getSaldo(), pnc.getUnidad().getAbreviatura());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public byte[] generateReporte(long id) {
+        Optional<ProductoNoConforme> pncOp = this.repositorio.findById(id);
+        if (!pncOp.isPresent())
+            throw new PncErrorException("Producto no conforme no encotrasda");
+        try {
+            return reporteServicio.generarReporte("PNCP", Collections.singleton(this.crearReporteDTO(pncOp.get())), new HashMap<>());
+        } catch (JasperReportsException e) {
+            log.error(String.format("Error PNC Reporte: %s", e));
+            throw new ReporteExeption("PNC");
+        }
+    }
+
+    private PncReporteDto crearReporteDTO(ProductoNoConforme pnc) {
+        UserImptek solicitante = this.usuarioRepositorio.findOneByNickName(pnc.getUsuario());
+        List<PncSalidaMaterialDto> salidaMaterialDtos = this.pncSalidaMaterialService.listarPorPncId(pnc.getId());
+        List<TipoDestino> destinos = Arrays.asList(TipoDestino.REPROCESO, TipoDestino.RETRABAJO);
+        salidaMaterialDtos.forEach(x -> {
+            if(destinos.contains(x.getDestino()))
+                x.setPlanesAccion(this.planAccionService.listarPorSalidaMaterialId(x.getId()));
+        });
+        return new PncReporteDto(pnc, solicitante.getEmployee().getCompleteName(), salidaMaterialDtos);
     }
 
     private ProductoNoConforme buscarPorId(long id) {

@@ -21,7 +21,7 @@ public class PncSalidaMaterial {
 
     private LocalDateTime fechaCreacion;
     private LocalDate fecha;
-    @Column(columnDefinition = "decimal(19,5)")
+    @Column(columnDefinition = "decimal(19,2)")
     private BigDecimal cantidad;
 
     @NotNull

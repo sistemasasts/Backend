@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -39,11 +41,16 @@ public class PncSalidaMaterialDto {
     private PncOrdenFlujo orden;
     private boolean aprobado;
 
+    private List<PncPlanAccionDto> planesAccion= new ArrayList();
     public LocalDate getFechaCreacion2() {
         return this.fechaCreacion.toLocalDate();
     }
 
     public String getEstadoTexto() {
         return getEstado() != null ? getEstado().getDescripcion() : "";
+    }
+
+    public String getDestinoDescripcion(){
+        return this.destino.getDescripcion();
     }
 }

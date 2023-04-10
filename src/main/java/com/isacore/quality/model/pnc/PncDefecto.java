@@ -40,4 +40,13 @@ public class PncDefecto {
 
     @Transient
     private boolean nuevo;
+
+    public String getDefectoDescripcion(){
+        return this.defecto.getNombre();
+    }
+
+    public String getUnidadDescripcion(){
+        return this.unidad.getAbreviatura();
+    }
+
 }

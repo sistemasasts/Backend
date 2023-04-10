@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,7 +95,7 @@ public class PncController {
     @GetMapping("/catalogoProcedencia")
     public ResponseEntity<List<CatalogDTO>> obtenerProcedenciaLinea() {
         List<CatalogDTO> catalgo = new ArrayList<>();
-        for(ProcedenciaLinea origen : ProcedenciaLinea.values()){
+        for (ProcedenciaLinea origen : ProcedenciaLinea.values()) {
             catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
         }
         catalgo.stream().sorted(Comparator.comparing(CatalogDTO::getLabel));
@@ -104,7 +105,7 @@ public class PncController {
     @GetMapping("/catalogoLineaAfecta")
     public ResponseEntity<List<CatalogDTO>> obtenerLineaAfecta() {
         List<CatalogDTO> catalgo = new ArrayList<>();
-        for(LineaAfecta origen : LineaAfecta.values()){
+        for (LineaAfecta origen : LineaAfecta.values()) {
             catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
         }
         catalgo.stream().sorted(Comparator.comparing(CatalogDTO::getLabel));
@@ -114,19 +115,17 @@ public class PncController {
     @GetMapping("/catalogoEstado")
     public ResponseEntity<List<CatalogDTO>> estados() {
         List<CatalogDTO> catalgo = new ArrayList<>();
-        for(EstadoPnc origen : EstadoPnc.values()){
+        for (EstadoPnc origen : EstadoPnc.values()) {
             catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
         }
         catalgo.stream().sorted(Comparator.comparing(CatalogDTO::getLabel));
         return ResponseEntity.ok(catalgo);
     }
 
-    //MediaType.APPLICATION_OCTET_STREAM_VALUE permite enviar el arreglo de bits en lugar de json
-//		@GetMapping(value="/generarReporte/{idPnc}", produces= MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//		public ResponseEntity<byte[]> generarReporte( @PathVariable Integer idPnc) {
-//			byte[] data= null;
-//			data = service.generarReportePnc(idPnc);
-//			return new ResponseEntity<byte[]>(data, HttpStatus.OK);
-//		}
-
+    @GetMapping(value = "/generarReporte/{idPnc}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> generarReporte(@PathVariable Integer idPnc) {
+        byte[] data = null;
+        data = service.generateReporte(idPnc);
+        return new ResponseEntity<byte[]>(data, HttpStatus.OK);
+    }
 }
