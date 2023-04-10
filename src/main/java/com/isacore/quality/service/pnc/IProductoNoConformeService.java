@@ -17,6 +17,8 @@ public interface IProductoNoConformeService {
 
     Page<PncDTO> listar(Pageable pageabe, ConsultaPncDTO dto);
 
+    Page<PncReporteComercialDto> consultarReporteComercial(Pageable pageabe, ConsultaPncDTO dto);
+
     boolean anular(ProductoNoConforme dto);
 
     List<PncDefecto> agregarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
@@ -26,6 +28,8 @@ public interface IProductoNoConformeService {
     //List<PncDefecto> actualizarDefecto(PncDefecto dto);
 
     List<PncDefecto> actualizarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
+
+    List<PncDefectoDto> listarDefectosPorPncId(long pncId);
 
     String consultarSaldoPorId(long id);
 

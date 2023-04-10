@@ -60,6 +60,12 @@ public class PncController {
         return ResponseEntity.ok(resultadoConsulta);
     }
 
+    @PostMapping("/reporteComercial")
+    public ResponseEntity<Page<PncReporteComercialDto>> reporteComercial(final Pageable page, @RequestBody final ConsultaPncDTO consulta) {
+        final Page<PncReporteComercialDto> resultadoConsulta = this.service.consultarReporteComercial(page, consulta);
+        return ResponseEntity.ok(resultadoConsulta);
+    }
+
     @PostMapping("/agregarDefecto")
     public ResponseEntity<List<PncDefecto>> agregarDefecto(@RequestPart("info") String info,
                                                            @RequestPart("file") MultipartFile file) throws IOException {
@@ -127,5 +133,11 @@ public class PncController {
         byte[] data = null;
         data = service.generateReporte(idPnc);
         return new ResponseEntity<byte[]>(data, HttpStatus.OK);
+    }
+
+    @GetMapping("/detalleDefectos/{pncId}")
+    public ResponseEntity<List<PncDefectoDto>> detalleDefectosPorPncId(@PathVariable("pncId") long pncId) {
+        List<PncDefectoDto> defectos = this.service.listarDefectosPorPncId(pncId);
+        return ResponseEntity.ok(defectos);
     }
 }

@@ -6,6 +6,7 @@ import com.isacore.util.LocalDateTimeDeserialize;
 import com.isacore.util.LocalDateTimeSerialize;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,4 +24,6 @@ public class ConsultaPncDTO {
     private Long productoId;
     private List<EstadoPnc> estados;
     private Long numero;
+    private BigDecimal saldo;
+
 }

@@ -137,7 +137,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     }
 
     private void aprobar(PncSalidaMaterial salidaMaterial) {
-        List<TipoDestino> destinos = Arrays.asList(TipoDestino.DESPERDICIO, TipoDestino.DONACION);
+        List<TipoDestino> destinos = Arrays.asList(TipoDestino.DESPERDICIO, TipoDestino.DONACION, TipoDestino.SALIDA_CONCESION);
         this.validarStockDisponible(salidaMaterial);
         salidaMaterial.getProductoNoConforme().reducirStock(salidaMaterial.getCantidad());
         if (destinos.contains(salidaMaterial.getDestino())) {

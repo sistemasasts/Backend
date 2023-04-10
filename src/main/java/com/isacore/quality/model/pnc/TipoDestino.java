@@ -5,6 +5,7 @@ public enum TipoDestino {
     DONACION("DONACIÓN"),
     RETRABAJO("RETRABAJO"),
     REPROCESO("REPROCESO"),
+    SALIDA_CONCESION("SALIDA DE CONCESIÓN"),
     ;
 
     private String descripcion;

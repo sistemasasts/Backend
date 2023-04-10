@@ -127,7 +127,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     public Page<PncDTO> listar(Pageable pageable, ConsultaPncDTO dto) {
         try {
 
-            List<PncDTO> respuesta = new ArrayList<>();
+            List<ProductoNoConforme> respuesta = new ArrayList<>();
             respuesta.addAll(obtenerPncPorCriterios(dto));
             final int sizeTotal = respuesta.size();
 
@@ -136,8 +136,32 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                     : (start + pageable.getPageSize());
 
             respuesta = respuesta.subList(start, end);
+            List<PncDTO> listaMapeada = respuesta.stream().map(c -> {
+                return new PncDTO(
+                        c.getId(),
+                        c.getNumero(),
+                        c.getUsuario(),
+                        c.getFechaProduccion(),
+                        c.getFechaDeteccion(),
+                        c.getEstado(),
+                        c.getCantidadProducida(),
+                        c.getCantidadNoConforme(),
+                        c.getSaldo(),
+                        c.getUnidad(),
+                        c.getPorcentajeValidez(),
+                        c.getPesoNoConforme(),
+                        c.getProduccionTotalMes(),
+                        c.getVentaTotalMes(),
+                        c.getOrdenProduccion(),
+                        c.getLote(),
+                        c.getHcc(),
+                        "",
+                        c.getArea().getNameArea(),
+                        c.getProducto().getNameProduct()
+                );
+            }).collect(Collectors.toList());
 
-            final Page<PncDTO> pageResut = new PageImpl<>(respuesta, pageable, sizeTotal);
+            final Page<PncDTO> pageResut = new PageImpl<>(listaMapeada, pageable, sizeTotal);
 
             return pageResut;
 
@@ -147,7 +171,43 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         }
     }
 
-    private List<PncDTO> obtenerPncPorCriterios(ConsultaPncDTO consulta) {
+    @Override
+    public Page<PncReporteComercialDto> consultarReporteComercial(Pageable pageable, ConsultaPncDTO dto) {
+        try {
+            dto.setSaldo(new BigDecimal("0.01"));
+            List<ProductoNoConforme> respuesta = new ArrayList<>();
+            respuesta.addAll(obtenerPncPorCriterios(dto));
+            final int sizeTotal = respuesta.size();
+
+            final int start = (int) pageable.getOffset();
+            final int end = (start + pageable.getPageSize()) > respuesta.size() ? respuesta.size()
+                    : (start + pageable.getPageSize());
+
+            respuesta = respuesta.subList(start, end);
+
+            List<PncReporteComercialDto> reporteComercialDtos = respuesta.stream()
+                    .map(x -> new PncReporteComercialDto(
+                            x.getId(),
+                            x.getProducto().getNameProduct(),
+                            x.getSaldo(),
+                            x.getUnidad().getAbreviatura(),
+                            x.getNumero(),
+                            x.getLote(),
+                            x.ubicacion(),
+                            x.validez()
+                    )).collect(Collectors.toList());
+
+            final Page<PncReporteComercialDto> pageResut = new PageImpl<>(reporteComercialDtos, pageable, sizeTotal);
+
+            return pageResut;
+
+        } catch (Exception e) {
+            final Page<PncReporteComercialDto> pageResult = new PageImpl<PncReporteComercialDto>(new ArrayList<PncReporteComercialDto>(), pageable, 0);
+            return pageResult;
+        }
+    }
+
+    private List<ProductoNoConforme> obtenerPncPorCriterios(ConsultaPncDTO consulta) {
         try {
             final CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
             final CriteriaQuery<ProductoNoConforme> query = criteriaBuilder.createQuery(ProductoNoConforme.class);
@@ -177,6 +237,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             if (consulta.getNumero() != null)
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("numero"), consulta.getNumero()));
 
+            if (consulta.getSaldo() != null)
+                predicadosConsulta.add(criteriaBuilder.ge(root.get("saldo"), consulta.getSaldo()));
 
             query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
                     .orderBy(criteriaBuilder.desc(root.get("numero")));
@@ -184,31 +246,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             final TypedQuery<ProductoNoConforme> statement = this.entityManager.createQuery(query);
 
             final List<ProductoNoConforme> cotizacionesResult = statement.getResultList();
-
-            return cotizacionesResult.stream().map(c -> {
-                return new PncDTO(
-                        c.getId(),
-                        c.getNumero(),
-                        c.getUsuario(),
-                        c.getFechaProduccion(),
-                        c.getFechaDeteccion(),
-                        c.getEstado(),
-                        c.getCantidadProducida(),
-                        c.getCantidadNoConforme(),
-                        c.getSaldo(),
-                        c.getUnidad(),
-                        c.getPorcentajeValidez(),
-                        c.getPesoNoConforme(),
-                        c.getProduccionTotalMes(),
-                        c.getVentaTotalMes(),
-                        c.getOrdenProduccion(),
-                        c.getLote(),
-                        c.getHcc(),
-                        "",
-                        c.getArea().getNameArea(),
-                        c.getProducto().getNameProduct()
-                );
-            }).collect(Collectors.toList());
+            return cotizacionesResult;
 
         } catch (Exception e) {
             log.error(String.format("Error al consultar ProductoNoConforme %s", e.getMessage()));
@@ -309,6 +347,31 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
     @Transactional(readOnly = true)
     @Override
+    public List<PncDefectoDto> listarDefectosPorPncId(long pncId) {
+        ProductoNoConforme pnc = this.buscarPorId(pncId);
+        List<PncDefectoDto> defectos = pnc.getDefectos().stream().map(x -> {
+            PncDocumento imagen = null;
+            if (x.getIdImagen() > 0) {
+                imagen = this.documentoService.listarDocumentoPorId(x.getIdImagen());
+            }
+            PncDefectoDto dto = new PncDefectoDto(
+                    x.getId(),
+                    x.getDefecto().getNombre(),
+                    x.getUnidad().getAbreviatura(),
+                    x.getUbicacion(),
+                    x.getValidez(),
+                    x.getIdImagen(),
+                    x.getCantidad(),
+                    imagen == null ? "" : imagen.getTipo(),
+                    imagen == null ? "" : imagen.getBase64()
+            );
+            return dto;
+        }).collect(Collectors.toList());
+        return defectos;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public String consultarSaldoPorId(long id) {
         ProductoNoConforme pnc = this.buscarPorId(id);
         return String.format("%s %s", pnc.getSaldo(), pnc.getUnidad().getAbreviatura());
@@ -333,7 +396,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         List<PncSalidaMaterialDto> salidaMaterialDtos = this.pncSalidaMaterialService.listarPorPncId(pnc.getId());
         List<TipoDestino> destinos = Arrays.asList(TipoDestino.REPROCESO, TipoDestino.RETRABAJO);
         salidaMaterialDtos.forEach(x -> {
-            if(destinos.contains(x.getDestino()))
+            if (destinos.contains(x.getDestino()))
                 x.setPlanesAccion(this.planAccionService.listarPorSalidaMaterialId(x.getId()));
         });
         return new PncReporteDto(pnc, solicitante.getEmployee().getCompleteName(), salidaMaterialDtos);

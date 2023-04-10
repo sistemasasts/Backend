@@ -145,12 +145,21 @@ public class ProductoNoConforme {
         this.estado = EstadoPnc.FINALIZADO;
     }
 
-    public void agregarIdDocumentoADefecto(long defecto, long documento){
-        this.defectos.forEach(x ->{
-            if(x.getId().compareTo(defecto) == 0)
+    public void agregarIdDocumentoADefecto(long defecto, long documento) {
+        this.defectos.forEach(x -> {
+            if (x.getId().compareTo(defecto) == 0)
                 x.setIdImagen(documento);
         });
     }
+
+    public String ubicacion() {
+        return this.defectos.isEmpty() ? "" : this.defectos.stream().findFirst().get().getUbicacion();
+    }
+
+    public BigDecimal validez() {
+        return this.defectos.isEmpty() ? BigDecimal.ZERO : this.defectos.stream().findFirst().get().getValidez();
+    }
+
 
     @Override
     public String toString() {
