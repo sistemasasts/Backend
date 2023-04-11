@@ -20,6 +20,20 @@
                     <p style="font-size: 16px">Estimado(a) Usuario: <b th:text="${nombreUsuario}">WILFRIDO LOACHAMIN</b></p>
                     <p>La solicitud <b th:text="${codigo}">SP000001</b> y el ingreso del material en validación ha sido ingresada con éxito.</p>
                     <p>La fecha de entrega de resultados será: <b th:text="${fechaEntregaResultados}">16 de septiembre de 2022</b></p>
+                    <table class="detalle">
+                        <tr class="detalle">
+                            <th class="detalle" style=" font-weight: 100; text-align:left; width:40%">Prioridad:</th>
+                            <th class="detalle" style="text-align:left; width:60%"><b th:text="${prioridad}">ALTO</b></th>
+                        </tr>
+                        <tr>
+                            <th class="detalle" style="font-weight: 100; text-align:left; width:40%">Proveedor:</th>
+                            <th class="detalle" style="text-align:left; width:60%"><b th:text="${proveedor}">IMPTEK</b></th>
+                        </tr>
+                        <tr>
+                            <th class="detalle" style="font-weight: 100; text-align:left; width:40%">Nombre Comercial:</th>
+                            <th class="detalle" style="text-align:left; width:60%"><b th:text="${nombreComercial}">RESINA 2</b></th>
+                        </tr>
+                    </table>
                 </div>
             </td>
         </tr>

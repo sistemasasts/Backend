@@ -33,9 +33,11 @@ public class SolicitudAprobacionDto implements Serializable {
     private int vigencia;
     private String lineaAplicacion;
     private String motivo;
+    private String observacion;
 
     public SolicitudAprobacionDto(long id, String codigo, LocalDateTime fechaCreacion, String proveedor, String estado, String nombreSolicitante,
-                                  LocalDate fechaEntrega, String detalleMaterial,LocalDate fechaEntregaInforme, int vigencia,TipoSolicitud tipo) {
+                                  LocalDate fechaEntrega, String detalleMaterial,LocalDate fechaEntregaInforme, int vigencia,TipoSolicitud tipo,
+                                  String observacion) {
         this.id = id;
         this.codigo = codigo;
         this.fechaCreacion = fechaCreacion;
@@ -47,6 +49,7 @@ public class SolicitudAprobacionDto implements Serializable {
         this.fechaEntregaInforme = fechaEntregaInforme;
         this.vigencia = vigencia;
         this.tipo = tipo;
+        this.observacion = observacion;
     }
 
     public String getFechaSolicitud() {

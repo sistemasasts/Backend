@@ -132,6 +132,12 @@ public class SolicitudEnsayoControlador {
         return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
     }
 
+    @PostMapping("/regresarNovedadSolicitud")
+    public ResponseEntity<Object> regresarNovedadSolicitud(@RequestBody SolicitudEnsayo obj) {
+        boolean respuesta = servicio.regresarSolicitudForma(obj);
+        return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+    }
+
     @PostMapping("/rechazarSolicitud")
     public ResponseEntity<Object> rechazarSolicitud(@RequestBody SolicitudEnsayo obj) {
         boolean respuesta = servicio.rechazarSolicitud(obj);

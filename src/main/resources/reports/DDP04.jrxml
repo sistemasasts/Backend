@@ -381,7 +381,9 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textFieldExpression><![CDATA[$F{descripcionProducto}]]></textFieldExpression>
 			</textField>
 			<image hAlign="Center" vAlign="Top">
-				<reportElement x="323" y="26" width="198" height="115" uuid="691d6412-dad6-43af-b61f-845315decd7f"/>
+				<reportElement x="323" y="26" width="198" height="115" uuid="691d6412-dad6-43af-b61f-845315decd7f">
+					<printWhenExpression><![CDATA[new File($F{imagen1Ruta}).isFile()]]></printWhenExpression>
+				</reportElement>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>

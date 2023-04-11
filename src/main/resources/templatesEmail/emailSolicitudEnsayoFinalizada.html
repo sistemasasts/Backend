@@ -20,6 +20,20 @@
                     <p style="font-size: 16px">Estimado(a) Usuario: <span th:text="${usuarioSolicitante}">Solicitante</span></p>
                     <p>La solicitud de ensayo <b th:text="${codigo}">SP000001</b> se encuentra en estado <b th:text="${tipoAprobacion}">NO APROBADO</b></p>
                     <p><b>Observación:</b> <span th:text="${observacion}">Solicitud Aprobada</span></p>
+                    <table class="detalle">
+                        <tr class="detalle">
+                            <th class="detalle" style=" font-weight: 100; text-align:left; width:40%">Prioridad:</th>
+                            <th class="detalle" style="text-align:left; width:60%"><b th:text="${prioridad}">ALTO</b></th>
+                        </tr>
+                        <tr>
+                            <th class="detalle" style="font-weight: 100; text-align:left; width:40%">Proveedor:</th>
+                            <th class="detalle" style="text-align:left; width:60%"><b th:text="${proveedor}">IMPTEK</b></th>
+                        </tr>
+                        <tr>
+                            <th class="detalle" style="font-weight: 100; text-align:left; width:40%">Nombre Comercial:</th>
+                            <th class="detalle" style="text-align:left; width:60%"><b th:text="${nombreComercial}">RESINA 2</b></th>
+                        </tr>
+                    </table>
                 </div>
             </td>
         </tr>
