@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>Ingreso Salida de Material PNC</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Ingreso Salida de Material</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;"
+           dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p style="font-size: 16px">Estimado(a) Usuario: <b th:text="${nombreUsuario}">WILFRIDO LOACHAMIN</b>
+                    </p>
+                    <p>Para el producto no conforme(PNC) # <b th:text="${numero}">6661</b> se ha ingresado
+                        la siguiente SALIDA DE MATERIAL:
+                    </p>
+                    <p><b>Usuario Responsable:</b> <span th:text="${nombreSolicitante}">WILFRIDO LOACHAMIN</span></p>
+                    <div>
+                        <table class="detalle">
+                            <tr class="detalle">
+                                <th class="detalle" style="text-align:center; width:20%">PNC #</th>
+                                <th class="detalle" style="text-align:center; width:35%">Producto</th>
+                                <th class="detalle" style="text-align:center; width:20%">Tipo</th>
+                                <th class="detalle" style="text-align:center; width:25%">Cantidad</th>
+                            </tr>
+                            <tr class="detalle">
+                                <td th:text="${numero}" style="text-align:center; width:20%">6661
+                                </td>
+                                <td th:text="${producto}" style="text-align:center; width:35%">Techofield 50 m2
+                                </td>
+                                <td th:text="${destino}" style="text-align:center; width:20%">RETRABAJO
+                                </td>
+                                <td th:text="${cantidad}" style="text-align:center; width:25%">20 rollos</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div th:if="${verPlanesAccion}" style="text-align: center">
+                        <span><b>PLANES DE ACCIÓN</b></span>
+                        <table class="detalle">
+                            <tr class="detalle">
+                                <th class="detalle" style="text-align:center; width:10%">Orden</th>
+                                <th class="detalle" style="text-align:center; width:20%">Resposable</th>
+                                <th class="detalle" style="text-align:center; width:15%">Fecha Inicio</th>
+                                <th class="detalle" style="text-align:center; width:15%">Fecha Fin</th>
+                                <th class="detalle" style="text-align:center; width:40%">Descripción</th>
+                            </tr>
+                            <th:block th:each="plan : ${planes}" >
+                                <tr class="detalle">
+                                    <td th:text="${plan.orden}" style="text-align:center; width:10%">1</td>
+                                    <td th:text="${plan.responsableNombre}" style="text-align:center; width:20%">Valeria Pillajo</td>
+                                    <td th:text="${plan.fechaInicio1}"  style="text-align:center; width:15%">2022/02/01</td>
+                                    <td th:text="${plan.fechaFin1}" style="text-align:center; width:15%" >2022/02/01</td>
+                                    <td th:text="${plan.descripcion}" style="text-align:center; width:40%" >PLAN ACCION 1</td>
+                                </tr>
+                            </th:block>
+
+                        </table>
+                    </div>
+                    <p><b>Observación:</b> <span th:text="${observacion}">Salida Material PNC Ingresada</span></p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

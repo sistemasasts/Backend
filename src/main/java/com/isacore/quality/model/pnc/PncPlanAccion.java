@@ -1,6 +1,7 @@
 package com.isacore.quality.model.pnc;
 
 import com.isacore.util.UtilidadesCadena;
+import com.isacore.util.UtilidadesFecha;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -93,7 +95,18 @@ public class PncPlanAccion {
         return UtilidadesCadena.noEsNuloNiBlanco(this.enTurno) && this.enTurno.equals(EN_TURNO);
     }
 
+    public String getFechaInicio1(){
+        return UtilidadesFecha.formatearLocalDateATexto(fechaInicio, "dd-MM-yyyy");
+    }
 
+    public String getFechaFin1(){
+        return UtilidadesFecha.formatearLocalDateATexto(fechaFin, "dd-MM-yyyy");
+    }
+
+    public int getVigencia(){
+        Duration diff = Duration.between(LocalDate.now().atStartOfDay(), fechaFin.atStartOfDay());
+        return (int) diff.toDays();
+    }
     @Override
     public String toString() {
         return "PncPlanAccion{" +

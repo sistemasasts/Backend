@@ -1,5 +1,6 @@
 package com.isacore.quality.service.impl.pnc;
 
+import com.isacore.notificacion.servicio.ServicioNotificacionPnc;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.mapper.pnc.PncPlanAccionMapper;
 import com.isacore.quality.model.pnc.*;
@@ -30,6 +31,7 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
     private final IPncSalidaMaterialRepo salidaMaterialRepo;
     private final IPncHistorialService historialService;
     private final PncPlanAccionMapper mapper;
+    private final ServicioNotificacionPnc notificacionPnc;
 
     @Override
     public List<PncPlanAccionDto> registrar(PncPlanAccionDto dto) {
@@ -96,6 +98,7 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
             throw new PncErrorException("Plan de acción no encontrado");
         plan.marcarEnTurno();
 //        TODO: enviar correo notificación responsable
+        this.notificar(plan);
 
     }
 
@@ -123,6 +126,7 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
                             if ((i + 1) < planes.size()) {
                                 planes.get(i).marcarComoAprobado();
                                 planes.get(i + 1).marcarEnTurno();
+                                this.notificar(planes.get(i + 1));
                             } else {
                                 planes.get(i).marcarComoAprobado();
                             }
@@ -184,5 +188,13 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
         if (!plan.isPresent())
             throw new PncErrorException(String.format("Plan de acción %s no encontrado", id));
         return plan.get();
+    }
+
+    private void notificar(PncPlanAccion planAccion){
+        try {
+            this.notificacionPnc.notificarPlanAccionHabilito(planAccion);
+        } catch (Exception e) {
+            log.error(String.format("Error al notificar PLAN DE ACCION HABILITADO: %s", e));
+        }
     }
 }

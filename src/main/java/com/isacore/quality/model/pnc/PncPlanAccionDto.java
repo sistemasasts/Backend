@@ -1,5 +1,6 @@
 package com.isacore.quality.model.pnc;
 
+import com.isacore.util.UtilidadesFecha;
 import lombok.*;
 
 import javax.persistence.*;
@@ -46,6 +47,14 @@ public class PncPlanAccionDto implements Serializable {
 
     public String getEstadoTexto() {
         return this.estado.getDescripcion();
+    }
+
+    public String getFechaInicio1(){
+        return UtilidadesFecha.formatearLocalDateATexto(fechaInicio, "dd-MM-yyyy");
+    }
+
+    public String getFechaFin1(){
+        return UtilidadesFecha.formatearLocalDateATexto(fechaFin, "dd-MM-yyyy");
     }
 
 }

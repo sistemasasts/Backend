@@ -78,6 +78,14 @@ public class PncSalidaMaterial {
         return (this.getProductoNoConforme().getSaldo().subtract(this.getCantidad())).compareTo(BigDecimal.ZERO) >= 0;
     }
 
+    public boolean verPlanesAccion(){
+        return this.destino.equals(TipoDestino.RETRABAJO) || this.destino.equals(TipoDestino.REPROCESO);
+    }
+
+    public String cantidadConUnidad(){
+        return String.format("%s %s", this.cantidad, this.productoNoConforme.getUnidad().getAbreviatura());
+    }
+
     @Override
     public String toString() {
         return "PncSalidaMaterial{" +

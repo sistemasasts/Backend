@@ -4,6 +4,7 @@ import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
 import com.isacore.quality.service.impl.recordatorio.RecordatorioDetalleDto;
+import com.isacore.quality.service.impl.recordatorio.RecordatorioPncDetalleDto;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import org.apache.commons.logging.Log;
@@ -38,6 +39,16 @@ public class ServicioNotificacionRecordatorio extends ServicioNotificacionBase {
         enviarHtml(destinos, asunto, "emailSolicitudPendiente", (context) -> {
             context.setVariable("nombreUsuario", responsable.getEmployee().getCompleteName());
             context.setVariable("solicitudes", detalle);
+        });
+    }
+
+    public void notificarPlanesAccionPendientes(String usuario, List<RecordatorioPncDetalleDto> detalle) throws Exception {
+        String asunto = String.format("PLANES DE ACCIÓN PENDIENTES");
+        UserImptek responsable = this.obtenerUsuario(usuario);
+        DireccionesDestino destinos = new DireccionesDestino(responsable.getCorreo());
+        enviarHtml(destinos, asunto, "emailPlanAccionPendiente", (context) -> {
+            context.setVariable("nombreUsuario", responsable.getEmployee().getCompleteName());
+            context.setVariable("planes", detalle);
         });
     }
 

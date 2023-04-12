@@ -1,5 +1,6 @@
 package com.isacore.quality.service.impl.pnc;
 
+import com.isacore.notificacion.servicio.ServicioNotificacionPnc;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.mapper.pnc.PncSalidaMaterialMapper;
 import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
@@ -34,6 +35,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     private final IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
     private final IPncHistorialService historialService;
     private final IPncPlanAccionService planAccionService;
+    private final ServicioNotificacionPnc notificacionPnc;
 
 
     @Override
@@ -103,6 +105,11 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         salidaMaterial.getProductoNoConforme().cambiarEnProceso();
         log.info(String.format("PNC %s -> Salida de material %s enviada a aprobar", salidaMaterial.getProductoNoConforme().getNumero(),
                 salidaMaterial));
+        try {
+            this.notificacionPnc.notificarIngresoSalidaMaterial(salidaMaterial, observacion, this.planAccionService.listarPorSalidaMaterialId(salidaMaterial.getId()));
+        } catch (Exception e) {
+            log.error(String.format("Error al notificar INGRESO SALIDA DE MATERIAL: %s", e));
+        }
     }
 
     @Transactional
@@ -116,7 +123,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         } else {
             String observacionRechazado = String.format("RECHAZADO::: %s", dto.getObservacionFlujo());
             this.historialService.agregar(salidaMaterial, PncOrdenFlujo.APROBACION, observacionRechazado);
-            this.noAprobar(salidaMaterial);
+            this.noAprobar(salidaMaterial, observacionRechazado);
         }
     }
 
@@ -150,8 +157,13 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         }
     }
 
-    private void noAprobar(PncSalidaMaterial salidaMaterial) {
+    private void noAprobar(PncSalidaMaterial salidaMaterial, String observacion) {
         salidaMaterial.marcarComoNoAprobada();
+        try {
+            this.notificacionPnc.notificarSalidaMaterialEstado(salidaMaterial, observacion, this.planAccionService.listarPorSalidaMaterialId(salidaMaterial.getId()));
+        } catch (Exception e) {
+            log.error(String.format("Error al notificar ESTADO SALIDA DE MATERIAL: %s", e));
+        }
         log.info(String.format("PNC %s -> Salida material %s no aprobada", salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId()));
     }
 
