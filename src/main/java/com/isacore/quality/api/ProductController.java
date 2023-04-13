@@ -1,21 +1,17 @@
 package com.isacore.quality.api;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.isacore.quality.dto.PatronImgenDto;
 import com.isacore.quality.dto.ProductoDto;
+import com.isacore.quality.model.spp.SolicitudPruebaProcesoDocumento;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.isacore.quality.model.InformationAditional;
 import com.isacore.quality.model.Product;
@@ -23,6 +19,7 @@ import com.isacore.quality.model.ProductOrigin;
 import com.isacore.quality.model.ProductType;
 import com.isacore.quality.service.IProductService;
 import com.isacore.util.CatalogDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/products")
@@ -106,6 +103,19 @@ public class ProductController {
 	@GetMapping("/porNombre/{criterio}")
 	public ResponseEntity<List<ProductoDto>> listarPorCriterio(@PathVariable("criterio") String criterio) {
 		List<ProductoDto> product = service.listarPorNombreCriterio(criterio);
+		return ResponseEntity.ok(product);
+	}
+
+	@PostMapping("/imagenPatron/{productoId}")
+	public ResponseEntity<Object> subirImagenPatron(@PathVariable("productoId") Integer productoId,
+													@RequestPart("file") MultipartFile file) throws IOException {
+		service.subirImagenPatron(productoId, file.getBytes(), file.getOriginalFilename(), file.getContentType());
+		return ResponseEntity.ok(true);
+	}
+
+	@GetMapping("/obtenerImagenPatron/{productoId}")
+	public ResponseEntity<PatronImgenDto> obtenerImagenPatron(@PathVariable("productoId") Integer productoId) {
+		PatronImgenDto product = service.obtenerImagenPatron(productoId);
 		return ResponseEntity.ok(product);
 	}
 

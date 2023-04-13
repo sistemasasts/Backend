@@ -3,18 +3,7 @@ package com.isacore.quality.model;
 import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -128,6 +117,11 @@ public class HccHead {
 	private List<HccDetail> detail;
 	
 	public HccHead() {this.id = 0L;}
+
+	private String rutaImagenMuestra;
+
+	@Transient
+	private String imagenPatron64;
 
 	public HccHead(String sapCode, Product product, LocalDate dateCreate, String hcchBatch, String analysis) {
 		super();
@@ -321,6 +315,22 @@ public class HccHead {
 
 	public void setIdProviderMP(Integer idProviderMP) {
 		this.idProviderMP = idProviderMP;
+	}
+
+	public String getRutaImagenMuestra() {
+		return rutaImagenMuestra;
+	}
+
+	public void setRutaImagenMuestra(String rutaImagenMuestra) {
+		this.rutaImagenMuestra = rutaImagenMuestra;
+	}
+
+	public String getImagenPatron64() {
+		return imagenPatron64;
+	}
+
+	public void setImagenPatron64(String imagenPatron64) {
+		this.imagenPatron64 = imagenPatron64;
 	}
 
 	@Override

@@ -129,7 +129,11 @@ public class Product {
 	@OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "product_id", nullable = false)
 	private List<InformationAditional> detailInformationAditional = new ArrayList<>();
-	
+
+	private  String imagenPatronRuta;
+	private String imagenPatronTipo;
+	private String imagenPatronNombre;
+
 	@Transient
 	private List<ProdProv> providersList;
 	
@@ -449,6 +453,35 @@ public class Product {
 		return this.nameProduct.replaceAll("[/:*?'<>]|\"", "-");
 	}
 
+	public String getImagenPatronRuta() {
+		return imagenPatronRuta;
+	}
+
+	public void setImagenPatronRuta(String imagenPatronRuta) {
+		this.imagenPatronRuta = imagenPatronRuta;
+	}
+
+	public String getImagenPatronTipo() {
+		return imagenPatronTipo;
+	}
+
+	public void setImagenPatronTipo(String imagenPatronTipo) {
+		this.imagenPatronTipo = imagenPatronTipo;
+	}
+
+	public String getImagenPatronNombre() {
+		return imagenPatronNombre;
+	}
+
+	public void setImagenPatronNombre(String imagenPatronNombre) {
+		this.imagenPatronNombre = imagenPatronNombre;
+	}
+
+	public void setearImagenPatron(String nombre, String tipo, String ruta){
+		this.imagenPatronRuta = ruta;
+		this.imagenPatronTipo = tipo;
+		this.imagenPatronNombre = nombre;
+	}
 	@Override
 	public String toString() {
 		return "Product [idProduct=" + idProduct + ", sapCode=" + sapCode + ", nameProduct=" + nameProduct

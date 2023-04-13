@@ -2,6 +2,7 @@ package com.isacore.quality.service;
 
 import java.util.List;
 
+import com.isacore.quality.dto.PatronImgenDto;
 import com.isacore.quality.dto.ProductDto;
 import com.isacore.quality.dto.ProductoDto;
 import com.isacore.quality.model.InformationAditional;
@@ -35,4 +36,8 @@ public interface IProductService extends CRUD<Product> {
 	String updateReview(Integer productId);
 
 	List<ProductoDto> listarPorNombreCriterio(String nombre);
+
+	void subirImagenPatron(Integer productoId, byte[] file, String nombreArchivo, String tipo);
+
+	PatronImgenDto obtenerImagenPatron(Integer productoId);
 }
