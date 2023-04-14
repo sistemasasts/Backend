@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
+@AllArgsConstructor
 public class InventarioProductoDetalleDto {
     private long id;
     private LocalDateTime fechaRegistro;

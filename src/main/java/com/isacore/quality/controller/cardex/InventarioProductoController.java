@@ -1,6 +1,7 @@
 package com.isacore.quality.controller.cardex;
 
 
+import com.isacore.quality.model.cardex.InventarioProductoDetalleDto;
 import com.isacore.quality.model.cardex.InventarioProductoDto;
 import com.isacore.quality.model.pnc.Defecto;
 import com.isacore.quality.service.cardex.IInventarioProductoService;
@@ -34,5 +35,11 @@ public class InventarioProductoController {
     public ResponseEntity<InventarioProductoDto> modificar(@RequestBody InventarioProductoDto proveedor) {
         InventarioProductoDto obj = service.modificar(proveedor);
         return ResponseEntity.ok(obj);
+    }
+
+    @PostMapping("/registrarMovimiento")
+    public ResponseEntity<InventarioProductoDetalleDto> registrarMovimiento(@RequestBody InventarioProductoDetalleDto proveedor) {
+        InventarioProductoDetalleDto detalle = service.registrarMovimiento(proveedor);
+        return ResponseEntity.ok(detalle);
     }
 }
