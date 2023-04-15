@@ -30,7 +30,7 @@ public class InventarioProductoDetalle {
     @Column(columnDefinition = "decimal(19,2)")
     private BigDecimal cantidad;
     private LocalDate fechaEnsayo;
-    private BigDecimal numeroEnsayo;
+    private String numeroEnsayo;
     @Column(columnDefinition = "decimal(19,2)")
     private BigDecimal stockActual;
 
@@ -42,7 +42,7 @@ public class InventarioProductoDetalle {
     private InventarioProducto inventarioProducto;
 
     public InventarioProductoDetalle(String responsable, String responsableNombreCompleto, BigDecimal cantidad,
-                                     LocalDate fechaEnsayo, BigDecimal numeroEnsayo, BigDecimal stockActual,
+                                     LocalDate fechaEnsayo, String numeroEnsayo, BigDecimal stockActual,
                                      TipoMovimiento tipoMovimiento, InventarioProducto inventarioProducto) {
         this.responsable = responsable;
         this.responsableNombreCompleto = responsableNombreCompleto;

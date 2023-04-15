@@ -37,6 +37,8 @@ public interface IProductService extends CRUD<Product> {
 
 	List<ProductoDto> listarPorNombreCriterio(String nombre);
 
+	List<ProductoDto> listarReactivosPorNombreCriterio(String nombre);
+
 	void subirImagenPatron(Integer productoId, byte[] file, String nombreArchivo, String tipo);
 
 	PatronImgenDto obtenerImagenPatron(Integer productoId);

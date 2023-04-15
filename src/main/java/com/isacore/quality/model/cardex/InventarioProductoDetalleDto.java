@@ -21,9 +21,13 @@ public class InventarioProductoDetalleDto {
     private String responsable;
     private BigDecimal cantidad;
     private LocalDate fechaEnsayo;
-    private BigDecimal numeroEnsayo;
+    private String numeroEnsayo;
     private BigDecimal stockActual;
 
     private TipoMovimiento tipoMovimiento;
     private long inventarioProductoId;
+
+    public LocalDate getFechaRegistro2() {
+        return this.fechaRegistro.toLocalDate();
+    }
 }

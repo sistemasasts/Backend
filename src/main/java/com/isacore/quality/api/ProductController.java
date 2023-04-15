@@ -106,6 +106,12 @@ public class ProductController {
 		return ResponseEntity.ok(product);
 	}
 
+	@GetMapping("/reactivosPorNombre/{criterio}")
+	public ResponseEntity<List<ProductoDto>> listarReactivosPorCriterio(@PathVariable("criterio") String criterio) {
+		List<ProductoDto> product = service.listarReactivosPorNombreCriterio(criterio);
+		return ResponseEntity.ok(product);
+	}
+
 	@PostMapping("/imagenPatron/{productoId}")
 	public ResponseEntity<Object> subirImagenPatron(@PathVariable("productoId") Integer productoId,
 													@RequestPart("file") MultipartFile file) throws IOException {

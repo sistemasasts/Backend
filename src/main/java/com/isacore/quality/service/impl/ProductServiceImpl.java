@@ -511,6 +511,18 @@ public class ProductServiceImpl implements IProductService {
         return productos;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProductoDto> listarReactivosPorNombreCriterio(String nombre) {
+        List<String> grupos= Arrays.asList("Reactivos Laboratorio","EPPS Y Suministros Oficina");
+        List<ProductoDto> productos = this.repo.findByTypeProductTxtInAndNameProductContaining(grupos, nombre)
+                .stream()
+                .map(x -> new ProductoDto(x.getIdProduct(), x.getNameProduct(), x.getGenericName(),x.getDescProduct(),x.getTypeProduct()))
+                .sorted(Comparator.comparing(ProductoDto::getNameProduct))
+                .collect(Collectors.toList());
+        return productos;
+    }
+
     @Transactional
     @Override
     public void subirImagenPatron(Integer productoId, byte[] file, String nombreArchivo, String tipo) {

@@ -15,6 +15,7 @@ public class InventarioProductoDetalleMapper {
                 .id(valor.getId())
                 .responsable(valor.getResponsableNombreCompleto())
                 .cantidad(valor.getCantidad())
+                .fechaRegistro(valor.getFechaRegistro())
                 .fechaEnsayo(valor.getFechaEnsayo())
                 .numeroEnsayo(valor.getNumeroEnsayo())
                 .stockActual(valor.getStockActual())
