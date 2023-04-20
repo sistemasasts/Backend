@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -130,7 +131,11 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     @Transactional(readOnly = true)
     @Override
     public List<PncSalidaMaterialDto> listarPorEstado(EstadoSalidaMaterial estadoSalidaMaterial) {
-        List<PncSalidaMaterial> salidaMateriales = this.repositorio.findByEstadoIn(Arrays.asList(estadoSalidaMaterial));
+        String usuarioSesion = UtilidadesSeguridad.nombreUsuarioEnSesion();
+        List<PncSalidaMaterial> salidaMateriales = this.repositorio.findByEstadoIn(Arrays.asList(estadoSalidaMaterial))
+                .stream()
+                .filter(x -> x.getUsuarioAprobador().equals(usuarioSesion))
+                .collect(Collectors.toList());
         return this.mapper.map(salidaMateriales);
     }
 
