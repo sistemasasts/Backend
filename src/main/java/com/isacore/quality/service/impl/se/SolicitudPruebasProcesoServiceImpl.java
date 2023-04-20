@@ -2,6 +2,7 @@ package com.isacore.quality.service.impl.se;
 
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
+import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudEnsayo;
 import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudPP;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
@@ -62,6 +63,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     private ModelMapper modelMapper;
     private ISolicitudPruebaProcesoDocumentoService documentoService;
     private ISolicitudEnsayoRepo solicitudEnsayoRepo;
+    private ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo;
 
     @Autowired
     public SolicitudPruebasProcesoServiceImpl(
@@ -76,7 +78,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             ISolicitudPPInformeService informeServicio,
             ModelMapper modelMapper,
             ISolicitudPruebaProcesoDocumentoService documentoService,
-            ISolicitudEnsayoRepo solicitudEnsayoRepo) {
+            ISolicitudEnsayoRepo solicitudEnsayoRepo,
+            ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -92,6 +95,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         this.modelMapper = modelMapper;
         this.documentoService = documentoService;
         this.solicitudEnsayoRepo = solicitudEnsayoRepo;
+        this.servicioNotificacionSolicitudEnsayo = servicioNotificacionSolicitudEnsayo;
     }
 
     @Override
@@ -462,7 +466,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             this.agregarHistorial(solicitudRecargada, dto.getOrden(), observacion);
             this.aprobarSolcitud(solicitudRecargada, dto.getTipoAprobacion(), observacion);
 //            this.repo.save(solicitudRecargada);
-            this.cambiarEstadoSolicitudEnsayo(solicitudRecargada);
+            this.cambiarEstadoSolicitudEnsayo(solicitudRecargada, observacion);
             LOG.info(String.format("La solicitud %s fue aprobada %s con el tipo %s", solicitudRecargada.getCodigo(),
                     dto.getTipoAprobacion().isAprobado(), dto.getTipoAprobacion()));
         } else {
@@ -498,6 +502,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             case ENVIAR_SOLUCIONES_TECNICAS:
             case CREACION_MATERIA_PRIMA:
             case GESTIONAR_IMPLEMENTAR_CAMBIOS:
+            case GESTIONAR_COMPRA:
             case REPETIR_PRUEBA:
             case MATERIAL_NO_VALIDO:
             case LIBRE_USO:
@@ -836,7 +841,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
             throw new SolicitudPruebaProcesoErrorException("La solicitud ya tiene otro intento de prueba en proceso.");
     }
 
-    private void cambiarEstadoSolicitudEnsayo(SolicitudPruebasProceso solicitudPruebasProceso) {
+    private void cambiarEstadoSolicitudEnsayo(SolicitudPruebasProceso solicitudPruebasProceso, String observacion) {
         Optional<Long> solicitudOrigen = this.repo.obtenerSolicitudesHija(solicitudPruebasProceso.getId())
                 .stream()
                 .filter(x -> x[2] == null)
@@ -857,10 +862,18 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
                     case GESTIONAR_IMPLEMENTAR_CAMBIOS:
                         solicitudEnsayo.get().marcarEstadoFinal(EstadoSolicitud.GESTIONAR_IMPLEMENTAR_CAMBIOS, TipoAprobacionSolicitud.NIVEL_PLANTA);
                         break;
+                    case GESTIONAR_COMPRA:
+                        solicitudEnsayo.get().marcarEstadoFinal(EstadoSolicitud.GESTIONAR_COMPRA, TipoAprobacionSolicitud.NIVEL_PLANTA);
+                        break;
                     default:
                         break;
                 }
 //                this.solicitudEnsayoRepo.save(solicitudEnsayo.get());
+                try {
+                    this.servicioNotificacionSolicitudEnsayo.notificarSolicitudFinalizada(solicitudEnsayo.get(), observacion);
+                } catch (Exception e) {
+                    LOG.error(String.format("Error al notificar Solicitud Finalizada %s", e));
+                }
             }
         }
     }

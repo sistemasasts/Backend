@@ -41,6 +41,12 @@ public class SolicitudPPInformeControlador {
         return ResponseEntity.ok(solicitudes);
     }
 
+    @PutMapping("/administrador")
+    public ResponseEntity<SolicitudPruebaProcesoInforme> actualizarSolicitudPPInformeAdministrador(@RequestBody SolicitudPruebaProcesoInforme informe) {
+        SolicitudPruebaProcesoInforme solicitudes = servicio.modificarAdministrador(informe);
+        return ResponseEntity.ok(solicitudes);
+    }
+
     @PostMapping("/agregarMaterialUtilizado/{solicitudId}")
     public ResponseEntity<List<MaterialUtilizado>> agregarMaterialUtilizado(@PathVariable("solicitudId") long solicitudId, @RequestBody MaterialUtilizado materialUtilizado) {
         List<MaterialUtilizado> resultadoConsulta = this.servicio.agregarMaterialUtilizado(solicitudId, materialUtilizado);

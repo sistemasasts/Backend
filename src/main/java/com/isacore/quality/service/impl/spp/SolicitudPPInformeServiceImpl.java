@@ -94,6 +94,17 @@ public class SolicitudPPInformeServiceImpl implements ISolicitudPPInformeService
         return informe;
     }
 
+    @Transactional
+    @Override
+    public SolicitudPruebaProcesoInforme modificarAdministrador(SolicitudPruebaProcesoInforme solicitudPruebaProcesoInforme) {
+        SolicitudPruebaProcesoInforme informe = this.obtenerInforme(solicitudPruebaProcesoInforme.getId());
+        informe.setObservacionCalidad(solicitudPruebaProcesoInforme.getObservacionCalidad());
+        informe.setObservacionProduccion(solicitudPruebaProcesoInforme.getObservacionProduccion());
+        informe.setObservacionMantenimiento(solicitudPruebaProcesoInforme.getObservacionMantenimiento());
+        LOG.info(String.format("Informe DDP05 actualizando administrador %s", solicitudPruebaProcesoInforme));
+        return informe;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public SolicitudPruebaProcesoInforme buscarPorSolicitudId(long solicitudId) {

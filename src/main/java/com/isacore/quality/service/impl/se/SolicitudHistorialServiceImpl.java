@@ -1,18 +1,20 @@
 package com.isacore.quality.service.impl.se;
 
-import com.isacore.quality.model.se.EstadoSolicitud;
-import com.isacore.quality.model.se.OrdenFlujo;
-import com.isacore.quality.model.se.SolicitudHistorial;
+import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.HistorialPPCompletoDto;
+import com.isacore.quality.model.spp.SolicitudPruebaProcesoHistorial;
 import com.isacore.quality.repository.se.ISolicitudDocumentoRepo;
 import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
 import com.isacore.quality.repository.se.ISolicitudHistorialRepo;
+import com.isacore.quality.repository.spp.ISolicitudPruebaProcesoHistorialRepo;
 import com.isacore.quality.service.se.ISolicitudHistorialService;
+import com.isacore.quality.service.spp.ISolicitudPruebaProcesoHistorialService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -29,12 +31,18 @@ public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService
     private ISolicitudHistorialRepo repo;
     private ISolicitudDocumentoRepo repoDocumento;
     private ISolicitudEnsayoRepo solicitudEnsayoRepo;
+    private ISolicitudPruebaProcesoHistorialService solicitudPruebaProcesoHistorialService;
 
     @Autowired
-    public SolicitudHistorialServiceImpl(ISolicitudHistorialRepo repo, ISolicitudDocumentoRepo repoDocumento, ISolicitudEnsayoRepo solicitudEnsayoRepo) {
+    public SolicitudHistorialServiceImpl(
+            ISolicitudHistorialRepo repo,
+            ISolicitudDocumentoRepo repoDocumento,
+            ISolicitudEnsayoRepo solicitudEnsayoRepo,
+            ISolicitudPruebaProcesoHistorialService solicitudPruebaProcesoHistorialService) {
         this.repo = repo;
         this.repoDocumento = repoDocumento;
         this.solicitudEnsayoRepo = solicitudEnsayoRepo;
+        this.solicitudPruebaProcesoHistorialService = solicitudPruebaProcesoHistorialService;
     }
 
     @Override
@@ -101,10 +109,20 @@ public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService
         Map<String, List<SolicitudHistorial>> historialAgrupado = this.repo.findBySolicitudEnsayo_IdInOrderBySolicitudEnsayoId(ids)
                 .stream()
                 .collect(Collectors.groupingBy(SolicitudHistorial::getCodigoSolicitud));
-        return historialAgrupado.entrySet().stream().map(x -> {
-            List<SolicitudHistorial> historial = x.getValue().stream().sorted(Comparator.comparing(SolicitudHistorial::getFechaRegistro)).collect(Collectors.toList());
-            return new HistorialPPCompletoDto(historial, x.getKey());
-        }).sorted(Comparator.comparing(HistorialPPCompletoDto::getCodigo)).collect(Collectors.toList());
+
+        List<HistorialPPCompletoDto> historialFinal = new ArrayList<>();
+        historialAgrupado.forEach((key, value) -> {
+            List<SolicitudHistorial> historial = value.stream().sorted(Comparator.comparing(SolicitudHistorial::getFechaRegistro)).collect(Collectors.toList());
+            historialFinal.add(new HistorialPPCompletoDto(this.mapearHistorialDto(historial), key));
+            this.consultarHistorialDDP04(historial.stream().findFirst().get().getSolicitudEnsayo(), historialFinal);
+        });
+
+        return historialFinal.stream().sorted(Comparator.comparing(HistorialPPCompletoDto::getFechaInicio)).collect(Collectors.toList());
+
+//        return historialAgrupado.entrySet().stream().map(x -> {
+//            List<SolicitudHistorial> historial = x.getValue().stream().sorted(Comparator.comparing(SolicitudHistorial::getFechaRegistro)).collect(Collectors.toList());
+//            return new HistorialPPCompletoDto(historial, x.getKey());
+//        }).sorted(Comparator.comparing(HistorialPPCompletoDto::getCodigo)).collect(Collectors.toList());
     }
 
     private List<Long> recuperarSolicitudIdsPadres(long solicitudId) {
@@ -114,12 +132,28 @@ public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService
                 .collect(Collectors.toList());
     }
 
-//	@Override
-//	public List<SolicitudHistorial> buscarHistorialPruebasProceso(long solicitudId) {
-//		return repo.findBySolicitudPruebasProceso_IdOrderByFechaRegistroAsc(solicitudId).stream().map(x ->{
-//			x.setTieneAdjuntos(repoDocumento.existsByEstadoAndOrdenFlujoAndSolicitudPruebasProceso_Id(x.getEstadoSolicitud(), x.getOrden(), solicitudId));
-//			return x;
-//		}).collect(Collectors.toList());
-//	}
+    private void consultarHistorialDDP04(SolicitudEnsayo ensayo, List<HistorialPPCompletoDto> historialFinal) {
+        if (ensayo.getSolicitudPruebaProcesoId() != null) {
+            List<HistorialPPCompletoDto> dto = this.solicitudPruebaProcesoHistorialService.buscarHistorialCompleto(ensayo.getSolicitudPruebaProcesoId());
+            dto.forEach(x -> {
+                historialFinal.add(new HistorialPPCompletoDto(this.mapearHistorialDDP04Dto(x.getHistorial()), x.getCodigo()));
+            });
+        }
+    }
 
+    private List<SolicitudHistorialDto> mapearHistorialDto(List<SolicitudHistorial> historial) {
+        return historial.stream().map(x ->
+                new SolicitudHistorialDto(x.getId(), x.getFechaRegistro(), x.getUsuarioNombeCompleto(),
+                        x.getSolicitudEnsayo().getId(), x.getSolicitudEnsayo().getCodigo(), x.getOrden().getDescripcion()
+                        , x.getObservacion(), false))
+                .collect(Collectors.toList());
+    }
+
+    private List<SolicitudHistorialDto> mapearHistorialDDP04Dto(List<SolicitudPruebaProcesoHistorial> historial) {
+        return historial.stream().map(x ->
+                new SolicitudHistorialDto(x.getId(), x.getFechaRegistro(), x.getUsuarioNombeCompleto(),
+                        x.getSolicitudPruebasProceso().getId(), x.getSolicitudPruebasProceso().getCodigo(),
+                        x.getOrden().getDescripcion(), x.getObservacion(), false))
+                .collect(Collectors.toList());
+    }
 }
