@@ -217,13 +217,13 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
-                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
+                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaProduccion"),
                         consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
                         consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
             }
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() == null) {
-                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
+                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaProduccion"),
                         consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
                         consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
             }
