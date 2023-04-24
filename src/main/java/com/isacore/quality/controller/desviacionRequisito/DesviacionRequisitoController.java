@@ -1,8 +1,12 @@
 package com.isacore.quality.controller.desviacionRequisito;
 
+import com.isacore.quality.model.desviacionRequisito.ConsultaDesviacionRequisitoDTO;
 import com.isacore.quality.model.desviacionRequisito.DesviacionRequisito;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,5 +52,19 @@ public class DesviacionRequisitoController {
         DesviacionRequisito desviacionRequisito = service.listarDesviacionRequisitosPorId(desviacionId);
 
         return ResponseEntity.ok(desviacionRequisito);
+    }
+
+    @PostMapping("/criterios")
+    public ResponseEntity<Page<DesviacionRequisito>> listarPorCriterios(final Pageable page, @RequestBody final ConsultaDesviacionRequisitoDTO consulta) {
+        final Page<DesviacionRequisito> resultadoConsulta = this.service.listar(page, consulta);
+        return ResponseEntity.ok(resultadoConsulta);
+    }
+
+    @GetMapping(value = "/reporte/{desviacionId}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> generarReporte(@PathVariable("desviacionId") Long id) {
+        byte[] data = null;
+        data = service.generarReporte(id);
+
+        return ResponseEntity.ok(data);
     }
 }
