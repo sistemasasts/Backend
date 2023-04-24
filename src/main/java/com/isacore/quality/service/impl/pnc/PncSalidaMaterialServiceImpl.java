@@ -64,6 +64,14 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         salidaMaterial.setCantidad(dto.getCantidad());
         salidaMaterial.setFecha(dto.getFecha());
         salidaMaterial.setObservacion(dto.getObservacion());
+
+        if(!dto.getDestino().equals(salidaMaterial.getDestino())){
+            List<TipoDestino> destinos = Arrays.asList(TipoDestino.REPROCESO, TipoDestino.RETRABAJO);
+            if(destinos.contains(salidaMaterial.getDestino()) && (!destinos.contains(dto.getDestino()))){
+                this.planAccionService.eliminarPorSalidaMaterialId(salidaMaterial.getId());
+            }
+        }
+        salidaMaterial.setDestino(dto.getDestino());
         log.info(String.format("PNC %s -> salida de material actualizado %s",
                 salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial));
         return this.mapper.mapToDto(salidaMaterial);
@@ -110,6 +118,23 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
             this.notificacionPnc.notificarIngresoSalidaMaterial(salidaMaterial, observacion, this.planAccionService.listarPorSalidaMaterialId(salidaMaterial.getId()));
         } catch (Exception e) {
             log.error(String.format("Error al notificar INGRESO SALIDA DE MATERIAL: %s", e));
+        }
+    }
+
+    @Transactional
+    @Override
+    public void regresar(PncSalidaMaterialDto dto) {
+        PncSalidaMaterial salidaMaterial = this.buscarPorId(dto.getId());
+        String observacionRechazado = String.format("REGRESADO::: %s", dto.getObservacionFlujo());
+        this.historialService.agregar(salidaMaterial, PncOrdenFlujo.APROBACION, observacionRechazado);
+        salidaMaterial.setEstado(EstadoSalidaMaterial.CREADO);
+        log.info(String.format("PNC %s -> Salida material %s regresada", salidaMaterial.getProductoNoConforme().getNumero(),
+                salidaMaterial.getId()));
+        try {
+            this.notificacionPnc.notificarSalidaMaterialEstado(salidaMaterial, dto.getObservacionFlujo(),
+                    this.planAccionService.listarPorSalidaMaterialId(salidaMaterial.getId()));
+        } catch (Exception e) {
+            log.error(String.format("Error al notificar ESTADO SALIDA DE MATERIAL: %s", e));
         }
     }
 

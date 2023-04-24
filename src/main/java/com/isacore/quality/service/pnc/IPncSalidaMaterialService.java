@@ -20,6 +20,8 @@ public interface IPncSalidaMaterialService {
 
     void enviarAprobacion(PncSalidaMaterialDto dto);
 
+    void regresar(PncSalidaMaterialDto dto);
+
     void aprobarSalidaMaterial(PncSalidaMaterialDto dto);
 
     List<PncSalidaMaterialDto> listarPorEstado(EstadoSalidaMaterial estadoSalidaMaterial);

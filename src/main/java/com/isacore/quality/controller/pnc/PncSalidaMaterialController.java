@@ -68,6 +68,12 @@ public class PncSalidaMaterialController {
         return ResponseEntity.ok(true);
     }
 
+    @PostMapping("/regresar")
+    public ResponseEntity<Object> regresarSalidaMaterial(@RequestBody PncSalidaMaterialDto dto) {
+        service.regresar(dto);
+        return ResponseEntity.ok(true);
+    }
+
     @GetMapping("/historial/{salidaId}")
     public ResponseEntity<List<PncHistorial>> listarHistorial(@PathVariable("salidaId") long salidaId) {
         List<PncHistorial> obj = historialService.buscarHistorialSalidaMaterial(salidaId);
