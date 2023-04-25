@@ -26,7 +26,7 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
         List<Lote> lotes
     ) {
         this.nombreProducto = desviacionRequisito.getProduct().getNameProduct();
-        this.afectacion = desviacionRequisito.getAfectacion().toString();
+        this.afectacion = desviacionRequisito.getAfectacion().getDescripcion();
         this.seguimiento = desviacionRequisito.getSeguimiento();
         this.descripcion = desviacionRequisito.getDescripcion();
         this.control = desviacionRequisito.getControl();
@@ -37,4 +37,7 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
         this.secuencial = desviacionRequisito.getSecuencial();
     }
 
+    public String getTipoProductoTexto(){
+        return  this.tipoProducto.getDescripcion();
+    }
 }
