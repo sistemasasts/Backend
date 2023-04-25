@@ -47,7 +47,7 @@
 		<field name="lote" class="java.lang.String"/>
 		<field name="cantidad" class="java.math.BigDecimal"/>
 		<field name="fecha" class="java.time.LocalDate"/>
-		<field name="unidad" class="java.lang.String"/>
+		<field name="unidadText" class="java.lang.String"/>
 	</subDataset>
 	<queryString>
 		<![CDATA[]]>
@@ -442,7 +442,7 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="9"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{unidad}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$F{unidadText}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>

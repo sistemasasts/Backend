@@ -173,8 +173,23 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
     private DesviacionRequisitoReporteDTO crearReporteDTO(DesviacionRequisito desviacionRequisito) {
         List<Lote> lotes = loteRepo.findByDesviacionRequisito(desviacionRequisito);
+        List<Lote> lotesReporte = new ArrayList<>();
 
-        return new DesviacionRequisitoReporteDTO(desviacionRequisito, lotes);
+        lotes.forEach(x -> {
+            Lote lote = new Lote();
+            lote.setId(x.getId());
+            lote.setDesviacionRequisito(x.getDesviacionRequisito());
+            lote.setUnidad(x.getUnidad());
+            lote.setCantidad(x.getCantidad());
+            lote.setFecha(x.getFecha());
+            lote.setCantidad(x.getCantidad());
+            lote.setUnidadText(x.getUnidad().getNombre());
+            lote.setLote(x.getLote());
+
+            lotesReporte.add(lote);
+        });
+        log.info(String.format("Mapeo lotes %s", lotesReporte));
+        return new DesviacionRequisitoReporteDTO(desviacionRequisito, lotesReporte);
     }
 
     private List<DesviacionRequisito> obtenerDesviacionesPorCriterios(ConsultaDesviacionRequisitoDTO consulta) {
