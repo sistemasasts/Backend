@@ -188,7 +188,6 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
             lotesReporte.add(lote);
         });
-        log.info(String.format("Mapeo lotes %s", lotesReporte));
         return new DesviacionRequisitoReporteDTO(desviacionRequisito, lotesReporte);
     }
 

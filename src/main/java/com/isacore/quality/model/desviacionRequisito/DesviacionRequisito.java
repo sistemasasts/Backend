@@ -3,14 +3,16 @@ package com.isacore.quality.model.desviacionRequisito;
 import com.isacore.quality.model.Product;
 import com.isacore.quality.model.pnc.LineaAfecta;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -43,7 +45,7 @@ public class DesviacionRequisito {
 
     private String responsable;
 
-    @ManyToOne(cascade = {CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product = new Product();
 
@@ -75,5 +77,20 @@ public class DesviacionRequisito {
         this.alcance = alcance;
         this.fechaCreacion = LocalDateTime.now();
         this.responsable = responsable;
+    }
+
+    @Override
+    public String toString() {
+        return "DesviacionRequisito{" +
+                "id=" + id +
+                ", fechaCreacion=" + fechaCreacion +
+                ", seguimiento='" + seguimiento + '\'' +
+                ", afectacion=" + afectacion +
+                ", responsable='" + responsable + '\'' +
+                ", secuencial=" + secuencial +
+                ", afectacionText='" + afectacionText + '\'' +
+                ", productTypeText='" + productTypeText + '\'' +
+                ", producto='" + product.getNameProduct() + '\'' +
+                '}';
     }
 }

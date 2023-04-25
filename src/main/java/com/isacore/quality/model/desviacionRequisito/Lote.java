@@ -1,16 +1,15 @@
 package com.isacore.quality.model.desviacionRequisito;
 
 import com.isacore.quality.model.UnidadMedida;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -26,13 +25,25 @@ public class Lote {
     @NotNull
     private BigDecimal cantidad;
     @NotNull
-    @ManyToOne(cascade = CascadeType.DETACH ,fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "unidad_id", nullable = false)
     private UnidadMedida unidad;
-    @ManyToOne(cascade = CascadeType.DETACH ,fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "desviacion_requisito_id", nullable = false)
     private DesviacionRequisito desviacionRequisito;
     @Transient
     private String unidadText;
 
+    @Override
+    public String toString() {
+        return "Lote{" +
+                "id=" + id +
+                ", fecha=" + fecha +
+                ", lote='" + lote + '\'' +
+                ", cantidad=" + cantidad +
+                ", unidad=" + unidad +
+                ", unidadText='" + unidadText + '\'' +
+                ", Desviacion='{ secuencial = " + desviacionRequisito.getSecuencial() + '\'' +
+                '}';
+    }
 }
