@@ -1,5 +1,6 @@
 package com.isacore.quality.controller.pnc;
 
+import com.isacore.quality.model.ProductOrigin;
 import com.isacore.quality.model.pnc.*;
 import com.isacore.quality.model.spp.SolicitudPruebaProcesoDocumento;
 import com.isacore.quality.model.spp.TipoAprobacionPP;
@@ -139,5 +140,15 @@ public class PncController {
     public ResponseEntity<List<PncDefectoDto>> detalleDefectosPorPncId(@PathVariable("pncId") long pncId) {
         List<PncDefectoDto> defectos = this.service.listarDefectosPorPncId(pncId);
         return ResponseEntity.ok(defectos);
+    }
+
+    @GetMapping("/origenes")
+    public ResponseEntity<List<CatalogDTO>> listarOrigenes() {
+        OrigenPnc[] options = OrigenPnc.values();
+        List<CatalogDTO> catalog =new ArrayList<>();
+        for(OrigenPnc  ae : options ) {
+            catalog.add(new CatalogDTO(ae.getDescripcion(), ae.toString()));
+        }
+        return ResponseEntity.ok(catalog);
     }
 }

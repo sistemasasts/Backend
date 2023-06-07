@@ -77,7 +77,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                 dto.getProducto(),
                 dto.getProcedenciaLinea(),
                 dto.getLineaAfecta(),
-                dto.getNombreCliente()
+                dto.getNombreCliente(),
+                dto.getOrigen()
         );
         this.repositorio.save(pnc);
         log.info(String.format("PNC registrado %s", pnc));
@@ -110,8 +111,9 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         pnc.setLote(dto.getLote());
         pnc.setOrdenProduccion(dto.getOrdenProduccion());
         pnc.setObservacionCincoMs(dto.getObservacionCincoMs());
-        pnc.setVentaTotalMes(dto.getVentaTotalMes());
-        pnc.setProduccionTotalMes(dto.getProduccionTotalMes());
+        pnc.setOrigen(dto.getOrigen());
+//        pnc.setVentaTotalMes(dto.getVentaTotalMes());
+//        pnc.setProduccionTotalMes(dto.getProduccionTotalMes());
         log.info(String.format("PNC actualizado %s", pnc));
         return pnc;
     }

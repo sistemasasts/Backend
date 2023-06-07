@@ -1,5 +1,6 @@
 package com.isacore.quality.service.impl.cardex;
 
+import com.isacore.notificacion.servicio.ServicioNotificacionInventario;
 import com.isacore.quality.exception.CardexErrorException;
 import com.isacore.quality.exception.UsuarioErrorException;
 import com.isacore.quality.mapper.cardex.InventarioProductoDetalleMapper;
@@ -49,6 +50,7 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
     private final InventarioProductoMapper mapper;
     private final InventarioProductoDetalleMapper mapperDetalle;
     private final EntityManager entityManager;
+    private final ServicioNotificacionInventario servicioNotificacionInventario;
 
     @Transactional
     @Override
@@ -117,6 +119,13 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
         );
         inventarioProducto.setStock(stockActualizado);
         this.repositorioDetalle.save(detalle);
+        if(stockActualizado.compareTo(inventarioProducto.getMinimo()) <=0){
+            try{
+                this.servicioNotificacionInventario.notificarNecesitaCompra(inventarioProducto);
+            }catch (Exception e){
+                log.error(String.format("Error al enviar la notificacion de minimo stock %s", e));
+            }
+        }
         log.info(String.format("Inventario movimiento registrado %s", detalle));
         return this.mapperDetalle.mapToDto(detalle);
     }
@@ -149,12 +158,12 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
             else
                 throw new CardexErrorException("Debe especificar el producto para consultar el detalle");
 
-            if (consulta.getFechaInicio() == null && consulta.getFechaFin() == null) {
-                LocalDateTime fechaFin = LocalDateTime.now();
-                consulta.setFechaFin(fechaFin);
-                LocalDateTime fechaInicio =  fechaFin.minusDays(10);
-                consulta.setFechaInicio(fechaInicio);
-            }
+//            if (consulta.getFechaInicio() == null && consulta.getFechaFin() == null) {
+//                LocalDateTime fechaFin = LocalDateTime.now();
+//                consulta.setFechaFin(fechaFin);
+//                LocalDateTime fechaInicio =  fechaFin.minusDays(30);
+//                consulta.setFechaInicio(fechaInicio);
+//            }
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
                 predicadosConsulta.add(criteriaBuilder.between(root.get("fechaRegistro"),

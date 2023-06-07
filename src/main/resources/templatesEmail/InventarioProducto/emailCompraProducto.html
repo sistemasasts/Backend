@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>COMPRA DE REACTIVOS</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Compra de reactivos</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;"
+           dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p style="font-size: 16px">Estimado(a) Usuario: <b th:text="${nombreUsuario}">WILFRIDO LOACHAMIN</b>
+                    </p>
+                    <p>Se informa que el producto <b th:text="${producto}">ALUMBAND</b> llegó al límite de su stock, es necesario realizar la compra del mismo.
+                    </p>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

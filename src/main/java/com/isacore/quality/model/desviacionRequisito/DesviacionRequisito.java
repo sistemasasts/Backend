@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
@@ -57,6 +58,23 @@ public class DesviacionRequisito {
     @Transient
     private String productTypeText;
 
+    @Column(columnDefinition = "bit default 0")
+    private boolean replanificacion;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "producto_afectado_id")
+    private Product productoAfectado;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "producto_replanificado_id")
+    private Product productoReplanificado;
+
+    private BigDecimal cantidadAfectada = BigDecimal.ZERO;
+
+    private BigDecimal cantidadRecuperada = BigDecimal.ZERO;
+
+    private BigDecimal desperdicioGenerado = BigDecimal.ZERO;
+
     public DesviacionRequisito(
             Long secuencial,
             Product product,
@@ -66,7 +84,8 @@ public class DesviacionRequisito {
             String descripcion,
             String control,
             String alcance,
-            String responsable) {
+            String responsable,
+            boolean replanificacion) {
         this.secuencial = secuencial;
         this.product = product;
         this.seguimiento = seguimiento;
@@ -77,6 +96,7 @@ public class DesviacionRequisito {
         this.alcance = alcance;
         this.fechaCreacion = LocalDateTime.now();
         this.responsable = responsable;
+        this.replanificacion = replanificacion;
     }
 
     @Override

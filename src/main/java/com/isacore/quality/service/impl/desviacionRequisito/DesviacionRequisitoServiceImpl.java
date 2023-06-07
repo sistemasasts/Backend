@@ -56,7 +56,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                 desviacionRequisito.getDescripcion(),
                 desviacionRequisito.getControl(),
                 desviacionRequisito.getAlcance(),
-                desviacionRequisito.getResponsable()
+                desviacionRequisito.getResponsable(),
+                desviacionRequisito.isReplanificacion()
         );
 
         this.desviacionRequisitoRepo.save(nuevaDesviacionRequisito);
@@ -96,6 +97,12 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         desviacionRequisito.get().setControl(obj.getControl());
         desviacionRequisito.get().setAlcance(obj.getAlcance());
         desviacionRequisito.get().setResponsable(obj.getResponsable());
+        desviacionRequisito.get().setReplanificacion(obj.isReplanificacion());
+        desviacionRequisito.get().setCantidadAfectada(obj.getCantidadAfectada());
+        desviacionRequisito.get().setCantidadRecuperada(obj.getCantidadRecuperada());
+        desviacionRequisito.get().setDesperdicioGenerado(obj.getDesperdicioGenerado());
+        desviacionRequisito.get().setProductoAfectado(obj.getProductoAfectado());
+        desviacionRequisito.get().setProductoReplanificado(obj.getProductoReplanificado());
 
         log.info(String.format("Desviacion de requisito actualizado %s", desviacionRequisito));
 
@@ -151,7 +158,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                         c.getDescripcion(),
                         c.getControl(),
                         c.getAlcance(),
-                        c.getResponsable()
+                        c.getResponsable(),
+                        c.isReplanificacion()
                 );
                 desviacion.setId(c.getId());
                 desviacion.setAfectacionText(c.getAfectacion().getDescripcion());
