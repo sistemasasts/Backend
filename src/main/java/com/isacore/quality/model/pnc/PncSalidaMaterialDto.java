@@ -26,6 +26,7 @@ public class PncSalidaMaterialDto {
 
     //    TODO: Informacion de PNC
     private long idPnc;
+    private long idPncDefecto;
     private long numero;
     private String producto;
     private BigDecimal cantidadPnc;

@@ -36,6 +36,9 @@ public class PncSalidaMaterial {
     @ManyToOne(fetch = FetchType.EAGER)
     private ProductoNoConforme productoNoConforme;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private PncDefecto pncDefecto;
+
     @Column(columnDefinition = "varchar(max)")
     private String observacion;
 
@@ -44,7 +47,7 @@ public class PncSalidaMaterial {
     private String usuarioAprobador;
 
     public PncSalidaMaterial(LocalDate fecha, BigDecimal cantidad, TipoDestino destino,
-                             ProductoNoConforme productoNoConforme, String observacion, String usuario) {
+                             ProductoNoConforme productoNoConforme, String observacion, String usuario, PncDefecto defecto) {
         this.fecha = fecha;
         this.cantidad = cantidad;
         this.destino = destino;
@@ -54,6 +57,7 @@ public class PncSalidaMaterial {
         this.fechaCreacion = LocalDateTime.now();
         this.estado = EstadoSalidaMaterial.CREADO;
         this.usuario = usuario;
+        this.pncDefecto = defecto;
     }
 
     public void marcarComoEnviada(String usuario) {
@@ -75,7 +79,7 @@ public class PncSalidaMaterial {
 
 
     public boolean tieneCantidadDisponible() {
-        return (this.getProductoNoConforme().getSaldo().subtract(this.getCantidad())).compareTo(BigDecimal.ZERO) >= 0;
+        return (this.getPncDefecto().getSaldo().subtract(this.getCantidad())).compareTo(BigDecimal.ZERO) >= 0;
     }
 
     public boolean verPlanesAccion(){
@@ -96,6 +100,7 @@ public class PncSalidaMaterial {
                 ", destino=" + destino +
                 ", estado=" + estado +
                 ", productoNoConforme=" + productoNoConforme.getNumero() +
+                ", pncDefectoId=" + pncDefecto.getId() +
                 ", observacion='" + observacion + '\'' +
                 ", usuario='" + usuario + '\'' +
                 ", usuarioAprobador='" + usuarioAprobador + '\'' +

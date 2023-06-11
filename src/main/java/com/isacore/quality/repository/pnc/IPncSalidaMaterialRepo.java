@@ -13,6 +13,8 @@ public interface IPncSalidaMaterialRepo extends JpaRepository<PncSalidaMaterial,
 
     List<PncSalidaMaterial> findByProductoNoConforme_Id(long pncId);
 
+    List<PncSalidaMaterial> findByPncDefecto_Id(long pncDefectoId);
+
     List<PncSalidaMaterial> findByProductoNoConforme_IdAndEstadoIn(long pncId, Collection<EstadoSalidaMaterial> estados);
 
     List<PncSalidaMaterial> findByEstadoIn(Collection<EstadoSalidaMaterial> estados);

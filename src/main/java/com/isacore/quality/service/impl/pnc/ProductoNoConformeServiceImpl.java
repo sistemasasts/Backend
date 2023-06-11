@@ -12,6 +12,7 @@ import com.isacore.quality.model.spp.ReporteSolicitudPPDTO;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
 import com.isacore.quality.repository.pnc.IPncDefectoRepo;
+import com.isacore.quality.repository.pnc.IPncSalidaMaterialRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncDocumentoService;
 import com.isacore.quality.service.pnc.IPncPlanAccionService;
@@ -53,6 +54,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     private final IGeneradorJasperReports reporteServicio;
     private final IUserImptekRepo usuarioRepositorio;
     private final IPncSalidaMaterialService pncSalidaMaterialService;
+    private final IPncSalidaMaterialRepo salidaMaterialRepositorio;
     private final IPncPlanAccionService planAccionService;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
@@ -187,18 +189,20 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
             respuesta = respuesta.subList(start, end);
 
-            List<PncReporteComercialDto> reporteComercialDtos = respuesta.stream()
-                    .map(x -> new PncReporteComercialDto(
+            List<PncReporteComercialDto> reporteComercialDtos = new ArrayList<>();
+            respuesta.forEach(x -> {
+                x.getDefectos().forEach(y -> {
+                    reporteComercialDtos.add(new PncReporteComercialDto(
                             x.getId(),
                             x.getProducto().getNameProduct(),
-                            x.getSaldo(),
+                            y.getSaldo(),
                             x.getUnidad().getAbreviatura(),
                             x.getNumero(),
                             x.getLote(),
-                            x.ubicacion(),
-                            x.validez()
-                    )).collect(Collectors.toList());
-
+                            y.getUbicacion(),
+                            y.getValidez()));
+                });
+            });
             final Page<PncReporteComercialDto> pageResut = new PageImpl<>(reporteComercialDtos, pageable, sizeTotal);
 
             return pageResut;
@@ -308,6 +312,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         ProductoNoConforme pnc = this.buscarPorId(pncId);
         PncDefecto defecto = pnc.getDefectos().stream().filter(x -> x.getId().equals(defectoId)).findFirst().orElse(null);
         if (defecto != null) {
+            //TODO validar si no tiene asociada una salida de material
+            this.validarPuedeEliminarDefecto(defecto);
             pnc.eliminarDefecto(defectoId);
             this.documentoService.eliminarDocumento(defecto.getIdImagen());
             log.info(String.format("PNC %s -> Defecto eliminado %s", pnc.getNumero(), defecto));
@@ -329,6 +335,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             UnidadMedida unidad = buscarUnidadMedidaPorId(dto.getUnidad().getId());
             defecto.setUnidad(unidad);
             defecto.setValidez(dto.getValidez());
+            this.verificarCantidadVsSaldo(defecto, dto.getCantidad());
             defecto.setCantidad(dto.getCantidad());
 
             if (file.length > 0) {
@@ -416,5 +423,30 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         if (!pnc.isPresent())
             throw new PncErrorException("Unidad de medida no encontrada");
         return pnc.get();
+    }
+
+    private void validarPuedeEliminarDefecto(PncDefecto defecto){
+        PncDefecto defectoAsociado = this.defectoRepositorio.tieneAlmenosUnaSalidaMaterial(defecto.getId());
+        if(defectoAsociado != null)
+            throw new PncErrorException("Defecto cuenta con salidas de material, no es posible eliminar");
+    }
+
+    private void verificarCantidadVsSaldo(PncDefecto defecto, BigDecimal nuevaCantidad){
+        BigDecimal diferencia = nuevaCantidad.subtract(defecto.getCantidad());
+        if(defecto.getCantidad().compareTo(nuevaCantidad) < 0){
+            defecto.setSaldo(defecto.getSaldo().add(diferencia));
+        }
+        if(defecto.getCantidad().compareTo(nuevaCantidad) > 0){
+            List<EstadoSalidaMaterial> estados = Arrays.asList(EstadoSalidaMaterial.PENDIENTE_APROBACION);
+            List<PncSalidaMaterial> salidas = salidaMaterialRepositorio.findByPncDefecto_Id(defecto.getId())
+                    .stream().filter(x -> estados.contains(x.getEstado())).collect(Collectors.toList());
+            BigDecimal saldoReal = defecto.getSaldo().subtract(salidas.stream().map(PncSalidaMaterial::getCantidad)
+                    .reduce(BigDecimal.ZERO,BigDecimal::add));
+            BigDecimal nuevoSaldo = saldoReal.subtract(diferencia);
+            if(nuevoSaldo.compareTo(BigDecimal.ZERO)<0){
+                throw new PncErrorException("Cantidad a modificar no cumple con el saldo real");
+            }
+            defecto.setSaldo(nuevoSaldo);
+        }
     }
 }

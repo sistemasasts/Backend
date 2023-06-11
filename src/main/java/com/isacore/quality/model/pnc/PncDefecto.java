@@ -35,6 +35,9 @@ public class PncDefecto {
     @Column(columnDefinition = "decimal(19,2)")
     private BigDecimal cantidad;
 
+    @Column(columnDefinition = "decimal(19,2)")
+    private BigDecimal saldo;
+
     @Transient
     private long productoNoConformeId;
 
@@ -47,6 +50,14 @@ public class PncDefecto {
 
     public String getUnidadDescripcion(){
         return this.unidad.getAbreviatura();
+    }
+
+    public void reducirStock(BigDecimal cantidad) {
+        this.setSaldo(this.saldo.subtract(cantidad));
+    }
+
+    public String getDescripcionCompleta(){
+        return String.format("%s | %s | %s", getDefectoDescripcion(), getUbicacion(), getSaldo());
     }
 
 }

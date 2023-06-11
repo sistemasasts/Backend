@@ -8,6 +8,7 @@ import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.pnc.*;
 import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
+import com.isacore.quality.repository.pnc.IPncDefectoRepo;
 import com.isacore.quality.repository.pnc.IPncSalidaMaterialRepo;
 import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
 import com.isacore.quality.service.pnc.IPncHistorialService;
@@ -37,20 +38,24 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     private final IPncHistorialService historialService;
     private final IPncPlanAccionService planAccionService;
     private final ServicioNotificacionPnc notificacionPnc;
+    private final IPncDefectoRepo pncDefectoRepositorio;
 
 
     @Override
     public PncSalidaMaterialDto registrar(PncSalidaMaterialDto dto) {
         ProductoNoConforme pnc = this.buscarProductoNoConformePorId(dto.getIdPnc());
-        if (pnc.getSaldo().compareTo(dto.getCantidad()) < 0)
+        PncDefecto defecto = this.buscarDefectoPorId(dto.getIdPncDefecto());
+        if (defecto.getSaldo().compareTo(dto.getCantidad()) < 0)
             throw new PncErrorException("Cantidad de salida mayor a stock.");
+
         PncSalidaMaterial salidaMaterial = new PncSalidaMaterial(
                 dto.getFecha(),
                 dto.getCantidad(),
                 dto.getDestino(),
                 pnc,
                 dto.getObservacion(),
-                UtilidadesSeguridad.nombreUsuarioEnSesion()
+                UtilidadesSeguridad.nombreUsuarioEnSesion(),
+                defecto
         );
         this.repositorio.save(salidaMaterial);
         log.info(String.format("PNC %s -> salida de material regsitrado %s", pnc.getNumero(), salidaMaterial));
@@ -176,7 +181,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     private void aprobar(PncSalidaMaterial salidaMaterial) {
         List<TipoDestino> destinos = Arrays.asList(TipoDestino.DESPERDICIO, TipoDestino.DONACION, TipoDestino.SALIDA_CONCESION);
         this.validarStockDisponible(salidaMaterial);
-        salidaMaterial.getProductoNoConforme().reducirStock(salidaMaterial.getCantidad());
+        salidaMaterial.getPncDefecto().reducirStock(salidaMaterial.getCantidad());
         if (destinos.contains(salidaMaterial.getDestino())) {
             salidaMaterial.marcarComoCerrada();
             log.info(String.format("PNC %s -> Salida material %s aprobada y cerrada", salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId()));
@@ -213,6 +218,13 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         Optional<ProductoNoConforme> pnc = this.pncRepositorio.findById(id);
         if (!pnc.isPresent())
             throw new PncErrorException("PNC no encontrado");
+        return pnc.get();
+    }
+
+    private PncDefecto buscarDefectoPorId(long id){
+        Optional<PncDefecto> pnc = this.pncDefectoRepositorio.findById(id);
+        if (!pnc.isPresent())
+            throw new PncErrorException("Defecto no encontrado");
         return pnc.get();
     }
 }

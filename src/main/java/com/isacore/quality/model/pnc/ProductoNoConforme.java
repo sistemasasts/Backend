@@ -125,6 +125,7 @@ public class ProductoNoConforme {
     }
 
     public void agregarDefecto(PncDefecto defecto) {
+        defecto.setSaldo(defecto.getCantidad());
         this.defectos.add(defecto);
     }
 
@@ -156,13 +157,19 @@ public class ProductoNoConforme {
         });
     }
 
-    public String ubicacion() {
-        return this.defectos.isEmpty() ? "" : this.defectos.stream().findFirst().get().getUbicacion();
+    public BigDecimal getSaldo() {
+        if(defectos != null)
+            return this.defectos.stream().map(PncDefecto::getSaldo).reduce(BigDecimal.ZERO, BigDecimal::add);
+        return BigDecimal.ZERO;
     }
 
-    public BigDecimal validez() {
-        return this.defectos.isEmpty() ? BigDecimal.ZERO : this.defectos.stream().findFirst().get().getValidez();
-    }
+    //    public String ubicacion() {
+//        return this.defectos.isEmpty() ? "" : this.defectos.stream().findFirst().get().getUbicacion();
+//    }
+//
+//    public BigDecimal validez() {
+//        return this.defectos.isEmpty() ? BigDecimal.ZERO : this.defectos.stream().findFirst().get().getValidez();
+//    }
 
 
     @Override
