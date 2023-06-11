@@ -103,6 +103,9 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         desviacionRequisito.get().setDesperdicioGenerado(obj.getDesperdicioGenerado());
         desviacionRequisito.get().setProductoAfectado(obj.getProductoAfectado());
         desviacionRequisito.get().setProductoReplanificado(obj.getProductoReplanificado());
+        desviacionRequisito.get().setUnidadAfectada(obj.getUnidadAfectada());
+        desviacionRequisito.get().setUnidadDesperdicio(obj.getUnidadDesperdicio());
+        desviacionRequisito.get().setUnidadRecuperada(obj.getUnidadRecuperada());
 
         log.info(String.format("Desviacion de requisito actualizado %s", desviacionRequisito));
 

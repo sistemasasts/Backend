@@ -1,6 +1,7 @@
 package com.isacore.quality.model.desviacionRequisito;
 
 import com.isacore.quality.model.Product;
+import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.pnc.LineaAfecta;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -68,6 +69,18 @@ public class DesviacionRequisito {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "producto_replanificado_id")
     private Product productoReplanificado;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "unidad_afectada_id")
+    private UnidadMedida unidadAfectada;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "unidad_recuperada_id")
+    private UnidadMedida unidadRecuperada;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "unidad_desperdicio_id")
+    private UnidadMedida unidadDesperdicio;
 
     private BigDecimal cantidadAfectada = BigDecimal.ZERO;
 

@@ -1,5 +1,6 @@
 package com.isacore.quality.model.desviacionRequisito;
 
+import com.isacore.quality.model.UnidadMedida;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,12 @@ public class RecursoRecuperarMaterial {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "desviacion_requisito_id", nullable = false)
     private DesviacionRequisito desviacionRequisito;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "unidad_id")
+    private UnidadMedida unidad;
+
+    @Transient
+    private BigDecimal costoTotal = BigDecimal.ZERO;
 
     public RecursoRecuperarMaterial(long materialId, String descripcion, BigDecimal cantidad, BigDecimal costo,
                                     DesviacionRequisito desviacionRequisito) {
