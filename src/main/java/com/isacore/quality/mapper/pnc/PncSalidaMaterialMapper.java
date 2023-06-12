@@ -34,6 +34,7 @@ public class PncSalidaMaterialMapper {
                 .fechaCreacion(valor.getProductoNoConforme().getFechaCreacion())
                 .saldoPnc(valor.getProductoNoConforme().getSaldo())
                 .solicitante(this.nombreUsuario(valor.getUsuario()))
+                .idPncDefecto(valor.getPncDefecto().getId())
                 .build();
     }
 

@@ -77,6 +77,9 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
             }
         }
         salidaMaterial.setDestino(dto.getDestino());
+        PncDefecto def = new PncDefecto();
+        def.setId(dto.getIdPncDefecto());
+        salidaMaterial.setPncDefecto(def);
         log.info(String.format("PNC %s -> salida de material actualizado %s",
                 salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial));
         return this.mapper.mapToDto(salidaMaterial);
