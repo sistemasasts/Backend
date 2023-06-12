@@ -145,7 +145,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                         c.getId(),
                         c.getNumero(),
                         c.getUsuario(),
-                        c.getFechaProduccion(),
+                        c.getFechaProduccion().toLocalDate(),
                         c.getFechaDeteccion(),
                         c.getEstado(),
                         c.getCantidadProducida(),

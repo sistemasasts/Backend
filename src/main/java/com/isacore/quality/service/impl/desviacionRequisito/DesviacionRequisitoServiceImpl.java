@@ -7,9 +7,6 @@ import com.isacore.quality.model.desviacionRequisito.ConsultaDesviacionRequisito
 import com.isacore.quality.model.desviacionRequisito.DesviacionRequisito;
 import com.isacore.quality.model.desviacionRequisito.DesviacionRequisitoReporteDTO;
 import com.isacore.quality.model.desviacionRequisito.Lote;
-import com.isacore.quality.model.pnc.ConsultaPncDTO;
-import com.isacore.quality.model.pnc.PncDTO;
-import com.isacore.quality.model.pnc.ProductoNoConforme;
 import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoRepo;
 import com.isacore.quality.repository.desviacionRequisito.ILoteRepo;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;

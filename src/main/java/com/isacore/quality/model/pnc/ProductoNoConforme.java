@@ -7,6 +7,8 @@ import com.isacore.quality.model.Product;
 import com.isacore.quality.model.UnidadMedida;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
+import com.isacore.util.LocalDateTimeDeserializeIsa;
+import com.isacore.util.LocalDateTimeSerializeIsa;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -35,9 +37,9 @@ public class ProductoNoConforme {
     @NotNull
     private String usuario;
 
-    @JsonSerialize(using = LocalDateSerializeIsa.class)
-    @JsonDeserialize(using = LocalDateDeserializeIsa.class)
-    private LocalDate fechaProduccion;
+    @JsonSerialize(using = LocalDateTimeSerializeIsa.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializeIsa.class)
+    private LocalDateTime fechaProduccion;
 
     @JsonSerialize(using = LocalDateSerializeIsa.class)
     @JsonDeserialize(using = LocalDateDeserializeIsa.class)
@@ -93,7 +95,7 @@ public class ProductoNoConforme {
     @Enumerated(EnumType.STRING)
     private OrigenPnc origen;
 
-    public ProductoNoConforme(long numero, String usuario, LocalDate fechaProduccion, LocalDate fechaDeteccion,
+    public ProductoNoConforme(long numero, String usuario, LocalDateTime fechaProduccion, LocalDate fechaDeteccion,
                               BigDecimal cantidadProducida, BigDecimal cantidadNoConforme, UnidadMedida unidad,
                               BigDecimal porcentajeValidez, BigDecimal pesoNoConforme, String ordenProduccion,
                               String lote, String hcc, String observacionCincoMs,

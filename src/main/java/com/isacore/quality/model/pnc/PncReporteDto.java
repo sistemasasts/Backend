@@ -35,7 +35,7 @@ public class PncReporteDto implements Serializable {
         this.cantidad = pnc.getCantidadNoConforme();
         this.unidad = pnc.getUnidad().getAbreviatura();
         this.numero = pnc.getNumero();
-        this.fechaProduccion = pnc.getFechaProduccion();
+        this.fechaProduccion = pnc.getFechaProduccion().toLocalDate();
         this.fechaDeteccion = pnc.getFechaDeteccion();
         this.lote = pnc.getLote();
         this.entradaTraspaso = pnc.getHcc();
