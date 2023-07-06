@@ -4,7 +4,7 @@ public enum PropertyPeriodicity {
 	
 	DIARIA("Diaria"),
 	SEMANAL("Semanal"),
-	MENSUAL("Mensal"),
+	MENSUAL("Mensual"),
 	TRIMESTRAL("Trimestral"),
 	SEMESTRAL("Semestral"),
 	ANUAL("Anual"),
