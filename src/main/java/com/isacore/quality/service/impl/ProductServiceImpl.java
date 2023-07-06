@@ -1,22 +1,30 @@
 package com.isacore.quality.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import com.isacore.quality.dto.*;
+import com.isacore.quality.exception.PncErrorException;
+import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.model.*;
+import com.isacore.quality.model.se.SolicitudBase;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
+import com.isacore.quality.service.se.ConfiguracionSolicitud;
+import com.isacore.util.PassFileToRepository;
+import com.isacore.util.UtilidadesCadena;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,9 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
-import com.isacore.quality.dto.ProductDto;
-import com.isacore.quality.dto.ReportProductDTO;
-import com.isacore.quality.dto.ReportProductSpecificationDTO;
 import com.isacore.quality.repository.IProductRepo;
 import com.isacore.quality.repository.IPropertyRepo;
 import com.isacore.quality.service.IProductService;
@@ -57,6 +62,9 @@ public class ProductServiceImpl implements IProductService {
 
     @Autowired
     private IUnidadMedidadRepo unidadMedidadRepo;
+
+    @Autowired
+    private ConfiguracionSolicitud configuracion;
 
     @Override
     public List<Product> findAll() {
@@ -93,7 +101,7 @@ public class ProductServiceImpl implements IProductService {
     public Product findOnlyProductById(Product p) {
         Query query = entityManager.createNativeQuery(
                 "select p.product_id, p.product_sap_code, p.product_name, p.product_description, p.product_itcdq, p.product_type, p.product_typetxt,\r\n"
-                        + "f.fam_id, f.fam_name,\r\n" + "lp.lp_id, lp.lp_name, p.product_review\r\n"
+                        + "f.fam_id, f.fam_name,\r\n" + "lp.lp_id, lp.lp_name, p.product_review, p.imagen_patron_ruta, p.imagen_patron_tipo, p.imagen_patron_nombre\r\n"
                         + "from product p\r\n" + "full join family f on p.fam_id = f.fam_id\r\n"
                         + "full join line_production lp on p.lp_id = lp.lp_id\r\n" + "WHERE P.product_id = ?");
 
@@ -127,6 +135,9 @@ public class ProductServiceImpl implements IProductService {
                 pp.setLineProduction(lp);
             }
             pp.setReview((String) o[11]);
+            pp.setImagenPatronRuta((String) o[12]);
+            pp.setImagenPatronTipo((String) o[13]);
+            pp.setImagenPatronNombre((String) o[14]);
             return pp;
 
         }
@@ -489,6 +500,81 @@ public class ProductServiceImpl implements IProductService {
         return null;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProductoDto> listarPorNombreCriterio(String nombre) {
+        List<ProductoDto> productos = this.repo.findByNameProductContaining(nombre)
+                .stream()
+                .map(x -> new ProductoDto(x.getIdProduct(), x.getNameProduct(), x.getGenericName(),x.getDescProduct(),x.getTypeProduct()))
+                .sorted(Comparator.comparing(ProductoDto::getNameProduct))
+                .collect(Collectors.toList());
+        return productos;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ProductoDto> listarReactivosPorNombreCriterio(String nombre) {
+        List<String> grupos= Arrays.asList("Reactivos Laboratorio","EPPS Y Suministros Oficina");
+        List<ProductoDto> productos = this.repo.findByTypeProductTxtInAndNameProductContaining(grupos, nombre)
+                .stream()
+                .map(x -> new ProductoDto(x.getIdProduct(), x.getNameProduct(), x.getGenericName(),x.getDescProduct(),x.getTypeProduct()))
+                .sorted(Comparator.comparing(ProductoDto::getNameProduct))
+                .collect(Collectors.toList());
+        return productos;
+    }
+
+    @Transactional
+    @Override
+    public void subirImagenPatron(Integer productoId, byte[] file, String nombreArchivo, String tipo) {
+        Product producto = this.repo.findById(productoId).orElse(null);
+        if(producto== null)
+            throw new PncErrorException("Producto no encontrado");
+        try {
+            if(UtilidadesCadena.noEsNuloNiBlanco(producto.getImagenPatronRuta()))
+                this.eliminarImagenPatron(producto.getImagenPatronRuta());
+            String ruta = this.crearPathArchivo(producto, nombreArchivo);
+            PassFileToRepository.saveLocalFile(ruta, file);
+            producto.setearImagenPatron(nombreArchivo,tipo,ruta);
+            LOG.info(String.format("Imagen patron almacenada %s", ruta));
+        } catch (IOException e) {
+            LOG.error(String.format("No se pudo subir la imagen patron: %s", e));
+            throw new PncErrorException("No se pudo subir la imagen patron");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PatronImgenDto obtenerImagenPatron(Integer productoId) {
+        Product producto = this.repo.findById(productoId).orElse(null);
+        if(producto== null)
+            throw new PncErrorException("Producto no encontrado");
+        if(UtilidadesCadena.noEsNuloNiBlanco(producto.getImagenPatronRuta())){
+            try {
+                byte[] archivo = new byte[0];
+                archivo = PassFileToRepository.readLocalFile(producto.getImagenPatronRuta());
+                if (archivo.length > 0) {
+                    PatronImgenDto dto = new PatronImgenDto(
+                            producto.getIdProduct(),
+                            producto.getImagenPatronNombre(),
+                            producto.getImagenPatronTipo(),
+                            Base64.getEncoder().encodeToString(archivo)
+                    );
+                    return dto;
+                }
+                return null;
+            } catch (IOException e) {
+                LOG.error(String.format("Error al leer el archivo %s", e));
+                throw new PncErrorException("Error al leer la imagen patrón");
+            }
+        }
+        return null;
+    }
+
+    private void eliminarImagenPatron(String rutaArchivo){
+        LOG.info(String.format("Eliminando imagen patron %s", rutaArchivo));
+        PassFileToRepository.eliminarArchivoFisico(rutaArchivo);
+    }
+
     private String generarNextReview(String review) {
         int reviewNumber = review == null ? 0 : Integer.parseInt(review);
         reviewNumber++;
@@ -500,4 +586,27 @@ public class ProductServiceImpl implements IProductService {
         return this.unidadMedidadRepo.findById(id).orElse(null);
     }
 
+
+    private String crearPathArchivo(Product producto, String nombreArchivo) {
+        String path = crearRutaAlmacenamiento(producto.getIdProduct()).concat(File.separator).concat(nombreArchivo);
+        if (PassFileToRepository.fileExists(path))
+            path = crearRutaAlmacenamiento(producto.getIdProduct()).concat(File.separator).concat(PassFileToRepository.generateDateAsId()).concat("_").concat(nombreArchivo);
+        LOG.info(String.format("Ruta creada %s para guardar archivo %s", path, nombreArchivo));
+        return path;
+    }
+
+    private String crearRutaAlmacenamiento(Integer productoId) {
+        try {
+            String carpeta = configuracion.getRutaBase().concat(File.separator).concat("PRODUCTOS")
+                    .concat(File.separator).concat(String.valueOf(productoId));
+            Path path = Paths.get(carpeta);
+            if (!Files.exists(path))
+                Files.createDirectories(path);
+
+            return carpeta;
+        } catch (IOException e) {
+            LOG.error(String.format("Error al subir Documento %s", e.getMessage()));
+            throw new SolicitudEnsayoErrorException("Error al crear el directorio");
+        }
+    }
 }

@@ -4,6 +4,7 @@ import com.isacore.quality.model.ClientImptek;
 import com.isacore.quality.model.HccHead;
 import com.isacore.quality.model.QualityCertificate;
 import com.isacore.quality.model.ReportHeadT;
+import com.isacore.util.UtilidadesCadena;
 
 public class ReportDto {
 
@@ -57,8 +58,9 @@ public class ReportDto {
 		this.normProductText = normProductText;
 	}
 	
-	
-	
+	public boolean getVerImagenes(){
+		return UtilidadesCadena.noEsNuloNiBlanco(this.hccHead.getRutaImagenMuestra());
+	}
 	
 	
 }

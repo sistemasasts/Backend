@@ -117,6 +117,11 @@ public class PassFileToRepository {
 			id = cc.format(formatter);
 			return id.replaceAll("[^\\dA-Za-z]", "");
 		}
+
+		public static boolean eliminarArchivoFisico(String path){
+			File file = new File(path);
+			return file.delete();
+		}
 		
 		
 }

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>Plan acción pendiente</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Plan acción pendiente</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;"
+           dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p style="font-size: 16px">Estimado(a) Usuario: <b th:text="${nombreUsuario}">WILFRIDO LOACHAMIN</b>
+                    </p>
+                    <p>Los siguientes planes de acción (PNC) están pendientes y próximos a su fecha límite:
+                    </p>
+                    <table class="detalle">
+                        <tr class="detalle">
+                            <th class="detalle" style="text-align:center; width:10%">PNC #</th>
+                            <th class="detalle" style="text-align:center; width:35%">Producto</th>
+                            <th class="detalle" style="text-align:center; width:20%">Cantidad</th>
+                            <th class="detalle" style="text-align:center; width:15%">Fecha Límite</th>
+                            <th class="detalle" style="text-align:center; width:20%">Vigencia</th>
+                        </tr>
+                        <th:block th:each="plan : ${planes}" >
+                            <tr class="detalle">
+                                <td th:text="${plan.pncNumero}" style="text-align:center; width:10%">6661</td>
+                                <td th:text="${plan.producto}" style="text-align:center; width:35%">TECHOFIELD</td>
+                                <td th:text="${plan.cantidad}"  style="text-align:center; width:20%">2 rollos</td>
+                                <td th:text="${plan.fechaLimite}"  style="text-align:center; width:15%">2022/02/01</td>
+                                <td th:text="${plan.vigencia}" style="text-align:center; width:20%" >2 DÍAS</td>
+                            </tr>
+                        </th:block>
+
+                    </table>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
