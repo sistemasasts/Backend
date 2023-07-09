@@ -378,7 +378,7 @@ public class ProductServiceImpl implements IProductService {
                 p.setViewPropertyOnHcc((Boolean) x[14]);
                 listProperty.add(p);
             });
-            product.setProperties(listProperty);
+            product.setPropiedades(listProperty);
             return product;
         }
 

@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.Area;
 import com.isacore.quality.model.Product;
 import com.isacore.quality.model.UnidadMedida;
-import com.isacore.util.LocalDateDeserializeIsa;
-import com.isacore.util.LocalDateSerializeIsa;
-import com.isacore.util.LocalDateTimeDeserializeIsa;
-import com.isacore.util.LocalDateTimeSerializeIsa;
+import com.isacore.util.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,8 +34,8 @@ public class ProductoNoConforme {
     @NotNull
     private String usuario;
 
-    @JsonSerialize(using = LocalDateTimeSerializeIsa.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializeIsa.class)
+    @JsonSerialize(using = LocalDateTimeSerialize.class)
+    @JsonDeserialize(using = LocalDateTimeDeserialize.class)
     private LocalDateTime fechaProduccion;
 
     @JsonSerialize(using = LocalDateSerializeIsa.class)

@@ -139,6 +139,14 @@ public class Product {
 	
 	@Transient
 	private List<Provider> providers;
+
+	//Para solventar el ingreso de ensayos
+	@Transient
+	private String propertyList;
+
+//	Para solventar el ingreso de ensayos dimensionales y MP
+	@Transient
+	private List<Property> propiedades;
 	
 	
 	public Product() {
@@ -407,7 +415,23 @@ public class Product {
 	public void setReferenceNorm(String referenceNorm) {
 		this.referenceNorm = referenceNorm;
 	}
-	
+
+	public String getPropertyList() {
+		return propertyList;
+	}
+
+	public void setPropertyList(String propertyList) {
+		this.propertyList = propertyList;
+	}
+
+	public List<Property> getPropiedades() {
+		return propiedades;
+	}
+
+	public void setPropiedades(List<Property> propiedades) {
+		this.propiedades = propiedades;
+	}
+
 	public List<InformationAditional> getDetailCriteria() {
 		return detailInformationAditional.stream().filter(x -> x.getType().equals(InformationAditionalType.CRITERIOS_APROBACION)).collect(Collectors.toList());
 	}

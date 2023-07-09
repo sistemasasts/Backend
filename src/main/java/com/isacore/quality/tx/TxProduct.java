@@ -290,7 +290,8 @@ public class TxProduct {
 				ObjectMapper mapper = new ObjectMapper();
 				Product p = mapper.readValue(jsonValue, Product.class);
 				logger.info("> id Product: " + p.getIdProduct());
-				String valueCodeProperty = p.getProperties().get(0).getPropertyList().getIdProperty();
+				//String valueCodeProperty = p.getProperties().get(0).getPropertyList().getIdProperty();
+				String valueCodeProperty = p.getPropertyList();
 				ProductDto pd = this.service.findProductByIdAndIdProperty(p.getIdProduct(), valueCodeProperty);
 
 				if (pd == null) {
