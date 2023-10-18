@@ -337,7 +337,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             UnidadMedida unidad = buscarUnidadMedidaPorId(dto.getUnidad().getId());
             defecto.setUnidad(unidad);
             defecto.setValidez(dto.getValidez());
-            this.verificarCantidadVsSaldo(defecto, dto.getCantidad());
+            this.verificarCantidadVsSaldo(defecto, dto.getCantidad(), pnc);
             defecto.setCantidad(dto.getCantidad());
 
             if (file.length > 0) {
@@ -446,20 +446,27 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             throw new PncErrorException("Defecto cuenta con salidas de material, no es posible eliminar");
     }
 
-    private void verificarCantidadVsSaldo(PncDefecto defecto, BigDecimal nuevaCantidad) {
-        BigDecimal diferencia = nuevaCantidad.subtract(defecto.getCantidad());
+    private void verificarCantidadVsSaldo(PncDefecto defecto, BigDecimal nuevaCantidad, ProductoNoConforme productoNoConforme) {
+        List<PncSalidaMaterial> salidasPendientes =salidaMaterialRepositorio
+                .findByProductoNoConforme_IdAndEstadoIn(productoNoConforme.getId(), Arrays.asList(EstadoSalidaMaterial.PENDIENTE_APROBACION));
+        if(!salidasPendientes.isEmpty())
+            throw new PncErrorException("No se puede actualizar, existen salidas de material pendientes de aprobación.");
+
+
         if (defecto.getCantidad().compareTo(nuevaCantidad) < 0) {
+            BigDecimal diferencia = nuevaCantidad.subtract(defecto.getCantidad());
             defecto.setSaldo(defecto.getSaldo().add(diferencia));
         }
         if (defecto.getCantidad().compareTo(nuevaCantidad) > 0) {
-            List<EstadoSalidaMaterial> estados = Arrays.asList(EstadoSalidaMaterial.PENDIENTE_APROBACION);
-            List<PncSalidaMaterial> salidas = salidaMaterialRepositorio.findByPncDefecto_Id(defecto.getId())
-                    .stream().filter(x -> estados.contains(x.getEstado())).collect(Collectors.toList());
-            BigDecimal saldoReal = defecto.getSaldo().subtract(salidas.stream().map(PncSalidaMaterial::getCantidad)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add));
-            BigDecimal nuevoSaldo = saldoReal.subtract(diferencia);
+            BigDecimal diferencia = defecto.getCantidad().subtract(nuevaCantidad);
+//            List<EstadoSalidaMaterial> estados = Arrays.asList(EstadoSalidaMaterial.PENDIENTE_APROBACION);
+//            List<PncSalidaMaterial> salidas = salidaMaterialRepositorio.findByPncDefecto_Id(defecto.getId())
+//                    .stream().filter(x -> estados.contains(x.getEstado())).collect(Collectors.toList());
+//            BigDecimal saldoReal = defecto.getSaldo().subtract(salidas.stream().map(PncSalidaMaterial::getCantidad)
+//                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+            BigDecimal nuevoSaldo = defecto.getSaldo().subtract(diferencia);
             if (nuevoSaldo.compareTo(BigDecimal.ZERO) < 0) {
-                throw new PncErrorException("Cantidad a modificar no cumple con el saldo real");
+                throw new PncErrorException("La cantidad a modificar genera un saldo negativo");
             }
             defecto.setSaldo(nuevoSaldo);
         }
