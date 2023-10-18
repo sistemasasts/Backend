@@ -46,6 +46,8 @@ public class PncSalidaMaterial {
     private String usuario;
     private String usuarioAprobador;
 
+    private LocalDateTime fechaAprobacion;
+
     public PncSalidaMaterial(LocalDate fecha, BigDecimal cantidad, TipoDestino destino,
                              ProductoNoConforme productoNoConforme, String observacion, String usuario, PncDefecto defecto) {
         this.fecha = fecha;

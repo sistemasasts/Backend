@@ -1,7 +1,7 @@
 package com.isacore.quality.model.pnc;
 
 public enum TipoDestino {
-    DESPERDICIO("DESPERDICIO"),
+    DESPERDICIO("DAR DE BAJA"),
     DONACION("DONACIÓN"),
     RETRABAJO("RETRABAJO"),
     REPROCESO("REPROCESO"),

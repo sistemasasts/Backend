@@ -36,6 +36,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -191,7 +193,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
             List<PncReporteComercialDto> reporteComercialDtos = new ArrayList<>();
             respuesta.forEach(x -> {
-                x.getDefectos().forEach(y -> {
+                x.getDefectos().stream().filter(z -> z.getSaldo().compareTo(BigDecimal.ZERO) > 0).forEach(y -> {
                     reporteComercialDtos.add(new PncReporteComercialDto(
                             x.getId(),
                             x.getProducto().getNameProduct(),
@@ -408,7 +410,20 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             if (destinos.contains(x.getDestino()))
                 x.setPlanesAccion(this.planAccionService.listarPorSalidaMaterialId(x.getId()));
         });
-        return new PncReporteDto(pnc, solicitante.getEmployee().getCompleteName(), salidaMaterialDtos);
+        LocalDateTime fechaAprobacion = salidaMaterialDtos.stream()
+                .map(PncSalidaMaterialDto::getFechaAprobacion)
+                .filter(aprobacion -> aprobacion != null)
+                .max(Comparator.naturalOrder()).orElse(null);
+        String aprobadoPor = "";
+        if (!salidaMaterialDtos.isEmpty()) {
+            Optional<String> aprobador = salidaMaterialDtos.stream().map(PncSalidaMaterialDto::getUsuarioAprobador).filter(usuarioAprobador -> usuarioAprobador != null).findFirst();
+            if (aprobador.isPresent()) {
+                UserImptek aprobadorUsuario = this.usuarioRepositorio.findOneByNickName(aprobador.get());
+                aprobadoPor = aprobadorUsuario != null ? aprobadorUsuario.getEmployee().getCompleteName() : "";
+            }
+        }
+
+        return new PncReporteDto(pnc, solicitante.getEmployee().getCompleteName(), salidaMaterialDtos, fechaAprobacion != null ? fechaAprobacion.toLocalDate() : null, aprobadoPor);
     }
 
     private ProductoNoConforme buscarPorId(long id) {
@@ -425,25 +440,25 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         return pnc.get();
     }
 
-    private void validarPuedeEliminarDefecto(PncDefecto defecto){
+    private void validarPuedeEliminarDefecto(PncDefecto defecto) {
         PncDefecto defectoAsociado = this.defectoRepositorio.tieneAlmenosUnaSalidaMaterial(defecto.getId());
-        if(defectoAsociado != null)
+        if (defectoAsociado != null)
             throw new PncErrorException("Defecto cuenta con salidas de material, no es posible eliminar");
     }
 
-    private void verificarCantidadVsSaldo(PncDefecto defecto, BigDecimal nuevaCantidad){
+    private void verificarCantidadVsSaldo(PncDefecto defecto, BigDecimal nuevaCantidad) {
         BigDecimal diferencia = nuevaCantidad.subtract(defecto.getCantidad());
-        if(defecto.getCantidad().compareTo(nuevaCantidad) < 0){
+        if (defecto.getCantidad().compareTo(nuevaCantidad) < 0) {
             defecto.setSaldo(defecto.getSaldo().add(diferencia));
         }
-        if(defecto.getCantidad().compareTo(nuevaCantidad) > 0){
+        if (defecto.getCantidad().compareTo(nuevaCantidad) > 0) {
             List<EstadoSalidaMaterial> estados = Arrays.asList(EstadoSalidaMaterial.PENDIENTE_APROBACION);
             List<PncSalidaMaterial> salidas = salidaMaterialRepositorio.findByPncDefecto_Id(defecto.getId())
                     .stream().filter(x -> estados.contains(x.getEstado())).collect(Collectors.toList());
             BigDecimal saldoReal = defecto.getSaldo().subtract(salidas.stream().map(PncSalidaMaterial::getCantidad)
-                    .reduce(BigDecimal.ZERO,BigDecimal::add));
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
             BigDecimal nuevoSaldo = saldoReal.subtract(diferencia);
-            if(nuevoSaldo.compareTo(BigDecimal.ZERO)<0){
+            if (nuevoSaldo.compareTo(BigDecimal.ZERO) < 0) {
                 throw new PncErrorException("Cantidad a modificar no cumple con el saldo real");
             }
             defecto.setSaldo(nuevoSaldo);

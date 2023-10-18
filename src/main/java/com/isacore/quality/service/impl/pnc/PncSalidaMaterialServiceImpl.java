@@ -21,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +41,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     private final IPncPlanAccionService planAccionService;
     private final ServicioNotificacionPnc notificacionPnc;
     private final IPncDefectoRepo pncDefectoRepositorio;
+    private final ValidadorPncFinalizar validadorPncFinalizar;
 
 
     @Override
@@ -70,9 +73,9 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         salidaMaterial.setFecha(dto.getFecha());
         salidaMaterial.setObservacion(dto.getObservacion());
 
-        if(!dto.getDestino().equals(salidaMaterial.getDestino())){
+        if (!dto.getDestino().equals(salidaMaterial.getDestino())) {
             List<TipoDestino> destinos = Arrays.asList(TipoDestino.REPROCESO, TipoDestino.RETRABAJO);
-            if(destinos.contains(salidaMaterial.getDestino()) && (!destinos.contains(dto.getDestino()))){
+            if (destinos.contains(salidaMaterial.getDestino()) && (!destinos.contains(dto.getDestino()))) {
                 this.planAccionService.eliminarPorSalidaMaterialId(salidaMaterial.getId());
             }
         }
@@ -150,6 +153,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     @Override
     public void aprobarSalidaMaterial(PncSalidaMaterialDto dto) {
         PncSalidaMaterial salidaMaterial = this.buscarPorId(dto.getId());
+        salidaMaterial.setFechaAprobacion(LocalDateTime.now());
         if (dto.isAprobado()) {
             String observacion = UtilidadesCadena.esNuloOBlanco(dto.getObservacionFlujo()) ? "SALIDA DE MATERIAL APROBADA" : dto.getObservacionFlujo();
             this.historialService.agregar(salidaMaterial, PncOrdenFlujo.APROBACION, observacion);
@@ -193,6 +197,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
             planAccionService.iniciarGestionPlanes(salidaMaterial.getId());
             log.info(String.format("PNC %s -> Salida material %s aprobada", salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getId()));
         }
+        validadorPncFinalizar.verificarSiFinalizaPNC(salidaMaterial.getProductoNoConforme());
     }
 
     private void noAprobar(PncSalidaMaterial salidaMaterial, String observacion) {
@@ -224,7 +229,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
         return pnc.get();
     }
 
-    private PncDefecto buscarDefectoPorId(long id){
+    private PncDefecto buscarDefectoPorId(long id) {
         Optional<PncDefecto> pnc = this.pncDefectoRepositorio.findById(id);
         if (!pnc.isPresent())
             throw new PncErrorException("Defecto no encontrado");

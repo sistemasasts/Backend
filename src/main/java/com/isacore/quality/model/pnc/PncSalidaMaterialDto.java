@@ -41,6 +41,8 @@ public class PncSalidaMaterialDto {
     private String observacionFlujo;
     private PncOrdenFlujo orden;
     private boolean aprobado;
+    private LocalDateTime fechaAprobacion;
+    private String usuarioAprobador;
 
     private List<PncPlanAccionDto> planesAccion= new ArrayList();
     public LocalDate getFechaCreacion2() {

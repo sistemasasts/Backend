@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
     private final IPncHistorialService historialService;
     private final PncPlanAccionMapper mapper;
     private final ServicioNotificacionPnc notificacionPnc;
+    private final ValidadorPncFinalizar validadorPncFinalizar;
 
     @Override
     public List<PncPlanAccionDto> registrar(PncPlanAccionDto dto) {
@@ -143,6 +145,7 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
                 if (planes.stream().allMatch(x -> x.getEstado().equals(EstadoPncPlanAccion.FINALIZADO))) {
                     planRecargado.getSalidaMaterial().marcarComoCerrada();
                     log.info(String.format("Salida Material cerrada %s ", planRecargado.getSalidaMaterial()));
+                    validadorPncFinalizar.verificarSiFinalizaPNC(planRecargado.getSalidaMaterial().getProductoNoConforme());
                 }
                 break;
             default:

@@ -7,6 +7,7 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -29,8 +30,10 @@ public class PncReporteDto implements Serializable {
     private ProductType tipoProducto;
     private List<PncDefecto> defectos;
     private List<PncSalidaMaterialDto> listaSalidaMaterial;
+    private LocalDate fechaAprobacion;
+    private String aprobadoPor;
 
-    public PncReporteDto(ProductoNoConforme pnc, String nombreResponsable, List<PncSalidaMaterialDto> salidaMaterials) {
+    public PncReporteDto(ProductoNoConforme pnc, String nombreResponsable, List<PncSalidaMaterialDto> salidaMaterials, LocalDate fechaAprobacion, String aprobadoPor) {
         this.nombreProducto = pnc.getProducto().getNameProduct();
         this.cantidad = pnc.getCantidadNoConforme();
         this.unidad = pnc.getUnidad().getAbreviatura();
@@ -47,6 +50,8 @@ public class PncReporteDto implements Serializable {
         this.defectos = pnc.getDefectos();
         this.elaboradoPor = nombreResponsable;
         this.listaSalidaMaterial = salidaMaterials;
+        this.fechaAprobacion = fechaAprobacion;
+        this.aprobadoPor = aprobadoPor;
     }
 
     public String getProcedenciaProducto() {

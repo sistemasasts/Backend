@@ -73,6 +73,7 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
         inventario.setMaximo(dto.getMaximo());
         inventario.setMinimo(dto.getMinimo());
         inventario.setUnidad(dto.getUnidad());
+        inventario.setCantidadAlertar(dto.getCantidadAlertar());
         log.info(String.format("Inventario producto actualizado %s", inventario));
         return this.mapper.mapToDto(inventario);
     }
