@@ -126,10 +126,12 @@ public class ProductoNoConforme {
     public void agregarDefecto(PncDefecto defecto) {
         defecto.setSaldo(defecto.getCantidad());
         this.defectos.add(defecto);
+        calcularCantidadNoConforme();
     }
 
     public void eliminarDefecto(long defectoId) {
         this.defectos.removeIf(x -> x.getId() == defectoId);
+        calcularCantidadNoConforme();
     }
 
     public void reducirStock(BigDecimal cantidad) {
@@ -160,6 +162,10 @@ public class ProductoNoConforme {
         if(defectos != null)
             return this.defectos.stream().map(PncDefecto::getSaldo).reduce(BigDecimal.ZERO, BigDecimal::add);
         return BigDecimal.ZERO;
+    }
+
+    public void calcularCantidadNoConforme(){
+        this.cantidadNoConforme = this.defectos.stream().map(PncDefecto::getCantidad).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     //    public String ubicacion() {

@@ -116,7 +116,7 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
         );
         inventarioProducto.setStock(stockActualizado);
         this.repositorioDetalle.save(detalle);
-        if(stockActualizado.compareTo(inventarioProducto.getMinimo()) <=0){
+        if(stockActualizado.compareTo(inventarioProducto.getCantidadAlertar()) <=0){
             try{
                 this.servicioNotificacionInventario.notificarNecesitaCompra(inventarioProducto);
             }catch (Exception e){

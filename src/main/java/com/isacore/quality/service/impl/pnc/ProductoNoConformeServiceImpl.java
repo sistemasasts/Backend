@@ -69,7 +69,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                 dto.getFechaProduccion(),
                 dto.getFechaDeteccion(),
                 dto.getCantidadProducida(),
-                dto.getCantidadNoConforme(),
+                BigDecimal.ZERO,
                 dto.getUnidad(),
                 dto.getPorcentajeValidez(),
                 dto.getPesoNoConforme(),
@@ -96,15 +96,15 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         pnc.setArea(dto.getArea());
         pnc.setFechaDeteccion(dto.getFechaDeteccion());
         pnc.setFechaProduccion(dto.getFechaProduccion());
-        if (pnc.getEstado().equals(EstadoPnc.EN_PROCESO)) {
-            if (pnc.getCantidadNoConforme().compareTo(dto.getCantidadNoConforme()) > 0) {
-                throw new PncErrorException("No se puede actualizar cantidad no conforme inferior a la actual, debido al estado EN PROCESO");
-            } else {
-                pnc.setCantidadNoConforme(dto.getCantidadNoConforme());
-                BigDecimal aumento = dto.getCantidadNoConforme().subtract(pnc.getSaldo());
-                pnc.setSaldo(pnc.getSaldo().add(aumento));
-            }
-        }
+//        if (pnc.getEstado().equals(EstadoPnc.EN_PROCESO)) {
+//            if (pnc.getCantidadNoConforme().compareTo(dto.getCantidadNoConforme()) > 0) {
+//                throw new PncErrorException("No se puede actualizar cantidad no conforme inferior a la actual, debido al estado EN PROCESO");
+//            } else {
+//                pnc.setCantidadNoConforme(dto.getCantidadNoConforme());
+//                BigDecimal aumento = dto.getCantidadNoConforme().subtract(pnc.getSaldo());
+//                pnc.setSaldo(pnc.getSaldo().add(aumento));
+//            }
+//        }
         pnc.setCantidadProducida(dto.getCantidadProducida());
         pnc.setUnidad(dto.getUnidad());
         pnc.setNombreCliente(dto.getNombreCliente());
@@ -118,6 +118,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         pnc.setOrigen(dto.getOrigen());
 //        pnc.setVentaTotalMes(dto.getVentaTotalMes());
 //        pnc.setProduccionTotalMes(dto.getProduccionTotalMes());
+        pnc.calcularCantidadNoConforme();
         log.info(String.format("PNC actualizado %s", pnc));
         return pnc;
     }
@@ -339,7 +340,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             defecto.setValidez(dto.getValidez());
             this.verificarCantidadVsSaldo(defecto, dto.getCantidad(), pnc);
             defecto.setCantidad(dto.getCantidad());
-
+            pnc.calcularCantidadNoConforme();
             if (file.length > 0) {
                 if (defecto.getIdImagen() > 0) {
                     this.documentoService.eliminarDocumento(defecto.getIdImagen());
