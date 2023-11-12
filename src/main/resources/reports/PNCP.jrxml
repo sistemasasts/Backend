@@ -318,9 +318,9 @@
 					<rightPen lineWidth="1.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="7" isBold="true"/>
+					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Entrada/Traspaso a Control de Calidad:]]></text>
+				<text><![CDATA[Transferencia a PNC:]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="113" y="100" width="427" height="20" uuid="1be7e4d5-3748-408e-8765-5ba8a3f167b1">
@@ -369,7 +369,7 @@
 				<text><![CDATA[Producto:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="476" y="200" width="64" height="20" uuid="78f3cea1-2d8b-4885-9d28-be3c5fedc0f5"/>
+				<reportElement x="300" y="200" width="70" height="20" uuid="78f3cea1-2d8b-4885-9d28-be3c5fedc0f5"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -394,7 +394,7 @@
 				<text><![CDATA[Fecha de Detección:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="373" y="200" width="103" height="20" uuid="43b3a6d5-a93a-449c-8cfe-b483c0b98ca9">
+				<reportElement x="197" y="200" width="103" height="20" uuid="43b3a6d5-a93a-449c-8cfe-b483c0b98ca9">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
@@ -480,19 +480,7 @@
 				<text><![CDATA[Lote:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="10" y="200" width="103" height="20" uuid="4d08e4c6-c9c4-4644-90af-c09e5f7db2c5"/>
-				<box padding="3">
-					<leftPen lineWidth="1.0"/>
-					<bottomPen lineWidth="1.0"/>
-					<rightPen lineWidth="1.0"/>
-				</box>
-				<textElement verticalAlignment="Middle">
-					<font size="9" isBold="true"/>
-				</textElement>
-				<text><![CDATA[% Validez Promedio:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="197" y="200" width="103" height="20" uuid="af4f0ac9-9345-4396-b149-fa26e0022881">
+				<reportElement x="10" y="200" width="103" height="20" uuid="af4f0ac9-9345-4396-b149-fa26e0022881">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 				</reportElement>
 				<box>
@@ -507,7 +495,7 @@
 				<text><![CDATA[Producto en Proceso:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="300" y="200" width="73" height="20" uuid="486a752e-f61b-4180-a64c-6b65857105cd"/>
+				<reportElement x="113" y="200" width="84" height="20" uuid="486a752e-f61b-4180-a64c-6b65857105cd"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -518,18 +506,6 @@
 					<font size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{procedenciaProductoPP}]]></textFieldExpression>
-			</textField>
-			<textField isBlankWhenNull="true">
-				<reportElement x="113" y="200" width="84" height="20" uuid="dbe03f90-1f43-43f5-a5da-c538782596a4"/>
-				<box>
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Middle">
-					<font size="9"/>
-				</textElement>
 			</textField>
 			<textField>
 				<reportElement x="113" y="180" width="187" height="20" uuid="5ae0ea56-3cb8-4628-b4b2-72ac5f3363d0"/>
