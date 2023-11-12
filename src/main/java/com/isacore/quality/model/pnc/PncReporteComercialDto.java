@@ -21,6 +21,7 @@ public class PncReporteComercialDto implements Serializable {
     private String lote;
     private String ubicacion;
     private BigDecimal validez;
+    private long defectoId;
 
 
 }

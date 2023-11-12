@@ -136,9 +136,9 @@ public class PncController {
         return new ResponseEntity<byte[]>(data, HttpStatus.OK);
     }
 
-    @GetMapping("/detalleDefectos/{pncId}")
-    public ResponseEntity<List<PncDefectoDto>> detalleDefectosPorPncId(@PathVariable("pncId") long pncId) {
-        List<PncDefectoDto> defectos = this.service.listarDefectosPorPncId(pncId);
+    @GetMapping("/detalleDefectos/{pncId}/{defectoId}")
+    public ResponseEntity<List<PncDefectoDto>> detalleDefectosPorPncId(@PathVariable("pncId") long pncId, @PathVariable("defectoId") long defectoId) {
+        List<PncDefectoDto> defectos = this.service.listarDefectosPorPncId(pncId, defectoId);
         return ResponseEntity.ok(defectos);
     }
 

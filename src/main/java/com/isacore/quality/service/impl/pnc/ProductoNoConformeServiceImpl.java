@@ -203,7 +203,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                             x.getNumero(),
                             x.getLote(),
                             y.getUbicacion(),
-                            y.getValidez()));
+                            y.getValidez(),
+                            y.getDefecto().getId()));
                 });
             });
             final Page<PncReporteComercialDto> pageResut = new PageImpl<>(reporteComercialDtos, pageable, sizeTotal);
@@ -359,26 +360,29 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
     @Transactional(readOnly = true)
     @Override
-    public List<PncDefectoDto> listarDefectosPorPncId(long pncId) {
+    public List<PncDefectoDto> listarDefectosPorPncId(long pncId, long defectoId) {
         ProductoNoConforme pnc = this.buscarPorId(pncId);
-        List<PncDefectoDto> defectos = pnc.getDefectos().stream().map(x -> {
-            PncDocumento imagen = null;
-            if (x.getIdImagen() > 0) {
-                imagen = this.documentoService.listarDocumentoPorId(x.getIdImagen());
-            }
-            PncDefectoDto dto = new PncDefectoDto(
-                    x.getId(),
-                    x.getDefecto().getNombre(),
-                    x.getUnidad().getAbreviatura(),
-                    x.getUbicacion(),
-                    x.getValidez(),
-                    x.getIdImagen(),
-                    x.getCantidad(),
-                    imagen == null ? "" : imagen.getTipo(),
-                    imagen == null ? "" : imagen.getBase64()
-            );
-            return dto;
-        }).collect(Collectors.toList());
+        List<PncDefectoDto> defectos = pnc.getDefectos()
+                .stream()
+                .filter(x -> x.getDefecto().getId() == defectoId)
+                .map(x -> {
+                    PncDocumento imagen = null;
+                    if (x.getIdImagen() > 0) {
+                        imagen = this.documentoService.listarDocumentoPorId(x.getIdImagen());
+                    }
+                    PncDefectoDto dto = new PncDefectoDto(
+                            x.getId(),
+                            x.getDefecto().getNombre(),
+                            x.getUnidad().getAbreviatura(),
+                            x.getUbicacion(),
+                            x.getValidez(),
+                            x.getIdImagen(),
+                            x.getCantidad(),
+                            imagen == null ? "" : imagen.getTipo(),
+                            imagen == null ? "" : imagen.getBase64()
+                    );
+                    return dto;
+                }).collect(Collectors.toList());
         return defectos;
     }
 
@@ -448,9 +452,9 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     }
 
     private void verificarCantidadVsSaldo(PncDefecto defecto, BigDecimal nuevaCantidad, ProductoNoConforme productoNoConforme) {
-        List<PncSalidaMaterial> salidasPendientes =salidaMaterialRepositorio
+        List<PncSalidaMaterial> salidasPendientes = salidaMaterialRepositorio
                 .findByProductoNoConforme_IdAndEstadoIn(productoNoConforme.getId(), Arrays.asList(EstadoSalidaMaterial.PENDIENTE_APROBACION));
-        if(!salidasPendientes.isEmpty())
+        if (!salidasPendientes.isEmpty())
             throw new PncErrorException("No se puede actualizar, existen salidas de material pendientes de aprobación.");
 
 

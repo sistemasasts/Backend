@@ -29,7 +29,7 @@ public interface IProductoNoConformeService {
 
     List<PncDefecto> actualizarDefecto(String jsonCriteria, byte[] file, String nombreArchivo, String tipo);
 
-    List<PncDefectoDto> listarDefectosPorPncId(long pncId);
+    List<PncDefectoDto> listarDefectosPorPncId(long pncId, long defectoId);
 
     String consultarSaldoPorId(long id);
 
