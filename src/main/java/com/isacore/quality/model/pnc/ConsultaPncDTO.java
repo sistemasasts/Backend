@@ -25,5 +25,6 @@ public class ConsultaPncDTO {
     private List<EstadoPnc> estados;
     private Long numero;
     private BigDecimal saldo;
+    private String lote;
 
 }

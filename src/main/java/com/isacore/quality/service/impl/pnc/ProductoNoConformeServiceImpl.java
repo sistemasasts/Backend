@@ -21,6 +21,7 @@ import com.isacore.quality.service.pnc.IProductoNoConformeService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.util.UtilidadesCadena;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -249,6 +250,9 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
             if (consulta.getSaldo() != null)
                 predicadosConsulta.add(criteriaBuilder.ge(root.get("saldo"), consulta.getSaldo()));
+
+            if (UtilidadesCadena.noEsNuloNiBlanco(consulta.getLote()))
+                predicadosConsulta.add(criteriaBuilder.like(root.get("lote"), "%" + consulta.getLote() + "%"));
 
             query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
                     .orderBy(criteriaBuilder.desc(root.get("numero")));
