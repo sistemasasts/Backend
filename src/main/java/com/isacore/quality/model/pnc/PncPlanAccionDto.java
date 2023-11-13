@@ -44,6 +44,7 @@ public class PncPlanAccionDto implements Serializable {
     private BigDecimal cantidad;
     private String unidad;
     private String destino;
+    private String lote;
 
     public String getEstadoTexto() {
         return this.estado.getDescripcion();

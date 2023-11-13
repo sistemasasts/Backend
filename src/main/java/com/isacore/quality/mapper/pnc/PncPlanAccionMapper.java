@@ -46,6 +46,7 @@ public class PncPlanAccionMapper {
                 .cantidad(valor.getSalidaMaterial().getCantidad())
                 .unidad(valor.getSalidaMaterial().getProductoNoConforme().getUnidad().getAbreviatura())
                 .destino(valor.getSalidaMaterial().getDestino().getDescripcion())
+                .lote(valor.getSalidaMaterial().getProductoNoConforme().getLote())
                 .build();
     }
 
