@@ -20,6 +20,7 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
     private String alcance;
     private List<Lote> listaLotes;
     private String seguimiento;
+    private List<DesviacionRequisitoDefecto> listaDefectos;
 
     public DesviacionRequisitoReporteDTO(
         DesviacionRequisito desviacionRequisito,
@@ -35,6 +36,7 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
         this.alcance = desviacionRequisito.getAlcance();
         this.listaLotes = lotes;
         this.secuencial = desviacionRequisito.getSecuencial();
+        this.listaDefectos = desviacionRequisito.getDefectos();
     }
 
     public String getTipoProductoTexto(){

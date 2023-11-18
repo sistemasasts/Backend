@@ -3,12 +3,11 @@ package com.isacore.quality.service.impl.desviacionRequisito;
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
 import com.isacore.quality.exception.ConfiguracionErrorException;
-import com.isacore.quality.model.desviacionRequisito.ConsultaDesviacionRequisitoDTO;
-import com.isacore.quality.model.desviacionRequisito.DesviacionRequisito;
-import com.isacore.quality.model.desviacionRequisito.DesviacionRequisitoReporteDTO;
-import com.isacore.quality.model.desviacionRequisito.Lote;
+import com.isacore.quality.model.desviacionRequisito.*;
+import com.isacore.quality.model.pnc.Defecto;
 import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoRepo;
 import com.isacore.quality.repository.desviacionRequisito.ILoteRepo;
+import com.isacore.quality.repository.pnc.IDefectoRepo;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +35,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     private final IGeneradorJasperReports reporteServicio;
     private final ILoteRepo loteRepo;
     private final EntityManager entityManager;
+    private final IDefectoRepo defectoRepositorio;
 
     @Override
     public List<DesviacionRequisito> findAll() {
@@ -179,6 +179,26 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         }
     }
 
+    @Transactional
+    @Override
+    public List<DesviacionRequisitoDefecto> agregarDefecto(long id, long defectoId) {
+        DesviacionRequisito desviacion = this.obtenerPorId(id);
+        Defecto defecto = defectoRepositorio.findById(defectoId).orElseThrow(() -> new ConfiguracionErrorException("Defecto no encontrado"));
+        desviacion.agregarDefecto(new DesviacionRequisitoDefecto(defecto));
+        desviacionRequisitoRepo.save(desviacion);
+        log.info("Desviacion {} Defecto agregado {}", desviacion.getSecuencial() ,defecto);
+        return desviacion.getDefectos();
+    }
+
+    @Transactional
+    @Override
+    public List<DesviacionRequisitoDefecto> eliminarDefecto(long id, long defectoId) {
+        DesviacionRequisito desviacion = this.obtenerPorId(id);
+        desviacion.eliminarDefecto(defectoId);
+        log.info("Desviacion {} Defecto eliminado {}", desviacion.getSecuencial() ,defectoId);
+        return desviacion.getDefectos();
+    }
+
     private DesviacionRequisitoReporteDTO crearReporteDTO(DesviacionRequisito desviacionRequisito) {
         List<Lote> lotes = loteRepo.findByDesviacionRequisito(desviacionRequisito);
         List<Lote> lotesReporte = new ArrayList<>();
@@ -239,5 +259,10 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
             log.error(String.format("Error al consultar Desviacion de Requisitos %s", e.getMessage()));
             return new ArrayList<>();
         }
+    }
+
+    private DesviacionRequisito obtenerPorId(long id){
+        return this.desviacionRequisitoRepo.findById(id)
+                .orElseThrow(() -> new ConfiguracionErrorException("Desviacion de requisito no encontrada"));
     }
 }

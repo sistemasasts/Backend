@@ -12,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Setter
 @Getter
@@ -88,6 +89,11 @@ public class DesviacionRequisito {
 
     private BigDecimal desperdicioGenerado = BigDecimal.ZERO;
 
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "desviacion_requisito_id", nullable = false)
+    private List<DesviacionRequisitoDefecto> defectos;
+
+
     public DesviacionRequisito(
             Long secuencial,
             Product product,
@@ -110,6 +116,14 @@ public class DesviacionRequisito {
         this.fechaCreacion = LocalDateTime.now();
         this.responsable = responsable;
         this.replanificacion = replanificacion;
+    }
+
+    public void agregarDefecto(DesviacionRequisitoDefecto defecto) {
+        this.defectos.add(defecto);
+    }
+
+    public void eliminarDefecto(long defectoId) {
+        this.defectos.removeIf(x -> x.getId() == defectoId);
     }
 
     @Override
