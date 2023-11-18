@@ -182,7 +182,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     @Override
     public Page<PncReporteComercialDto> consultarReporteComercial(Pageable pageable, ConsultaPncDTO dto) {
         try {
-            dto.setSaldo(new BigDecimal("0.01"));
+            //dto.setSaldo(new BigDecimal("0.01"));
             List<ProductoNoConforme> respuesta = new ArrayList<>();
             respuesta.addAll(obtenerPncPorCriterios(dto));
             final int sizeTotal = respuesta.size();
