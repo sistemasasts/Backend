@@ -15,6 +15,7 @@ public class InventarioProductoMapper {
                 .id(valor.getId())
                 .productoId(valor.getProducto().getIdProduct())
                 .productoNombre(valor.getProducto().getNameProduct())
+                .tipoProducto(valor.getProducto().getTypeProductTxt())
                 .minimo(valor.getMinimo())
                 .maximo(valor.getMaximo())
                 .cantidadAlertar(valor.getCantidadAlertar())

@@ -21,4 +21,5 @@ public class InventarioProductoDto {
     private BigDecimal cantidadAlertar;
     private BigDecimal stock = BigDecimal.ZERO;
     private UnidadMedida unidad;
+    private String tipoProducto;
 }
