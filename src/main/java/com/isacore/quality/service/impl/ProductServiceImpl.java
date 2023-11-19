@@ -514,7 +514,15 @@ public class ProductServiceImpl implements IProductService {
     @Transactional(readOnly = true)
     @Override
     public List<ProductoDto> listarReactivosPorNombreCriterio(String nombre) {
-        List<String> grupos= Arrays.asList("Reactivos Laboratorio","EPPS Y Suministros Oficina");
+        List<String> grupos= Arrays.asList(
+                "Reactivos Laboratorio",
+                "EPPS",
+                "Suministros Oficina",
+                "Suministros de Limpieza",
+                "Material de Vidrio",
+                "Material de Laboratorio",
+                "Repuestos Claves"
+        );
         List<ProductoDto> productos = this.repo.findByTypeProductTxtInAndNameProductContaining(grupos, nombre)
                 .stream()
                 .map(x -> new ProductoDto(x.getIdProduct(), x.getNameProduct(), x.getGenericName(),x.getDescProduct(),x.getTypeProduct()))
