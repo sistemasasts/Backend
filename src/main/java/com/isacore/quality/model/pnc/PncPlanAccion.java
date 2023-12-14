@@ -52,8 +52,12 @@ public class PncPlanAccion {
     private int orden;
     private String enTurno;
 
+    @NotNull
+    @Column(columnDefinition = "bit default 0")
+    private boolean llenarInfoAdicional;
+
     public PncPlanAccion(LocalDate fechaInicio, LocalDate fechaFin, String descripcion, PncSalidaMaterial salidaMaterial,
-                         String responsable, int orden) {
+                         String responsable, int orden, boolean llenarInfoAdicional) {
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         this.descripcion = descripcion;
@@ -62,6 +66,7 @@ public class PncPlanAccion {
         this.fechaRegistro = LocalDateTime.now();
         this.estado = EstadoPncPlanAccion.ASIGNADO;
         this.orden = orden;
+        this.llenarInfoAdicional = llenarInfoAdicional;
     }
 
     public void marcarComoCumplida(boolean cumplimiento) {

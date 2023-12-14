@@ -43,6 +43,7 @@ public class PncSalidaMaterialDto {
     private boolean aprobado;
     private LocalDateTime fechaAprobacion;
     private String usuarioAprobador;
+    private boolean verPlanesAccion;
 
     private List<PncPlanAccionDto> planesAccion= new ArrayList();
     public LocalDate getFechaCreacion2() {

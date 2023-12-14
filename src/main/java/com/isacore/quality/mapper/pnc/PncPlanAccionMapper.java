@@ -27,6 +27,7 @@ public class PncPlanAccionMapper {
                 .orden(valor.getOrden())
                 .responsable(valor.getResponsable())
                 .responsableNombre(this.nombreUsuario(valor.getResponsable()))
+                .llenarInfoAdicional(valor.isLlenarInfoAdicional())
                 .build();
     }
 
@@ -47,6 +48,7 @@ public class PncPlanAccionMapper {
                 .unidad(valor.getSalidaMaterial().getProductoNoConforme().getUnidad().getAbreviatura())
                 .destino(valor.getSalidaMaterial().getDestino().getDescripcion())
                 .lote(valor.getSalidaMaterial().getProductoNoConforme().getLote())
+                .llenarInfoAdicional(valor.isLlenarInfoAdicional())
                 .build();
     }
 

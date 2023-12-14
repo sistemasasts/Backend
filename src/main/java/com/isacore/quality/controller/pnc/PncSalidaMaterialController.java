@@ -106,4 +106,10 @@ public class PncSalidaMaterialController {
         return ResponseEntity.ok(catalgo);
     }
 
+    @PostMapping("/actualizarInfoAdd")
+    public ResponseEntity<Object> actualizarSalidaMaterialInfoAdd(@RequestBody PncSalidaMaterialInfoAdd dto) {
+        PncSalidaMaterialInfoAdd obj = service.actualizarInfoAdd(dto);
+        return ResponseEntity.ok(obj);
+    }
+
 }

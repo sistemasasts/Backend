@@ -3,6 +3,7 @@ package com.isacore.quality.service.pnc;
 import com.isacore.quality.model.pnc.EstadoSalidaMaterial;
 import com.isacore.quality.model.pnc.PncSalidaMaterial;
 import com.isacore.quality.model.pnc.PncSalidaMaterialDto;
+import com.isacore.quality.model.pnc.PncSalidaMaterialInfoAdd;
 
 import java.util.List;
 
@@ -27,4 +28,6 @@ public interface IPncSalidaMaterialService {
     List<PncSalidaMaterialDto> listarPorEstado(EstadoSalidaMaterial estadoSalidaMaterial);
 
     List<PncSalidaMaterialDto> eliminar(long pncId, long id);
+
+    PncSalidaMaterialInfoAdd actualizarInfoAdd(PncSalidaMaterialInfoAdd dto);
 }

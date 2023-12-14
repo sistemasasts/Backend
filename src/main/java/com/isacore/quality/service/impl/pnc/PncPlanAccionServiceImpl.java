@@ -44,7 +44,8 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
                 dto.getDescripcion(),
                 salidaMaterial,
                 dto.getResponsable(),
-                dto.getOrden()
+                dto.getOrden(),
+                dto.isLlenarInfoAdicional()
         );
         this.repositorio.save(planAccion);
         log.info(String.format("PNC %s -> Salida Material %s -> Plan de accion guardado %s",
@@ -61,6 +62,7 @@ public class PncPlanAccionServiceImpl implements IPncPlanAccionService {
         planAccion.setFechaFin(dto.getFechaFin());
         planAccion.setResponsable(dto.getResponsable());
         planAccion.setOrden(dto.getOrden());
+        planAccion.setLlenarInfoAdicional(dto.isLlenarInfoAdicional());
         this.repositorio.save(planAccion);
         log.info(String.format("PNC %s -> Salida Material %s -> Plan de accion actualizado %s",
                 planAccion.getSalidaMaterial().getProductoNoConforme().getNumero(), planAccion.getSalidaMaterial().getId(), planAccion));

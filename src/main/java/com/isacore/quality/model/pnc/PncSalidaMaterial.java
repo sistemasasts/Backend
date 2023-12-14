@@ -9,6 +9,9 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -48,6 +51,13 @@ public class PncSalidaMaterial {
 
     private LocalDateTime fechaAprobacion;
 
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "pnc_salida_material_id", nullable = false)
+    private List<PncSalidaMaterialInfoAdd> informacionAdicional = new ArrayList<>();
+
+    @Transient
+    private boolean verPlanesAccion;
+
     public PncSalidaMaterial(LocalDate fecha, BigDecimal cantidad, TipoDestino destino,
                              ProductoNoConforme productoNoConforme, String observacion, String usuario, PncDefecto defecto) {
         this.fecha = fecha;
@@ -85,11 +95,19 @@ public class PncSalidaMaterial {
     }
 
     public boolean verPlanesAccion(){
-        return this.destino.equals(TipoDestino.RETRABAJO) || this.destino.equals(TipoDestino.REPROCESO);
+        return this.destino.isPlanesAccion();
     }
 
     public String cantidadConUnidad(){
         return String.format("%s %s", this.cantidad, this.productoNoConforme.getUnidad().getAbreviatura());
+    }
+
+    public int getGrupoAdicional(){
+        return this.destino.getGrupoInfoAdicional();
+    }
+
+    public void agregarInfoAdd(PncSalidaMaterialInfoAdd info){
+        this.informacionAdicional.add(info);
     }
 
     @Override

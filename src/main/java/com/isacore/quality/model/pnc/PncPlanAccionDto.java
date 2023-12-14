@@ -37,6 +37,7 @@ public class PncPlanAccionDto implements Serializable {
     private String observacion;
     private PncOrdenFlujo ordenFlujo;
     private boolean aprobado;
+    private boolean llenarInfoAdicional;
 
 //    TODO: informacion pnc
     private long numeroPnc;

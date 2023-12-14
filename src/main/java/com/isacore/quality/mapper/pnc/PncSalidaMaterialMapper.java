@@ -37,6 +37,7 @@ public class PncSalidaMaterialMapper {
                 .idPncDefecto(valor.getPncDefecto().getId())
                 .fechaAprobacion(valor.getFechaAprobacion())
                 .usuarioAprobador(valor.getUsuarioAprobador())
+                .verPlanesAccion(valor.verPlanesAccion())
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.isacore.quality.service.pnc;
 
 import com.isacore.quality.model.pnc.EstadoPncPlanAccion;
+import com.isacore.quality.model.pnc.PncPlanAccion;
 import com.isacore.quality.model.pnc.PncPlanAccionDto;
 
 import java.util.List;
