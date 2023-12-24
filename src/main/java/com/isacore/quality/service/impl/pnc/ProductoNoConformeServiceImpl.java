@@ -174,6 +174,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
             return pageResut;
 
         } catch (Exception e) {
+            log.error("Error al momento de consultar PNC {0}", e);
             final Page<PncDTO> pageResult = new PageImpl<PncDTO>(new ArrayList<PncDTO>(), pageable, 0);
             return pageResult;
         }
@@ -182,37 +183,17 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     @Override
     public Page<PncReporteComercialDto> consultarReporteComercial(Pageable pageable, ConsultaPncDTO dto) {
         try {
-            //dto.setSaldo(new BigDecimal("0.01"));
-            List<ProductoNoConforme> respuesta = new ArrayList<>();
-            respuesta.addAll(obtenerPncPorCriterios(dto));
+            List<PncReporteComercialDto> respuesta = new ArrayList<>();
+            respuesta.addAll(obtenerReporteComercialPorCriterios(dto));
             final int sizeTotal = respuesta.size();
-
             final int start = (int) pageable.getOffset();
             final int end = (start + pageable.getPageSize()) > respuesta.size() ? respuesta.size()
                     : (start + pageable.getPageSize());
-
             respuesta = respuesta.subList(start, end);
-
-            List<PncReporteComercialDto> reporteComercialDtos = new ArrayList<>();
-            respuesta.forEach(x -> {
-                x.getDefectos().stream().filter(z -> z.getSaldo().compareTo(BigDecimal.ZERO) > 0).forEach(y -> {
-                    reporteComercialDtos.add(new PncReporteComercialDto(
-                            x.getId(),
-                            x.getProducto().getNameProduct(),
-                            y.getSaldo(),
-                            x.getUnidad().getAbreviatura(),
-                            x.getNumero(),
-                            x.getLote(),
-                            y.getUbicacion(),
-                            y.getValidez(),
-                            y.getDefecto().getId()));
-                });
-            });
-            final Page<PncReporteComercialDto> pageResut = new PageImpl<>(reporteComercialDtos, pageable, sizeTotal);
-
+            final Page<PncReporteComercialDto> pageResut = new PageImpl<>(respuesta, pageable, sizeTotal);
             return pageResut;
-
         } catch (Exception e) {
+            log.error("Error al momento de consultar reprorte PNC {0}", e);
             final Page<PncReporteComercialDto> pageResult = new PageImpl<PncReporteComercialDto>(new ArrayList<PncReporteComercialDto>(), pageable, 0);
             return pageResult;
         }
@@ -264,6 +245,44 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
 
         } catch (Exception e) {
             log.error(String.format("Error al consultar ProductoNoConforme %s", e.getMessage()));
+            return new ArrayList<>();
+        }
+    }
+
+    private List<PncReporteComercialDto> obtenerReporteComercialPorCriterios(ConsultaPncDTO consulta) {
+        try {
+            final CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
+            final CriteriaQuery<PncReporteComercialDto> query = criteriaBuilder.createQuery(PncReporteComercialDto.class);
+
+            final Root<PncReporteComercialDto> root = query.from(PncReporteComercialDto.class);
+            final List<Predicate> predicadosConsulta = new ArrayList<>();
+
+            if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
+                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaProduccion"),
+                        consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
+                        consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
+            }
+
+            if (consulta.getFechaInicio() != null && consulta.getFechaFin() == null) {
+                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaProduccion"),
+                        consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
+                        consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
+            }
+
+            if (consulta.getProductoId() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("productoId"), consulta.getProductoId()));
+
+            if (consulta.getNumero() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("numero"), consulta.getNumero()));
+
+            query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
+                    .orderBy(criteriaBuilder.desc(root.get("numero")));
+
+            final TypedQuery<PncReporteComercialDto> statement = this.entityManager.createQuery(query);
+            final List<PncReporteComercialDto> cotizacionesResult = statement.getResultList();
+            return cotizacionesResult;
+        } catch (Exception e) {
+            log.error(String.format("Error al consultar reporte comercial ProductoNoConforme %s", e.getMessage()));
             return new ArrayList<>();
         }
     }
