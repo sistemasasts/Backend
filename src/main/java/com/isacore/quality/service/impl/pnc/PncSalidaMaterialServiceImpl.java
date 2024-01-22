@@ -268,6 +268,7 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
             TipoDestino destino = pncSalidaMaterial.getDestino();
             PncPlanAccionDto plan = planes.stream().filter(PncPlanAccionDto::isLlenarInfoAdicional).findFirst().get();
             for (TipoInfoAdd tipoInfoAdd : Arrays.stream(TipoInfoAdd.values())
+                    .filter(x -> !x.equals(TipoInfoAdd.PRODUCTO_RECUPERADO))
                     .filter(x -> x.getGrupo() == destino.getGrupoInfoAdicional()).collect(Collectors.toList())) {
                 pncSalidaMaterial.agregarInfoAdd(new PncSalidaMaterialInfoAdd(tipoInfoAdd, plan.getResponsable()));
             }

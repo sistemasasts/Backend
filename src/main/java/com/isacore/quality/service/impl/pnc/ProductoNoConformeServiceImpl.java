@@ -83,7 +83,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                 dto.getProcedenciaLinea(),
                 dto.getLineaAfecta(),
                 dto.getNombreCliente(),
-                dto.getOrigen()
+                dto.getOrigen(),
+                dto.getBodegaERP()
         );
         this.repositorio.save(pnc);
         log.info(String.format("PNC registrado %s", pnc));
@@ -117,6 +118,8 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         pnc.setOrdenProduccion(dto.getOrdenProduccion());
         pnc.setObservacionCincoMs(dto.getObservacionCincoMs());
         pnc.setOrigen(dto.getOrigen());
+        pnc.setPesoNoConforme(dto.getPesoNoConforme());
+        pnc.setBodegaERP(dto.getBodegaERP());
 //        pnc.setVentaTotalMes(dto.getVentaTotalMes());
 //        pnc.setProduccionTotalMes(dto.getProduccionTotalMes());
         pnc.calcularCantidadNoConforme();

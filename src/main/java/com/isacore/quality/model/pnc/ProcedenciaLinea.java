@@ -10,7 +10,8 @@ public enum ProcedenciaLinea {
     CUENTAS_CLAVES_ESPECIFICAR("CUENTAS CLAVES"),
     EXPORTACIONES("EXPORTACIONES "),
     PROVEEDOR_MAQUILA("PROVEEDOR MAQUILA"),
-    VIALES("VIALES");
+    VIALES("VIALES"),
+    ID_DESARROLLO("I+D - DESARROLLO");
 
 
     private String descripcion;

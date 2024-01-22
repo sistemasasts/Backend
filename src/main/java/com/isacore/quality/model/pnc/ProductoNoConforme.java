@@ -91,13 +91,14 @@ public class ProductoNoConforme {
 
     @Enumerated(EnumType.STRING)
     private OrigenPnc origen;
+    private String bodegaERP;
 
     public ProductoNoConforme(long numero, String usuario, LocalDateTime fechaProduccion, LocalDate fechaDeteccion,
                               BigDecimal cantidadProducida, BigDecimal cantidadNoConforme, UnidadMedida unidad,
                               BigDecimal porcentajeValidez, BigDecimal pesoNoConforme, String ordenProduccion,
                               String lote, String hcc, String observacionCincoMs,
                               Area area, Product producto, ProcedenciaLinea procedenciaLinea, LineaAfecta lineaAfecta,
-                              String nombreCliente, OrigenPnc origen) {
+                              String nombreCliente, OrigenPnc origen, String bodegaERP) {
         this.numero = numero;
         this.usuario = usuario;
         this.fechaProduccion = fechaProduccion;
@@ -121,6 +122,7 @@ public class ProductoNoConforme {
         this.lineaAfecta = lineaAfecta;
         this.nombreCliente = nombreCliente;
         this.origen = origen;
+        this.bodegaERP = bodegaERP;
     }
 
     public void agregarDefecto(PncDefecto defecto) {
