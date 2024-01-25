@@ -21,6 +21,14 @@ public class ConsultaPncDTO {
     @JsonDeserialize(using = LocalDateTimeDeserialize.class)
     private LocalDateTime fechaFin;
 
+    @JsonSerialize(using = LocalDateTimeSerialize.class)
+    @JsonDeserialize(using = LocalDateTimeDeserialize.class)
+    private LocalDateTime fechaInicioDeteccion;
+
+    @JsonSerialize(using = LocalDateTimeSerialize.class)
+    @JsonDeserialize(using = LocalDateTimeDeserialize.class)
+    private LocalDateTime fechaFinDeteccion;
+
     private Long productoId;
     private List<EstadoPnc> estados;
     private Long numero;

@@ -44,6 +44,9 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
     @Override
     public DesviacionRequisito create(DesviacionRequisito desviacionRequisito) {
+        if( desviacionRequisito.getProduct() == null || desviacionRequisito.getProduct().getIdProduct() == null)
+            throw new ConfiguracionErrorException("Material no encontrado, seleccione uno");
+
         DesviacionRequisito nuevaDesviacionRequisito = new DesviacionRequisito(
                 this.desviacionRequisitoRepo.generarSecuencial(),
                 desviacionRequisito.getProduct(),
@@ -54,7 +57,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                 desviacionRequisito.getControl(),
                 desviacionRequisito.getAlcance(),
                 desviacionRequisito.getResponsable(),
-                desviacionRequisito.isReplanificacion()
+                desviacionRequisito.isReplanificacion(),
+                desviacionRequisito.getCausa()
         );
 
         this.desviacionRequisitoRepo.save(nuevaDesviacionRequisito);
@@ -103,6 +107,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         desviacionRequisito.get().setUnidadAfectada(obj.getUnidadAfectada());
         desviacionRequisito.get().setUnidadDesperdicio(obj.getUnidadDesperdicio());
         desviacionRequisito.get().setUnidadRecuperada(obj.getUnidadRecuperada());
+        desviacionRequisito.get().setCausa(obj.getCausa());
 
         log.info(String.format("Desviacion de requisito actualizado %s", desviacionRequisito));
 
@@ -159,7 +164,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                         c.getControl(),
                         c.getAlcance(),
                         c.getResponsable(),
-                        c.isReplanificacion()
+                        c.isReplanificacion(),
+                        c.getCausa()
                 );
                 desviacion.setId(c.getId());
                 desviacion.setAfectacionText(c.getAfectacion().getDescripcion());

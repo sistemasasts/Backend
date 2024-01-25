@@ -34,6 +34,8 @@ public class Lote {
     @Transient
     private String unidadText;
 
+    private BigDecimal costo;
+
     @Override
     public String toString() {
         return "Lote{" +

@@ -223,6 +223,18 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
                         consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
             }
 
+            if (consulta.getFechaInicioDeteccion() != null && consulta.getFechaFinDeteccion() != null) {
+                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaDeteccion"),
+                        consulta.getFechaInicioDeteccion().toLocalDate(),
+                        consulta.getFechaFinDeteccion().toLocalDate()));
+            }
+
+            if (consulta.getFechaInicioDeteccion() != null && consulta.getFechaFinDeteccion() == null) {
+                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaDeteccion"),
+                        consulta.getFechaInicioDeteccion().toLocalDate(),
+                        consulta.getFechaFinDeteccion().toLocalDate()));
+            }
+
             if (consulta.getProductoId() != null)
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("producto").get("idProduct"), consulta.getProductoId()));
 

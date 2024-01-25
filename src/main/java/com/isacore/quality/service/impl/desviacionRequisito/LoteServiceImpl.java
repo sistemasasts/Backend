@@ -62,6 +62,7 @@ public class LoteServiceImpl implements ILoteService {
         nuevoLote.setUnidad(lote.getUnidad());
         nuevoLote.setCantidad(lote.getCantidad());
         nuevoLote.setDesviacionRequisito(lote.getDesviacionRequisito());
+        nuevoLote.setCosto(lote.getCosto());
 
         this.loteRepo.save(nuevoLote);
         log.info(String.format("Lote registrado %s", nuevoLote));
@@ -86,6 +87,7 @@ public class LoteServiceImpl implements ILoteService {
         loteObtenido.get().setFecha(lote.getFecha());
         loteObtenido.get().setUnidad(lote.getUnidad());
         loteObtenido.get().setCantidad(lote.getCantidad());
+        loteObtenido.get().setCosto(lote.getCosto());
         loteObtenido.get().setDesviacionRequisito(lote.getDesviacionRequisito());
 
         log.info(String.format("Lote actualizado %s", loteObtenido));

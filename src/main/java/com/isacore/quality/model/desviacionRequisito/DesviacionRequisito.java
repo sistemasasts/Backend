@@ -93,6 +93,7 @@ public class DesviacionRequisito {
     @JoinColumn(name = "desviacion_requisito_id", nullable = false)
     private List<DesviacionRequisitoDefecto> defectos;
 
+    private String causa;
 
     public DesviacionRequisito(
             Long secuencial,
@@ -104,7 +105,8 @@ public class DesviacionRequisito {
             String control,
             String alcance,
             String responsable,
-            boolean replanificacion) {
+            boolean replanificacion,
+            String causa) {
         this.secuencial = secuencial;
         this.product = product;
         this.seguimiento = seguimiento;
@@ -116,6 +118,7 @@ public class DesviacionRequisito {
         this.fechaCreacion = LocalDateTime.now();
         this.responsable = responsable;
         this.replanificacion = replanificacion;
+        this.causa = causa;
     }
 
     public void agregarDefecto(DesviacionRequisitoDefecto defecto) {
