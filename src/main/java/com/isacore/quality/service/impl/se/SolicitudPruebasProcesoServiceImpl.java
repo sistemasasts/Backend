@@ -36,6 +36,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -721,6 +722,8 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     @Override
     public SolicitudPruebasProceso agregarMaterialFormula(long solicitudId, MaterialFormula materialFormula) {
         SolicitudPruebasProceso solicitud = this.obtenerSolicitud(solicitudId);
+        if(solicitud.getCantidadRequeridaProducir().compareTo(BigDecimal.ZERO) <= 0)
+            throw new SolicitudPruebaProcesoErrorException("Cantidad requerida a producir de la solicitud inválida, favor actualice el valor.");
         MaterialFormula material = new MaterialFormula(materialFormula.getNombre(), solicitud.getCantidadRequeridaProducir(),
                 materialFormula.getPorcentaje(), solicitud.getUnidadRequeridaProducir());
         solicitud.agregarMaterialFormula(material);
