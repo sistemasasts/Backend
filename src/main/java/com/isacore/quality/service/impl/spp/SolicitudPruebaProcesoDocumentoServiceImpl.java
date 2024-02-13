@@ -71,7 +71,8 @@ public class SolicitudPruebaProcesoDocumentoServiceImpl implements ISolicitudPru
                     final String path = crearPathArchivo(solicitud, nombreArchivo);
                     PassFileToRepository.saveLocalFile(path, file);
 
-                    SolicitudPruebaProcesoDocumento documento = guardarDocumentoSPP(solicitud, nombreArchivo, path, dto.getOrdenPP(), tipo);
+                    File archivoGuradado = new File(path);
+                    SolicitudPruebaProcesoDocumento documento = guardarDocumentoSPP(solicitud, archivoGuradado.getName(), path, dto.getOrdenPP(), tipo);
 
                     LOG.info(String.format("Documento guardado %s", documento));
 

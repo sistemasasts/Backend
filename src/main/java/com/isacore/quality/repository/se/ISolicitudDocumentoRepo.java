@@ -13,6 +13,8 @@ import com.isacore.quality.model.se.SolicitudDocumento;
 public interface ISolicitudDocumentoRepo extends JpaRepository<SolicitudDocumento, Long> {
 
 	List<SolicitudDocumento> findByEstadoInAndOrdenFlujoInAndSolicitudEnsayo_Id(List<EstadoSolicitud> estado, List<OrdenFlujo> orden, long solicitudId);
+
+	List<SolicitudDocumento> findByOrdenFlujoInAndSolicitudEnsayo_Id(List<OrdenFlujo> orden, long solicitudId);
 	
 	boolean existsByEstadoAndOrdenFlujoAndSolicitudEnsayo_Id(EstadoSolicitud estado, OrdenFlujo orden, long solicitudId);
 	
