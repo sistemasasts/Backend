@@ -55,6 +55,9 @@ public class PncSalidaMaterial {
     @JoinColumn(name = "pnc_salida_material_id", nullable = false)
     private List<PncSalidaMaterialInfoAdd> informacionAdicional = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    private PncSalidaConcesion salidaConcesion;
+
     @Transient
     private boolean verPlanesAccion;
 

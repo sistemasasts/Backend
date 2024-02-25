@@ -30,4 +30,7 @@ public interface IPncSalidaMaterialService {
     List<PncSalidaMaterialDto> eliminar(long pncId, long id);
 
     PncSalidaMaterialInfoAdd actualizarInfoAdd(PncSalidaMaterialInfoAdd dto);
+
+    byte[] generateReporteSalidaConcesion(long id);
+
 }

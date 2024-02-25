@@ -1,5 +1,7 @@
 package com.isacore.quality.service.impl.pnc;
 
+import com.isacore.exception.reporte.JasperReportsException;
+import com.isacore.exception.reporte.ReporteExeption;
 import com.isacore.notificacion.servicio.ServicioNotificacionPnc;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.mapper.pnc.PncSalidaMaterialMapper;
@@ -10,13 +12,11 @@ import com.isacore.quality.model.pnc.*;
 import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
-import com.isacore.quality.repository.pnc.IPncDefectoRepo;
-import com.isacore.quality.repository.pnc.IPncSalidaMaterialInfoAddRepo;
-import com.isacore.quality.repository.pnc.IPncSalidaMaterialRepo;
-import com.isacore.quality.repository.pnc.IProductoNoConformeRepo;
+import com.isacore.quality.repository.pnc.*;
 import com.isacore.quality.service.pnc.IPncHistorialService;
 import com.isacore.quality.service.pnc.IPncPlanAccionService;
 import com.isacore.quality.service.pnc.IPncSalidaMaterialService;
+import com.isacore.servicio.reporte.IGeneradorJasperReports;
 import com.isacore.util.UtilidadesCadena;
 import com.isacore.util.UtilidadesSeguridad;
 import lombok.RequiredArgsConstructor;
@@ -25,10 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -47,8 +44,11 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     private final ValidadorPncFinalizar validadorPncFinalizar;
     private final IPncSalidaMaterialInfoAddRepo pncSalidaMaterialInfoAddRepo;
     private final IUnidadMedidadRepo unidadMedidadRepo;
+    private final IPncSalidaConcesionRepo pncSalidaConcesionRepo;
+    private final IGeneradorJasperReports reporteServicio;
 
 
+    @Transactional
     @Override
     public PncSalidaMaterialDto registrar(PncSalidaMaterialDto dto) {
         ProductoNoConforme pnc = this.buscarProductoNoConformePorId(dto.getIdPnc());
@@ -65,6 +65,9 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
                 UtilidadesSeguridad.nombreUsuarioEnSesion(),
                 defecto
         );
+        if (dto.getDestino().equals(TipoDestino.SALIDA_CONCESION)) {
+            agregarSalidaConcesion(dto, salidaMaterial);
+        }
         this.repositorio.save(salidaMaterial);
         log.info(String.format("PNC %s -> salida de material regsitrado %s", pnc.getNumero(), salidaMaterial));
         return this.mapper.mapToDto(salidaMaterial);
@@ -83,6 +86,15 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
             if (destinos.contains(salidaMaterial.getDestino()) && (!destinos.contains(dto.getDestino()))) {
                 this.planAccionService.eliminarPorSalidaMaterialId(salidaMaterial.getId());
             }
+            if(dto.getDestino().equals(TipoDestino.SALIDA_CONCESION)){
+                this.agregarSalidaConcesion(dto, salidaMaterial);
+            }
+        }
+        if(salidaMaterial.getDestino().equals(TipoDestino.SALIDA_CONCESION) && salidaMaterial.getSalidaConcesion() != null){
+            salidaMaterial.getSalidaConcesion().setCliente(dto.getCliente());
+            salidaMaterial.getSalidaConcesion().setFactura(dto.getFactura());
+            salidaMaterial.getSalidaConcesion().setResponsableVenta(dto.getResponsableVenta());
+            salidaMaterial.getSalidaConcesion().setResponsableBodega(dto.getResponsableBodega());
         }
         salidaMaterial.setDestino(dto.getDestino());
         PncDefecto def = new PncDefecto();
@@ -195,18 +207,47 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
     @Override
     public PncSalidaMaterialInfoAdd actualizarInfoAdd(PncSalidaMaterialInfoAdd dto) {
         PncSalidaMaterialInfoAdd infoAdd = pncSalidaMaterialInfoAddRepo.findById(dto.getId())
-                .orElseThrow(()-> new PncErrorException("Salida de material no encontrada"));
+                .orElseThrow(() -> new PncErrorException("Salida de material no encontrada"));
         infoAdd.setCantidad(dto.getCantidad());
         infoAdd.setFechaRegistro(LocalDateTime.now());
         infoAdd.setLote(dto.getLote());
         infoAdd.setLoteOriginal(dto.getLoteOriginal());
         infoAdd.setLoteFin(dto.getLoteFin());
-        if(dto.getUnidadMedidaId() > 0){
+        if (dto.getUnidadMedidaId() > 0) {
             UnidadMedida unidadMedida = unidadMedidadRepo.findById(dto.getUnidadMedidaId())
-                    .orElseThrow(()-> new PncErrorException("Unidad de medidad no encontrada"));
+                    .orElseThrow(() -> new PncErrorException("Unidad de medidad no encontrada"));
             infoAdd.setUnidadMedida(unidadMedida);
         }
         return infoAdd;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public byte[] generateReporteSalidaConcesion(long id) {
+        Optional<PncSalidaMaterial> pncOp = this.repositorio.findById(id);
+        if (!pncOp.isPresent())
+            throw new PncErrorException("Salida material tipo concesión no encotrasda");
+        try {
+            return reporteServicio.generarReporte("SalidaConcesion", Collections.singleton(this.crearReporteDTO(pncOp.get())), new HashMap<>());
+        } catch (JasperReportsException e) {
+            log.error(String.format("Error PNC Reporte: %s", e));
+            throw new ReporteExeption("PNC");
+        }
+    }
+
+    private PncSalidaConcesionReporteDto crearReporteDTO(PncSalidaMaterial salida){
+        return new PncSalidaConcesionReporteDto(
+                salida.getProductoNoConforme().getProducto().getNameProduct(),
+                salida.getSalidaConcesion().getResponsableVenta(),
+                salida.getSalidaConcesion().getResponsableBodega(),
+                salida.getSalidaConcesion().getCliente(),
+                salida.getFecha(),
+                salida.getCantidad(),
+                salida.getPncDefecto().getValidez(),
+                salida.getProductoNoConforme().getLote(),
+                salida.getSalidaConcesion().getFactura(),
+                String.valueOf(salida.getProductoNoConforme().getNumero())
+        );
     }
 
     private void aprobar(PncSalidaMaterial salidaMaterial) {
@@ -275,5 +316,15 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
 //            pncSalidaMaterial.setInformacionAdicional(infoAdd);
             repositorio.save(pncSalidaMaterial);
         }
+    }
+
+    private void agregarSalidaConcesion(PncSalidaMaterialDto dto, PncSalidaMaterial salidaMaterial) {
+        PncSalidaConcesion salidaConcesion = new PncSalidaConcesion(
+                dto.getCliente(),
+                dto.getFactura(),
+                dto.getResponsableVenta(),
+                dto.getResponsableBodega());
+        this.pncSalidaConcesionRepo.save(salidaConcesion);
+        salidaMaterial.setSalidaConcesion(salidaConcesion);
     }
 }

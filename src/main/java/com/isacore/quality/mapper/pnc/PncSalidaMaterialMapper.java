@@ -18,6 +18,16 @@ public class PncSalidaMaterialMapper {
     private final IUserImptekRepo usuarioRepo;
 
     public PncSalidaMaterialDto mapToDto(PncSalidaMaterial valor) {
+        String cliente = "";
+        String factura = "";
+        String responsableVenta = "";
+        String responsableBodega = "";
+        if (valor.getSalidaConcesion() != null) {
+            cliente = valor.getSalidaConcesion().getCliente();
+            factura = valor.getSalidaConcesion().getFactura();
+            responsableBodega = valor.getSalidaConcesion().getResponsableBodega();
+            responsableVenta = valor.getSalidaConcesion().getResponsableVenta();
+        }
         return PncSalidaMaterialDto.builder()
                 .id(valor.getId())
                 .cantidad(valor.getCantidad())
@@ -38,6 +48,10 @@ public class PncSalidaMaterialMapper {
                 .fechaAprobacion(valor.getFechaAprobacion())
                 .usuarioAprobador(valor.getUsuarioAprobador())
                 .verPlanesAccion(valor.verPlanesAccion())
+                .cliente(cliente)
+                .factura(factura)
+                .responsableBodega(responsableBodega)
+                .responsableVenta(responsableVenta)
                 .build();
     }
 
@@ -49,4 +63,5 @@ public class PncSalidaMaterialMapper {
         Optional<UserImptek> usuarioOP = this.usuarioRepo.findByIdUser(usuario);
         return usuarioOP.isPresent() ? usuarioOP.get().getEmployee().getCompleteName() : usuario;
     }
+
 }

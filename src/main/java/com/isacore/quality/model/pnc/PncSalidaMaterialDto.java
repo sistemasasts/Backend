@@ -46,6 +46,13 @@ public class PncSalidaMaterialDto {
     private boolean verPlanesAccion;
 
     private List<PncPlanAccionDto> planesAccion= new ArrayList();
+
+//    Salida de concesion
+    private String cliente;
+    private String factura;
+    private String responsableVenta;
+    private String responsableBodega;
+
     public LocalDate getFechaCreacion2() {
         return this.fechaCreacion.toLocalDate();
     }

@@ -5,6 +5,8 @@ import com.isacore.quality.service.pnc.IPncHistorialService;
 import com.isacore.quality.service.pnc.IPncSalidaMaterialService;
 import com.isacore.util.CatalogDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -110,6 +112,13 @@ public class PncSalidaMaterialController {
     public ResponseEntity<Object> actualizarSalidaMaterialInfoAdd(@RequestBody PncSalidaMaterialInfoAdd dto) {
         PncSalidaMaterialInfoAdd obj = service.actualizarInfoAdd(dto);
         return ResponseEntity.ok(obj);
+    }
+
+    @GetMapping(value = "/generarReporteSalidaConcesion/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> generarReporte(@PathVariable long id) {
+        byte[] data = null;
+        data = service.generateReporteSalidaConcesion(id);
+        return new ResponseEntity<byte[]>(data, HttpStatus.OK);
     }
 
 }
