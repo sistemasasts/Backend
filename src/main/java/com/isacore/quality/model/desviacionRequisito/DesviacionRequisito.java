@@ -95,6 +95,13 @@ public class DesviacionRequisito {
 
     private String causa;
 
+    @Enumerated(EnumType.STRING)
+    private EstadoDesviacion estado;
+
+    private String usuarioAprobador;
+
+    private LocalDateTime fechaAprobacion;
+
     public DesviacionRequisito(
             Long secuencial,
             Product product,
@@ -119,6 +126,7 @@ public class DesviacionRequisito {
         this.responsable = responsable;
         this.replanificacion = replanificacion;
         this.causa = causa;
+        this.estado = EstadoDesviacion.NUEVO;
     }
 
     public void agregarDefecto(DesviacionRequisitoDefecto defecto) {
@@ -142,5 +150,10 @@ public class DesviacionRequisito {
                 ", productTypeText='" + productTypeText + '\'' +
                 ", producto='" + product.getNameProduct() + '\'' +
                 '}';
+    }
+
+    public void marcarComoEnviada(String usuarioAprobador){
+        this.usuarioAprobador = usuarioAprobador;
+        this.estado = EstadoDesviacion.PENDIENTE_APROBACION;
     }
 }

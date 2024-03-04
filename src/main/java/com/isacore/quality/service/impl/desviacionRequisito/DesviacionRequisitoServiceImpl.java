@@ -3,13 +3,26 @@ package com.isacore.quality.service.impl.desviacionRequisito;
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
 import com.isacore.quality.exception.ConfiguracionErrorException;
+import com.isacore.quality.exception.PncErrorException;
+import com.isacore.quality.mapper.pnc.DesviacionRequisitoMapper;
+import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
+import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.desviacionRequisito.*;
 import com.isacore.quality.model.pnc.Defecto;
+import com.isacore.quality.model.pnc.PncOrdenFlujo;
+import com.isacore.quality.model.pnc.PncSalidaMaterial;
+import com.isacore.quality.model.pnc.PncSalidaMaterialDto;
+import com.isacore.quality.model.se.TipoSolicitud;
+import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
+import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoHistorialRepo;
 import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoRepo;
 import com.isacore.quality.repository.desviacionRequisito.ILoteRepo;
 import com.isacore.quality.repository.pnc.IDefectoRepo;
+import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoHistorialService;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
+import com.isacore.util.UtilidadesCadena;
+import com.isacore.util.UtilidadesSeguridad;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +37,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +50,9 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     private final ILoteRepo loteRepo;
     private final EntityManager entityManager;
     private final IDefectoRepo defectoRepositorio;
+    private final IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
+    private final IDesviacionRequisitoHistorialService historialService;
+    private final DesviacionRequisitoMapper mapper;
 
     @Override
     public List<DesviacionRequisito> findAll() {
@@ -171,6 +188,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                 desviacion.setAfectacionText(c.getAfectacion().getDescripcion());
                 desviacion.setProductTypeText(c.getProduct().getTypeProduct().getDescripcion());
                 desviacion.setFechaCreacion(c.getFechaCreacion());
+                desviacion.setEstado(c.getEstado());
 
                 return  desviacion;
             }).collect(Collectors.toList());
@@ -203,6 +221,66 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         desviacion.eliminarDefecto(defectoId);
         log.info("Desviacion {} Defecto eliminado {}", desviacion.getSecuencial() ,defectoId);
         return desviacion.getDefectos();
+    }
+
+    @Transactional
+    @Override
+    public void enviarAprobacion(DesviacionRequisitoDto dto) {
+        DesviacionRequisito salidaMaterial = this.obtenerPorId(dto.getId());
+        Optional<ConfiguracionGeneralFlujo> configuracion = this.configuracionGeneralFlujoRepo
+                .findByTipoSolicitudAndNombreConfiguracionFlujo(TipoSolicitud.DESVIACION_REQUISITO, NombreConfiguracionFlujo.APROBADOR_DESVIACION_REQUISITO);
+        if (!configuracion.isPresent())
+            throw new PncErrorException(String.format("Configuración %s no encontrada", NombreConfiguracionFlujo.APROBADOR_DESVIACION_REQUISITO.getDescripcion()));
+
+        String observacion = UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? "DESVIACIÓN REQUISITOS ENVIADA" :
+                dto.getObservacion();
+        this.historialService.agregar(salidaMaterial, DesviacionRequisitoOrdenFlujo.INGRESO, observacion);
+        salidaMaterial.marcarComoEnviada(configuracion.get().getValorConfiguracion());
+
+        log.info(String.format("DESVIACION REQUISITO %s ->  enviada a aprobar", salidaMaterial.getSecuencial()));
+        try {
+           // this.notificacionPnc.notificarIngresoSalidaMaterial(salidaMaterial, observacion, this.planAccionService.listarPorSalidaMaterialId(salidaMaterial.getId()));
+        } catch (Exception e) {
+            log.error(String.format("Error al notificar INGRESO DESVIACION REQUISITO: %s", e));
+        }
+    }
+
+    @Transactional
+    @Override
+    public void procesar(DesviacionRequisitoDto dto) {
+        DesviacionRequisito desviacion = this.obtenerPorId(dto.getId());
+        if(dto.getAccion() == null)
+            throw new PncErrorException("Acción no procesada");
+
+        String observacion = "";
+        switch (dto.getAccion()){
+            case APROBADO:
+                observacion= "DESVIACIÓN REQUISITOS APROBADA";
+                break;
+            case RECHAZADO:
+                observacion= "DESVIACIÓN REQUISITOS RECHAZADA";
+                break;
+            default:
+                break;
+        }
+
+        String observacionFinal= UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? observacion :
+                dto.getObservacion();
+
+        this.historialService.agregar(desviacion, DesviacionRequisitoOrdenFlujo.APROBACION_GERENCIA_CALIDAD, observacionFinal);
+        desviacion.setEstado(dto.getAccion());
+        desviacion.setFechaAprobacion(LocalDateTime.now());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<DesviacionRequisitoDto> listarPorEstado(EstadoDesviacion estado) {
+        String usuarioSesion = UtilidadesSeguridad.nombreUsuarioEnSesion();
+        List<DesviacionRequisito> salidaMateriales = this.desviacionRequisitoRepo.findByEstadoIn(Arrays.asList(estado))
+                .stream()
+                .filter(x -> x.getUsuarioAprobador().equals(usuarioSesion))
+                .collect(Collectors.toList());
+        return this.mapper.fromListDesviacionRequisitoToDto(salidaMateriales);
     }
 
     private DesviacionRequisitoReporteDTO crearReporteDTO(DesviacionRequisito desviacionRequisito) {

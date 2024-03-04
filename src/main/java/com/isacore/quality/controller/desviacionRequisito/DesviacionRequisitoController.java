@@ -1,9 +1,7 @@
 package com.isacore.quality.controller.desviacionRequisito;
 
-import com.isacore.quality.model.desviacionRequisito.ConsultaDesviacionRequisitoDTO;
-import com.isacore.quality.model.desviacionRequisito.DesviacionRequisito;
-import com.isacore.quality.model.desviacionRequisito.DesviacionRequisitoDefecto;
-import com.isacore.quality.model.pnc.PncDefecto;
+import com.isacore.quality.model.desviacionRequisito.*;
+import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoHistorialService;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,9 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,6 +18,8 @@ public class DesviacionRequisitoController {
 
     @Autowired
     private IDesviacionRequisitoService service;
+    @Autowired
+    private IDesviacionRequisitoHistorialService historialService;
 
     @GetMapping()
     public ResponseEntity<List<DesviacionRequisito>> listarTodos() {
@@ -73,15 +71,38 @@ public class DesviacionRequisitoController {
     }
 
     @GetMapping("/agregarDefecto/{idDesviacion}/{idDefecto}")
-    public ResponseEntity<List<DesviacionRequisitoDefecto>> agregarDefecto(@PathVariable("idDesviacion") long idDesviacion,  @PathVariable("idDefecto") long idDefecto) {
+    public ResponseEntity<List<DesviacionRequisitoDefecto>> agregarDefecto(@PathVariable("idDesviacion") long idDesviacion, @PathVariable("idDefecto") long idDefecto) {
         List<DesviacionRequisitoDefecto> defectos = this.service.agregarDefecto(idDesviacion, idDefecto);
         return ResponseEntity.ok(defectos);
     }
 
     @DeleteMapping("/eliminarDefecto/{idDesviacion}/{idDefecto}")
-    public ResponseEntity<List<DesviacionRequisitoDefecto>> eliminarDefecto(@PathVariable("idDesviacion") long idDesviacion,  @PathVariable("idDefecto") long idDefecto) {
+    public ResponseEntity<List<DesviacionRequisitoDefecto>> eliminarDefecto(@PathVariable("idDesviacion") long idDesviacion, @PathVariable("idDefecto") long idDefecto) {
         List<DesviacionRequisitoDefecto> defectos = this.service.eliminarDefecto(idDesviacion, idDefecto);
         return ResponseEntity.ok(defectos);
     }
 
+    @PostMapping("/enviar")
+    public ResponseEntity<Object> enviar(@RequestBody DesviacionRequisitoDto desviacionRequisito) {
+        service.enviarAprobacion(desviacionRequisito);
+        return ResponseEntity.ok(true);
+    }
+
+    @PostMapping("/procesar")
+    public ResponseEntity<Object> procesar(@RequestBody DesviacionRequisitoDto desviacionRequisito) {
+        service.procesar(desviacionRequisito);
+        return ResponseEntity.ok(true);
+    }
+
+    @GetMapping("/estado/{estado}")
+    public ResponseEntity<List<DesviacionRequisitoDto>> listarPorEstado(@PathVariable("estado") EstadoDesviacion estado) {
+        List<DesviacionRequisitoDto> obj = service.listarPorEstado(estado);
+        return ResponseEntity.ok(obj);
+    }
+
+    @GetMapping("/historial/{id}")
+    public ResponseEntity<List<DesviacionRequisitoHistorial>> listarHistorial(@PathVariable("id") long id) {
+        List<DesviacionRequisitoHistorial> obj = historialService.buscarHistorial(id);
+        return ResponseEntity.ok(obj);
+    }
 }
