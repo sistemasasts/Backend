@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:th="http://www.thymeleaf.org"
+        layout:decorate="~{emailLayout}">
+<head>
+    <title>Aprobación Desviación Requisito PNC</title>
+</head>
+<body>
+<h3 layout:fragment="titulo">Aprobación Desviación Requisito</h3>
+<div layout:fragment="contenido">
+
+    <table cellspacing="0" cellpadding="0" border="0" class="bmeImageTable" width="700" style="padding: 0px !important;"
+           dimension="100%">
+        <tbody>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: left;"
+                class="tblCell">
+                <div style="line-height: 200%;">
+                    <p style="font-size: 16px">Estimado(a) Usuario: <b th:text="${nombreUsuario}">WILFRIDO LOACHAMIN</b>
+                    </p>
+                    <p>Favor su ayuda con la aprobación de la siguiente solicitud de DESVIACIÓN A LOS REQUISITOS # <b th:text="${numero}">6661</b>
+                    </p>
+                    <p><b>Usuario Responsable:</b> <span th:text="${nombreSolicitante}">WILFRIDO LOACHAMIN</span></p>
+                    <p><b>Observación:</b> <span th:text="${observacion}">Salida Material PNC Ingresada</span></p>
+                    <div>
+                        <table class="detalle">
+                            <tr class="detalle">
+                                <th class="detalle" style="text-align:center; width:20%">Número</th>
+                                <th class="detalle" style="text-align:center; width:35%">Producto</th>
+                                <th class="detalle" style="text-align:center; width:20%">Tipo</th>
+                                <th class="detalle" style="text-align:center; width:25%">Cantidad</th>
+                            </tr>
+                            <tr class="detalle">
+                                <td th:text="${numero}" style="text-align:center; width:20%">6661
+                                </td>
+                                <td th:text="${producto}" style="text-align:center; width:35%">Techofield 50 m2
+                                </td>
+                                <td th:text="${tipo}" style="text-align:center; width:20%">RETRABAJO
+                                </td>
+                                <td th:text="${cantidad}" style="text-align:center; width:25%">20 rollos</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p>La aprobación la puede realizar mediante la opción de abajo.</p>
+
+                    <a th:href="${urlAprobacion}">
+                        <button class="btn btn-primary btn-lg" style="background-color: #4ca6de; color: #ffffff; border-color: #4ca6de">
+                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            <span>APROBAR</span>
+                        </button>
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" align="left" name="tblCell"
+                style="padding: 10px 20px; font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; color: rgb(56, 56, 56); text-align: center;"
+                class="tblCell">
+                <a th:href="${urlBase}">Regresar al sistema ISA</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -21,4 +21,12 @@ public class DesviacionRequisitoDocumento extends DocumentoBase {
     @Enumerated(EnumType.STRING)
     private EstadoDesviacion estado;
 
+    protected DesviacionRequisitoDocumento() {    }
+
+    public DesviacionRequisitoDocumento(String path, String nombre, DesviacionRequisito desviacionRequisito, DesviacionRequisitoOrdenFlujo orden) {
+        super(path, nombre);
+        this.desviacionRequisito = desviacionRequisito;
+        this.orden = orden;
+        this.estado = desviacionRequisito.getEstado();
+    }
 }

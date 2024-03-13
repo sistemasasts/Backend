@@ -2,19 +2,19 @@ package com.isacore.quality.service.impl.desviacionRequisito;
 
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
+import com.isacore.notificacion.servicio.ServicioNotificacionDesviacion;
 import com.isacore.quality.exception.ConfiguracionErrorException;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.mapper.pnc.DesviacionRequisitoMapper;
+import com.isacore.quality.model.comunes.MatrizAprobacionAdicional;
 import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
 import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.desviacionRequisito.*;
 import com.isacore.quality.model.pnc.Defecto;
-import com.isacore.quality.model.pnc.PncOrdenFlujo;
-import com.isacore.quality.model.pnc.PncSalidaMaterial;
-import com.isacore.quality.model.pnc.PncSalidaMaterialDto;
 import com.isacore.quality.model.se.TipoSolicitud;
+import com.isacore.quality.repository.MatrizAprobacionAdicionalRepo;
+import com.isacore.quality.repository.SolicitudAprobacionAdicionalRepo;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
-import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoHistorialRepo;
 import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoRepo;
 import com.isacore.quality.repository.desviacionRequisito.ILoteRepo;
 import com.isacore.quality.repository.pnc.IDefectoRepo;
@@ -53,6 +53,9 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     private final IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
     private final IDesviacionRequisitoHistorialService historialService;
     private final DesviacionRequisitoMapper mapper;
+    private final ServicioNotificacionDesviacion servicioNotificacionDesviacion;
+    private final MatrizAprobacionAdicionalRepo matrizAprobacionAdicionalRepo;
+    private final SolicitudAprobacionAdicionalRepo solicitudAprobacionAdicionalRepo;
 
     @Override
     public List<DesviacionRequisito> findAll() {
@@ -61,7 +64,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
     @Override
     public DesviacionRequisito create(DesviacionRequisito desviacionRequisito) {
-        if( desviacionRequisito.getProduct() == null || desviacionRequisito.getProduct().getIdProduct() == null)
+        if (desviacionRequisito.getProduct() == null || desviacionRequisito.getProduct().getIdProduct() == null)
             throw new ConfiguracionErrorException("Material no encontrado, seleccione uno");
 
         DesviacionRequisito nuevaDesviacionRequisito = new DesviacionRequisito(
@@ -94,7 +97,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     public DesviacionRequisito listarDesviacionRequisitosPorId(Long desviacionId) {
         Optional<DesviacionRequisito> desviacionRequisito = this.desviacionRequisitoRepo.findById(desviacionId);
 
-        if(!desviacionRequisito.isPresent())
+        if (!desviacionRequisito.isPresent())
             throw new ConfiguracionErrorException("Desviacion de requisito no encontrada");
 
         return desviacionRequisito.get();
@@ -153,7 +156,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         } catch (JasperReportsException e) {
             log.error(String.format("Error Desviacion de Requisito Reporete %s", e));
 
-            throw  new ReporteExeption("Desviación de requisitos");
+            throw new ReporteExeption("Desviación de requisitos");
         }
     }
 
@@ -190,7 +193,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                 desviacion.setFechaCreacion(c.getFechaCreacion());
                 desviacion.setEstado(c.getEstado());
 
-                return  desviacion;
+                return desviacion;
             }).collect(Collectors.toList());
 
             final Page<DesviacionRequisito> pageResut = new PageImpl<>(listaMapeada, pageable, sizeTotal);
@@ -210,7 +213,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         Defecto defecto = defectoRepositorio.findById(defectoId).orElseThrow(() -> new ConfiguracionErrorException("Defecto no encontrado"));
         desviacion.agregarDefecto(new DesviacionRequisitoDefecto(defecto));
         desviacionRequisitoRepo.save(desviacion);
-        log.info("Desviacion {} Defecto agregado {}", desviacion.getSecuencial() ,defecto);
+        log.info("Desviacion {} Defecto agregado {}", desviacion.getSecuencial(), defecto);
         return desviacion.getDefectos();
     }
 
@@ -219,7 +222,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     public List<DesviacionRequisitoDefecto> eliminarDefecto(long id, long defectoId) {
         DesviacionRequisito desviacion = this.obtenerPorId(id);
         desviacion.eliminarDefecto(defectoId);
-        log.info("Desviacion {} Defecto eliminado {}", desviacion.getSecuencial() ,defectoId);
+        log.info("Desviacion {} Defecto eliminado {}", desviacion.getSecuencial(), defectoId);
         return desviacion.getDefectos();
     }
 
@@ -239,7 +242,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
         log.info(String.format("DESVIACION REQUISITO %s ->  enviada a aprobar", salidaMaterial.getSecuencial()));
         try {
-           // this.notificacionPnc.notificarIngresoSalidaMaterial(salidaMaterial, observacion, this.planAccionService.listarPorSalidaMaterialId(salidaMaterial.getId()));
+            this.servicioNotificacionDesviacion.notificarIngreso(salidaMaterial, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
         } catch (Exception e) {
             log.error(String.format("Error al notificar INGRESO DESVIACION REQUISITO: %s", e));
         }
@@ -249,27 +252,30 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     @Override
     public void procesar(DesviacionRequisitoDto dto) {
         DesviacionRequisito desviacion = this.obtenerPorId(dto.getId());
-        if(dto.getAccion() == null)
+        if (dto.getAccion() == null)
             throw new PncErrorException("Acción no procesada");
 
         String observacion = "";
-        switch (dto.getAccion()){
+        switch (dto.getAccion()) {
             case APROBADO:
-                observacion= "DESVIACIÓN REQUISITOS APROBADA";
+                observacion = "DESVIACIÓN REQUISITOS APROBADA";
                 break;
             case RECHAZADO:
-                observacion= "DESVIACIÓN REQUISITOS RECHAZADA";
+                observacion = "DESVIACIÓN REQUISITOS RECHAZADA";
                 break;
             default:
                 break;
         }
-
-        String observacionFinal= UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? observacion :
+        String observacionFinal = UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? observacion :
                 dto.getObservacion();
+
+        if(dto.getAccion().equals(EstadoDesviacion.APROBADO))
+            inicarAprobacionesAdicionales(desviacion, observacionFinal);
 
         this.historialService.agregar(desviacion, DesviacionRequisitoOrdenFlujo.APROBACION_GERENCIA_CALIDAD, observacionFinal);
         desviacion.setEstado(dto.getAccion());
         desviacion.setFechaAprobacion(LocalDateTime.now());
+        desviacionRequisitoRepo.save(desviacion);
     }
 
     @Transactional(readOnly = true)
@@ -345,8 +351,43 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         }
     }
 
-    private DesviacionRequisito obtenerPorId(long id){
+    private DesviacionRequisito obtenerPorId(long id) {
         return this.desviacionRequisitoRepo.findById(id)
                 .orElseThrow(() -> new ConfiguracionErrorException("Desviacion de requisito no encontrada"));
+    }
+
+    private void inicarAprobacionesAdicionales(DesviacionRequisito desviacionRequisito, String observacion) {
+        List<MatrizAprobacionAdicional> matrix = matrizAprobacionAdicionalRepo.findByTipoSolicitud(TipoSolicitud.DESVIACION_REQUISITO);
+        List<DesviacionAprobacionAdicional> adicionales = matrix.stream().map(x -> {
+            return new DesviacionAprobacionAdicional(x.getUsuario(), x.getOrden(), x.getTipoAprobacion());
+        }).collect(Collectors.toList());
+        desviacionRequisito.setAprobacioneAdicionales(adicionales);
+        desviacionRequisitoRepo.save(desviacionRequisito);
+        crearSolicitudesAprobacion(desviacionRequisito, observacion);
+    }
+
+    private void crearSolicitudesAprobacion(DesviacionRequisito desviacionRequisito, String observacion) {
+        List<SolicitudAprobacionAdicional> solicitudes = desviacionRequisito.getAprobacioneAdicionales()
+                .stream()
+                .map(x -> {
+                    final String prenda = crearPrenda();
+                    return new SolicitudAprobacionAdicional(prenda, x);
+                }).collect(Collectors.toList());
+        solicitudAprobacionAdicionalRepo.saveAll(solicitudes);
+        enviarNotificacionesAprobacion(solicitudes, observacion, desviacionRequisito);
+    }
+
+    private void enviarNotificacionesAprobacion(List<SolicitudAprobacionAdicional> solicitudes, String observacion, DesviacionRequisito desviacionRequisito) {
+        solicitudes.forEach(x -> {
+            try {
+                this.servicioNotificacionDesviacion.notificarAprobacionUrl(desviacionRequisito, observacion, x);
+            } catch (Exception exception) {
+                log.error("Error al notificar {0}", exception);
+            }
+        });
+    }
+
+    private String crearPrenda() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }

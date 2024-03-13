@@ -16,4 +16,12 @@ public abstract class DocumentoBase extends EntidadBase {
     private LocalDateTime fechaSubidaArchivo;
 
     private String nombreArchivo;
+
+    protected DocumentoBase() {}
+
+    public DocumentoBase(String path, String nombreArchivo) {
+        this.path = path;
+        this.nombreArchivo = nombreArchivo;
+        this.fechaSubidaArchivo = LocalDateTime.now();
+    }
 }

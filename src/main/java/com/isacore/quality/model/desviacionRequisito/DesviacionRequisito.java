@@ -93,6 +93,10 @@ public class DesviacionRequisito {
     @JoinColumn(name = "desviacion_requisito_id", nullable = false)
     private List<DesviacionRequisitoDefecto> defectos;
 
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @JoinColumn(name = "desviacion_requisito_id", nullable = false)
+    private List<DesviacionAprobacionAdicional> aprobacioneAdicionales;
+
     private String causa;
 
     @Enumerated(EnumType.STRING)
