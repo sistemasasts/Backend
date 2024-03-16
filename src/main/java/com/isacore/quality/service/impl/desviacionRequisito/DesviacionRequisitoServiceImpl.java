@@ -21,6 +21,8 @@ import com.isacore.quality.repository.pnc.IDefectoRepo;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoHistorialService;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
+import com.isacore.sgc.acta.model.UserImptek;
+import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.util.UtilidadesCadena;
 import com.isacore.util.UtilidadesSeguridad;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     private final ServicioNotificacionDesviacion servicioNotificacionDesviacion;
     private final MatrizAprobacionAdicionalRepo matrizAprobacionAdicionalRepo;
     private final SolicitudAprobacionAdicionalRepo solicitudAprobacionAdicionalRepo;
+    private final IUserImptekRepo usuarioRepo;
 
     @Override
     public List<DesviacionRequisito> findAll() {
@@ -306,7 +309,29 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
             lotesReporte.add(lote);
         });
-        return new DesviacionRequisitoReporteDTO(desviacionRequisito, lotesReporte);
+        DesviacionRequisitoReporteDTO dto = new DesviacionRequisitoReporteDTO(desviacionRequisito, lotesReporte);
+        desviacionRequisito.getAprobacioneAdicionales().forEach(x -> {
+            switch (x.getTipoAprobacion()){
+                case GERENCIA_GERENCIAL:
+                    dto.setAprobadorGerenciaGeneral(this.obtenerNombreUsuario(x.getUsuario()));
+                    dto.setAprobadorGerenciaGeneralFecha(x.getFechaAprobacion());
+                    break;
+                case GERENCIA_PRODUCTO:
+                    dto.setAprobadorGerenciaProducto(this.obtenerNombreUsuario(x.getUsuario()));
+                    dto.setAprobadorGerenciaProductoFecha(x.getFechaAprobacion());
+                    break;
+                case JEFE_COMPRAS:
+                    dto.setAprobadorJefeCompras(this.obtenerNombreUsuario(x.getUsuario()));
+                    dto.setAprobadorJefeComprasFecha(x.getFechaAprobacion());
+                    break;
+                case GERENCIA_OPERACIONES:
+                    dto.setAprobadorGerenciaOperaciones(this.obtenerNombreUsuario(x.getUsuario()));
+                    dto.setAprobadorGerenciaOperacionesFecha(x.getFechaAprobacion());
+                    break;
+                default: break;
+            }
+        });
+        return dto;
     }
 
     private List<DesviacionRequisito> obtenerDesviacionesPorCriterios(ConsultaDesviacionRequisitoDTO consulta) {
@@ -389,5 +414,10 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
     private String crearPrenda() {
         return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    private String obtenerNombreUsuario(String usuario){
+        UserImptek usuarioI = this.usuarioRepo.findOneByNickName(usuario);
+        return usuarioI == null ? usuario: usuarioI.getEmployee().getCompleteName();
     }
 }

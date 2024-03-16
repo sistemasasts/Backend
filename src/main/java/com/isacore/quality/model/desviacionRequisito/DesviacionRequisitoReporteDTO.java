@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -21,6 +22,17 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
     private List<Lote> listaLotes;
     private String seguimiento;
     private List<DesviacionRequisitoDefecto> listaDefectos;
+    private String aprobadorGerenciaGeneral;
+    private LocalDateTime aprobadorGerenciaGeneralFecha;
+    private String aprobadorGerenciaOperaciones;
+    private LocalDateTime aprobadorGerenciaOperacionesFecha;
+    private String aprobadorGerenciaCalidad;
+    private LocalDateTime aprobadorGerenciaCalidadFecha;
+    private String aprobadorJefeCompras;
+    private LocalDateTime aprobadorJefeComprasFecha;
+    private String aprobadorGerenciaProducto;
+    private LocalDateTime aprobadorGerenciaProductoFecha;
+
 
     public DesviacionRequisitoReporteDTO(
         DesviacionRequisito desviacionRequisito,

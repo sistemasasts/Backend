@@ -2,6 +2,7 @@ package com.isacore.quality.model.desviacionRequisito;
 
 import com.isacore.quality.model.Product;
 import com.isacore.quality.model.UnidadMedida;
+import com.isacore.quality.model.comunes.TipoAprobacion;
 import com.isacore.quality.model.pnc.LineaAfecta;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -159,5 +160,11 @@ public class DesviacionRequisito {
     public void marcarComoEnviada(String usuarioAprobador){
         this.usuarioAprobador = usuarioAprobador;
         this.estado = EstadoDesviacion.PENDIENTE_APROBACION;
+    }
+
+    public DesviacionAprobacionAdicional recuperarAdicionalPorTipoAprobacion(TipoAprobacion tipoAprobacion){
+        if(aprobacioneAdicionales.isEmpty())
+            return null;
+        return aprobacioneAdicionales.stream().filter(x -> x.getTipoAprobacion().equals(tipoAprobacion)).findFirst().orElse(null);
     }
 }

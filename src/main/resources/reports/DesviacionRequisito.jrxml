@@ -96,6 +96,16 @@
 	<field name="seguimiento" class="java.lang.String"/>
 	<field name="listaLotes" class="java.util.List"/>
 	<field name="listaDefectos" class="java.util.List"/>
+	<field name="aprobadorGerenciaGeneral" class="java.lang.String"/>
+	<field name="aprobadorGerenciaOperaciones" class="java.lang.String"/>
+	<field name="aprobadorGerenciaCalidad" class="java.lang.String"/>
+	<field name="aprobadorJefeCompras" class="java.lang.String"/>
+	<field name="aprobadorGerenciaProducto" class="java.lang.String"/>
+	<field name="aprobadorGerenciaGeneralFecha" class="java.time.LocalDateTime"/>
+	<field name="aprobadorGerenciaOperacionesFecha" class="java.time.LocalDateTime"/>
+	<field name="aprobadorGerenciaCalidadFecha" class="java.time.LocalDateTime"/>
+	<field name="aprobadorJefeComprasFecha" class="java.time.LocalDateTime"/>
+	<field name="aprobadorGerenciaProductoFecha" class="java.time.LocalDateTime"/>
 	<variable name="fechaActual" class="java.lang.String">
 		<variableExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format(new Date())]]></variableExpression>
 	</variable>
@@ -653,45 +663,70 @@
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
 				<staticText>
-					<reportElement x="11" y="49" width="259" height="30" uuid="2f61e8af-d1d3-4b56-8e6a-21de1af7702b"/>
+					<reportElement x="20" y="50" width="229" height="20" uuid="2f61e8af-d1d3-4b56-8e6a-21de1af7702b"/>
 					<textElement textAlignment="Center">
-						<font size="9"/>
+						<font size="9" isBold="true"/>
 					</textElement>
-					<text><![CDATA[--------------------------------------------
-Gerente General / Gerente de Comercialización]]></text>
+					<text><![CDATA[Gerente General / Gerente de Comercialización]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="11" y="139" width="259" height="30" uuid="6a8e6149-6916-45af-b0a8-0f155a54fe60"/>
+					<reportElement x="20" y="131" width="228" height="21" uuid="6a8e6149-6916-45af-b0a8-0f155a54fe60"/>
 					<textElement textAlignment="Center">
-						<font size="9"/>
+						<font size="9" isBold="true"/>
 					</textElement>
-					<text><![CDATA[---------------------------------------------
-Gerente de I&D y Calidad]]></text>
+					<text><![CDATA[Gerente de I&D y Calidad]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="11" y="226" width="259" height="30" uuid="ac534a5c-b812-42d0-a70d-e2e2ea6f236b"/>
+					<reportElement x="20" y="209" width="228" height="14" uuid="ac534a5c-b812-42d0-a70d-e2e2ea6f236b"/>
 					<textElement textAlignment="Center">
-						<font size="9"/>
+						<font size="9" isBold="true"/>
 					</textElement>
-					<text><![CDATA[----------------------------------------------
-Gerente de Producto]]></text>
+					<text><![CDATA[Gerente de Producto]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="300" y="50" width="221" height="30" uuid="de9474c9-41fd-4016-8563-e39981d06dcc"/>
+					<reportElement x="300" y="50" width="221" height="20" uuid="de9474c9-41fd-4016-8563-e39981d06dcc"/>
 					<textElement textAlignment="Center">
-						<font size="9"/>
+						<font size="9" isBold="true"/>
 					</textElement>
-					<text><![CDATA[------------------------------------
-Gerente de Operaciones]]></text>
+					<text><![CDATA[Gerente de Operaciones]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="309" y="140" width="212" height="30" uuid="a2f7ad4e-448d-4670-b935-a02b021ffa14"/>
+					<reportElement x="300" y="131" width="220" height="20" uuid="a2f7ad4e-448d-4670-b935-a02b021ffa14"/>
 					<textElement textAlignment="Center">
-						<font size="9"/>
+						<font size="9" isBold="true"/>
 					</textElement>
-					<text><![CDATA[----------------------------------
-Jefe de Logística y Compras]]></text>
+					<text><![CDATA[Jefe de Logística y Compras]]></text>
 				</staticText>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement x="14" y="16" width="250" height="33" uuid="3a343855-3c2d-48e3-b10a-e96dfc22e2fd"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{aprobadorGerenciaGeneral} +"\n"+
+$F{aprobadorGerenciaGeneralFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement x="14" y="100" width="250" height="31" uuid="b905fe49-5a95-4de3-a651-7c3e6d611417"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{aprobadorGerenciaCalidad} + "\n" +
+$F{aprobadorGerenciaCalidadFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement x="300" y="20" width="220" height="29" uuid="7d19b7f7-9324-4399-b62c-d5bbebd27782"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{aprobadorGerenciaOperaciones} + "\n"+
+$F{aprobadorGerenciaOperacionesFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement x="300" y="100" width="220" height="31" uuid="b7fa1c22-e485-49e1-909f-94bfdccc9bb4"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{aprobadorJefeCompras} + "\n" +
+$F{aprobadorJefeComprasFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				</textField>
+				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+					<reportElement x="11" y="183" width="250" height="26" uuid="8405d321-abe6-4a13-b4ab-cc32978914e1"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[$F{aprobadorGerenciaProducto} +
+$F{aprobadorGerenciaProductoFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+				</textField>
 			</frame>
 		</band>
 	</detail>
