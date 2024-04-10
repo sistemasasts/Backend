@@ -17,4 +17,5 @@ SELECT a.id,
 FROM producto_no_conforme(NOLOCK) a
          INNER JOIN pnc_defecto(NOLOCK) b ON a.id = b.producto_no_conforme_id
          INNER JOIN product(NOLOCK) p ON p.product_id = a.producto_product_id
-WHERE b.saldo > 0;
+WHERE b.saldo > 0
+  AND a.estado NOT IN ('ANULADO');
