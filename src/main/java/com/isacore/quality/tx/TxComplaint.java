@@ -7,17 +7,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacore.quality.dto.EmailDto;
-import com.isacore.quality.model.Complaint;
-import com.isacore.quality.model.Problem;
+import com.isacore.quality.model.reclamoMP.Complaint;
+import com.isacore.quality.model.reclamoMP.Problem;
 import com.isacore.quality.report.GenerateReportQuality;
-import com.isacore.quality.service.IComplaintService;
-import com.isacore.quality.service.IProblemService;
+import com.isacore.quality.service.reclamoMP.IComplaintService;
+import com.isacore.quality.service.reclamoMP.IProblemService;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.service.IUserImptekService;
 
@@ -39,6 +40,7 @@ public class TxComplaint {
 
 	public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	@Autowired
 	private IComplaintService complaintService;
@@ -100,11 +102,11 @@ public class TxComplaint {
 				}
 				
 				logger.info("> paso el for de imágenes");
-				Complaint cc = this.complaintService.create(complaint);
+				Complaint cc = null ;//this.complaintService.create(complaint);
 
 				if (cc != null) {
 					logger.info(">> Reclamo de MP guardado correctamente");
-					Complaint ccTmp = this.complaintService.findById(cc);
+					Complaint ccTmp = null ; //this.complaintService.findById(cc);
 					wrei.setMessage(WebResponseMessage.CREATE_UPDATE_OK);
 					wrei.setStatus(WebResponseMessage.STATUS_OK);
 					String json = JSON_MAPPER.writeValueAsString(ccTmp);
@@ -143,7 +145,7 @@ public class TxComplaint {
 		wrei.setTransactionName(TX_NAME_GetAllComplaint);
 		wrei.setTransactionCode(TX_CODE_GetAllComplaint);
 
-		List<Complaint> complaints = this.complaintService.findAll();
+		List<Complaint> complaints = null ;// this.complaintService.findAll();
 
 		if (complaints.isEmpty() || complaints == null) {
 			logger.info("> No existe registros en la base de datos");
@@ -196,7 +198,7 @@ public class TxComplaint {
 				logger.info("> mapeando json a la clase: " + Complaint.class);
 				Complaint complaint = JSON_MAPPER.readValue(jsonValue, Complaint.class);
 
-				Complaint cc = this.complaintService.findById(complaint);
+				Complaint cc = null; // this.complaintService.findById(complaint);
 				if (cc != null) {
 					logger.info(">> Reclamo de MP obtenido correctamente");
 					// this.problemService.dataTratamientImagesReport(cc.getListProblems());
@@ -209,14 +211,14 @@ public class TxComplaint {
 						String jsonR = JSON_MAPPER.writeValueAsString(emd);
 
 						wrei.setParameters(jsonR);
-						wrei.setMessage(
-								"Reclamo de MP::" + cc.getProduct().getNameProduct() + "::: creado satisfactoriamente");
-						wrei.setStatus(WebResponseMessage.STATUS_OK);
+//						wrei.setMessage(
+//								"Reclamo de MP::" + cc.getProduct().getNameProduct() + "::: creado satisfactoriamente");
+//						wrei.setStatus(WebResponseMessage.STATUS_OK);
 						return new ResponseEntity<Object>(wrei, HttpStatus.OK);
 					} else {
 						logger.info(">> No se ha podido generar el reporte");
-						wrei.setMessage(
-								"No se pudo Generar el certificado de calidad::" + cc.getProduct().getNameProduct());
+//						wrei.setMessage(
+//								"No se pudo Generar el certificado de calidad::" + cc.getProduct().getNameProduct());
 						wrei.setStatus(WebResponseMessage.STATUS_ERROR);
 						return new ResponseEntity<Object>(wrei, HttpStatus.INTERNAL_SERVER_ERROR);
 					}

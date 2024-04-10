@@ -1,8 +1,6 @@
 package com.isacore.quality.report;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -11,16 +9,13 @@ import java.util.Map;
 
 import com.isacore.quality.dto.ReportDto;
 import com.isacore.quality.dto.ReportProcessTestRequestDto;
-import com.isacore.quality.model.Complaint;
-import com.isacore.util.ReportConnection;
+import com.isacore.quality.model.reclamoMP.Complaint;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.util.JRLoader;
 
 public class GenerateReportQuality {
 
@@ -145,7 +140,7 @@ public class GenerateReportQuality {
 			LocalDateTime fecha1 = LocalDateTime.now();
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 			String p= fecha1.format(dtf);
-			String nameP=(a.getProduct().getNameProduct()).replaceAll("/", "");
+			String nameP="";//(a.getProduct().getNameProduct()).replaceAll("/", "");
 			final File outputFilename = new File("C:/CRIMPTEK/Calidad/ReclamosMP/RMP_" + nameP+"_"+p + ".pdf");
 			JRBeanCollectionDataSource beanColDataSource = new JRBeanCollectionDataSource(Arrays.asList(a));
 			String pathReporte = "Complaint.jasper";

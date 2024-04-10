@@ -1,8 +1,8 @@
-package com.isacore.quality.service;
+package com.isacore.quality.service.reclamoMP;
 
 import java.util.List;
 
-import com.isacore.quality.model.Problem;
+import com.isacore.quality.model.reclamoMP.Problem;
 import com.isacore.util.CRUD;
 
 public interface IProblemService extends CRUD<Problem> {

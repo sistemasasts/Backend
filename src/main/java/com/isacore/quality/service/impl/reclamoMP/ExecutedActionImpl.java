@@ -1,13 +1,11 @@
-package com.isacore.quality.service.impl;
+package com.isacore.quality.service.impl.reclamoMP;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.isacore.quality.model.Complaint;
-import com.isacore.quality.model.ExecutedAction;
-import com.isacore.quality.repository.IComplaintRepo;
+import com.isacore.quality.model.reclamoMP.ExecutedAction;
 import com.isacore.quality.repository.IExecutedActionRepo;
 import com.isacore.quality.service.IExecutedActionService;
 
@@ -27,7 +25,7 @@ public class ExecutedActionImpl implements IExecutedActionService {
 
 	@Override
 	public ExecutedAction findById(ExecutedAction obj) {
-		Optional<ExecutedAction> com = this.repo.findById(obj.getIdExecutedAction());
+		Optional<ExecutedAction> com = this.repo.findById(1);
 		if (com.isPresent())
 			return com.get();
 		else

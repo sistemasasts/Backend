@@ -1,4 +1,4 @@
-package com.isacore.quality.service.impl;
+package com.isacore.quality.service.impl.reclamoMP;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,11 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.isacore.quality.model.Complaint;
-import com.isacore.quality.model.Problem;
-import com.isacore.quality.repository.IComplaintRepo;
+import com.isacore.quality.model.reclamoMP.Problem;
 import com.isacore.quality.repository.IProblemRepo;
-import com.isacore.quality.service.IProblemService;
+import com.isacore.quality.service.reclamoMP.IProblemService;
 
 @Component
 public class ProblemImpl implements IProblemService{
@@ -30,10 +28,10 @@ public class ProblemImpl implements IProblemService{
 
 	@Override
 	public Problem findById(Problem obj) {
-		Optional<Problem> com = this.repo.findById(obj.getIdProblem());
-		if (com.isPresent())
-			return com.get();
-		else
+//		Optional<Problem> com = this.repo.findById(obj.getIdProblem());
+//		if (com.isPresent())
+//			return com.get();
+//		else
 			return null;
 	}
 

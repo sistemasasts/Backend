@@ -10,9 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.isacore.quality.model.Problem;
+import com.isacore.quality.model.reclamoMP.Problem;
 import com.isacore.quality.model.Product;
-import com.isacore.quality.service.IProblemService;
+import com.isacore.quality.service.reclamoMP.IProblemService;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
 import com.isacore.util.WebResponseMessage;

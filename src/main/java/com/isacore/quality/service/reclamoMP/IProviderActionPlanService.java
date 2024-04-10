@@ -1,6 +1,6 @@
-package com.isacore.quality.service;
+package com.isacore.quality.service.reclamoMP;
 
-import com.isacore.quality.model.ProviderActionPlan;
+import com.isacore.quality.model.reclamoMP.ProviderActionPlan;
 import com.isacore.util.CRUD;
 
 public interface IProviderActionPlanService extends CRUD<ProviderActionPlan> {

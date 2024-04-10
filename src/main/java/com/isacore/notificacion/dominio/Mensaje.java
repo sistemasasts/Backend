@@ -2,6 +2,7 @@ package com.isacore.notificacion.dominio;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -12,13 +13,16 @@ public class Mensaje {
 	private DireccionesDestino direccionesDestino;
 	private MensajeFormato formato;
 	private MensajeTipo tipo;
+	private List<Adjunto> adjuntos;
 	
-	public Mensaje(MensajeTipo tipo, MensajeFormato formato, DireccionesDestino direccionesDestino, String asunto, String cuerpo) {
+	public Mensaje(MensajeTipo tipo, MensajeFormato formato, DireccionesDestino direccionesDestino, String asunto, String cuerpo,
+				   List<Adjunto> adjuntos) {
 		this.tipo = tipo;
 		this.formato = formato;
 		this.direccionesDestino = direccionesDestino;
 		this.asunto = asunto;
 		this.cuerpo = cuerpo;
+		this.adjuntos = adjuntos;
 	}
 
 	public Set<String> getDireccionesA() {
@@ -43,5 +47,9 @@ public class Mensaje {
 
 	public boolean isTieneDireccionesCCO() {
 		return direccionesDestino.isTieneDireccionesCCO();
+	}
+
+	public List<Adjunto> getAdjuntos() {
+		return adjuntos;
 	}
 }

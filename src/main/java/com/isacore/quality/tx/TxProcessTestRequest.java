@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.isacore.quality.dto.ReportProcessTestRequestDto;
-import com.isacore.quality.model.Complaint;
+import com.isacore.quality.model.reclamoMP.Complaint;
 import com.isacore.quality.model.FileDocument;
 import com.isacore.quality.model.ProcessTestRequest;
 import com.isacore.quality.report.GenerateReportQuality;

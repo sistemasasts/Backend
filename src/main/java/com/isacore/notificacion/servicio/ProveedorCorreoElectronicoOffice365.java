@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -54,6 +55,8 @@ public class ProveedorCorreoElectronicoOffice365 {
 
             helper.setText(mensaje.getCuerpo(), mensaje.getFormato().equals(MensajeFormato.HTML));
 
+            this.addAtatchment(mensaje, helper);
+
             this.emailSender.send(message);
 
 //            log(LOG, mensaje, "Mensaje enviado");
@@ -65,6 +68,18 @@ public class ProveedorCorreoElectronicoOffice365 {
             LOG.error(String.format("Mensaje no enviadao %s", e));
 //            return "Error";
             throw new ProveedorCorreoElectronicoException(e);
+        }
+    }
+
+    private void addAtatchment(Mensaje mensaje, MimeMessageHelper helper) {
+        if (!mensaje.getAdjuntos().isEmpty()) {
+            mensaje.getAdjuntos().forEach(x -> {
+                try {
+                    helper.addAttachment(x.getNombre(), new ByteArrayResource(x.getArchivo()));
+                } catch (MessagingException e) {
+                    LOG.error(String.format("Error al momento de adjuntar archivo %s ::: %s", x.getNombre(), e));
+                }
+            });
         }
     }
 }

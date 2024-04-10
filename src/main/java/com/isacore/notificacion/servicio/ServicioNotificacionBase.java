@@ -2,13 +2,13 @@ package com.isacore.notificacion.servicio;
 
 
 import com.isacore.notificacion.ConfiguracionNotificacion;
-import com.isacore.notificacion.dominio.DireccionesDestino;
-import com.isacore.notificacion.dominio.Mensaje;
-import com.isacore.notificacion.dominio.MensajeFormato;
-import com.isacore.notificacion.dominio.MensajeTipo;
+import com.isacore.notificacion.dominio.*;
 import org.apache.commons.logging.Log;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ServicioNotificacionBase {
 	
@@ -36,8 +36,37 @@ public abstract class ServicioNotificacionBase {
 		this.proveedorCorreoElectronico = proveedorCorreoElectronico;
 		this.springTemplateEngine = springTemplateEngine;
 	}
-	
+
 	protected void enviarHtml(DireccionesDestino direccionesDestino, String asunto, String template, AgregadorVariablesContexto agregadorVariablesContexto) {
+
+		if (direccionesDestino.isTieneDireccionesA()) {
+
+			try {
+
+				final Context context = new Context();
+				context.setVariable("imagenLogo", configuracionNotificacion.getImagenLogo());
+				context.setVariable("urlBase", configuracionNotificacion.getUrlBase());
+				agregadorVariablesContexto.agregarVariables(context);
+
+				final String cuerpo = springTemplateEngine.process(template, context);
+
+				proveedorCorreoElectronico.enviar(new Mensaje(
+						tipo(),
+						MensajeFormato.HTML,
+						direccionesDestino,
+						asunto,
+						cuerpo,
+						new ArrayList<>()));
+
+			} catch (ProveedorCorreoElectronicoException e) {
+				logErrorEnvio(direccionesDestino, asunto, e);
+			}
+		} else {
+			logSinDirecciones(asunto);
+		}
+	}
+
+	protected void enviarHtml(DireccionesDestino direccionesDestino, String asunto, String template, List<Adjunto> adjuntos, AgregadorVariablesContexto agregadorVariablesContexto) {
 		
 		if (direccionesDestino.isTieneDireccionesA()) {
 
@@ -55,7 +84,8 @@ public abstract class ServicioNotificacionBase {
 						MensajeFormato.HTML,
 						direccionesDestino,
 						asunto,
-						cuerpo));
+						cuerpo,
+						adjuntos));
 
 			} catch (ProveedorCorreoElectronicoException e) {
 				logErrorEnvio(direccionesDestino, asunto, e);
@@ -68,7 +98,7 @@ public abstract class ServicioNotificacionBase {
 	protected void enviarTexto(DireccionesDestino direccionesDestino, String asunto, String cuerpo) {
 		if (direccionesDestino.isTieneDireccionesA()) {
 			try {
-				proveedorCorreoElectronico.enviar(new Mensaje(tipo(), MensajeFormato.TEXTO, direccionesDestino, asunto, cuerpo));
+				proveedorCorreoElectronico.enviar(new Mensaje(tipo(), MensajeFormato.TEXTO, direccionesDestino, asunto, cuerpo, new ArrayList<>()));
 			} catch (ProveedorCorreoElectronicoException e) {
 				logErrorEnvio(direccionesDestino, asunto, e);
 			}

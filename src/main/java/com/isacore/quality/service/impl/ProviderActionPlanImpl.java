@@ -6,11 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.isacore.quality.model.Complaint;
-import com.isacore.quality.model.ProviderActionPlan;
-import com.isacore.quality.repository.IComplaintRepo;
+import com.isacore.quality.model.reclamoMP.ProviderActionPlan;
 import com.isacore.quality.repository.IProviderActionPlanRepo;
-import com.isacore.quality.service.IProviderActionPlanService;
+import com.isacore.quality.service.reclamoMP.IProviderActionPlanService;
 
 @Component
 public class ProviderActionPlanImpl implements IProviderActionPlanService {
@@ -30,10 +28,10 @@ public class ProviderActionPlanImpl implements IProviderActionPlanService {
 
 	@Override
 	public ProviderActionPlan findById(ProviderActionPlan obj) {
-		Optional<ProviderActionPlan> com = this.repo.findById(obj.getIdPrviderActionPlan());
-		if (com.isPresent())
-			return com.get();
-		else
+//		Optional<ProviderActionPlan> com = this.repo.findById(obj.getIdPrviderActionPlan());
+//		if (com.isPresent())
+//			return com.get();
+//		else
 			return null;
 	}
 

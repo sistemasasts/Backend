@@ -1,8 +1,14 @@
 package com.isacore.util;
 
+import com.isacore.quality.exception.PncErrorException;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -35,4 +41,24 @@ public class UtilidadesArchivo {
         });
         zous.close();
     }
+    public static String crearPathArchivo(long secuencial, String nombreArchivo, String rutaBase, String proceso) {
+        String path = crearRutaAlmacenamiento(secuencial,rutaBase, proceso).concat(File.separator).concat(nombreArchivo);
+        if (PassFileToRepository.fileExists(path))
+            path = crearRutaAlmacenamiento(secuencial, rutaBase, proceso).concat(File.separator).concat(PassFileToRepository.generateDateAsId()).concat("_").concat(nombreArchivo);
+
+        return path;
+    }
+
+    private static String crearRutaAlmacenamiento(long secuencial, String rutaBase, String proceso) {
+        try {
+            String carpeta =rutaBase.concat(File.separator).concat(proceso).concat(File.separator).concat(String.valueOf(secuencial));
+            Path path = Paths.get(carpeta);
+            if (!Files.exists(path))
+                Files.createDirectories(path);
+            return carpeta;
+        } catch (IOException e) {
+            throw new PncErrorException("Error al crear el directorio");
+        }
+    }
+
 }
