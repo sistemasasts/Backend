@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface ReclamoPlanesAccionMapper {
     @Mapping(target = "idReclamo", ignore = true)
+    @Mapping(target = "observacion", ignore = true)
     ProviderActionPlanDto fromProviderActionPlanToDto(ProviderActionPlan providerActionPlan);
 
     default List<ProviderActionPlanDto> fromListToListDto(List<ProviderActionPlan> honorarios) {

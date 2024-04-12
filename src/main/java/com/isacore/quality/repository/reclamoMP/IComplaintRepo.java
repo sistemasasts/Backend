@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.isacore.quality.model.reclamoMP.Complaint;
+import org.springframework.data.repository.query.Param;
 
 public interface IComplaintRepo extends RepositorioBase<Complaint> {
 	
@@ -23,4 +24,9 @@ public interface IComplaintRepo extends RepositorioBase<Complaint> {
 	List<Complaint> findByStateAndAprobadorCalidad(ComplaintEstado estado, String usuario);
 
 	List<Complaint> findByStateAndAprobadorCompras(ComplaintEstado estado, String usuario);
+
+	@Query(value = "select DISTINCT a.* from complaint(nolock) a inner join\n" +
+			"provider_actionplan(nolock)b on  a.id = b.com_id\n" +
+			"where b.estado ='ASIGNADA' AND B.pap_responsable= :responsable", nativeQuery = true)
+	List<Complaint> findByPlanesAccionPorUsuarioSesion(@Param("responsable")String responsable);
 }

@@ -49,5 +49,10 @@ public interface IComplaintService extends CRUD<ComplaintDto> {
 
 	void enviarPlanesAccion(ComplaintDto dto);
 
+	List<ComplaintDto> listarPorPlanerAccionPorUsuarioSesion();
+
+	List<ProviderActionPlanDto> procesarPlanAccion(ProviderActionPlanDto dto);
+
+	List<ProviderActionPlanDto> validarPlanAccion(ProviderActionPlanDto dto);
 
 }

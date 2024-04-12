@@ -11,6 +11,7 @@ public class DocumentoDto implements Serializable {
 
     private long id;
     private long solicitudId;
+    private long planAccionId;
     private String orden;
 
     private String nombreArchivo;

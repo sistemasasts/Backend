@@ -55,7 +55,8 @@ public class ComplaintDocumentoServiceImpl implements IComplaintDocumentoService
                         salidaOp.getId(),
                         salidaOp.getState().name(),
                         dto.getOrden(),
-                        OrigenSolicitud.RECLAMO
+                        OrigenSolicitud.RECLAMO,
+                        dto.getPlanAccionId()
                 );
                 this.repositorio.save(documento);
                 log.info(String.format("RECLAMO MP %s : Documento guardado %s", salidaOp.getNumber(), documento));

@@ -1,9 +1,6 @@
 package com.isacore.quality.service.impl.reclamoMP;
 
-import com.isacore.quality.model.reclamoMP.Complaint;
-import com.isacore.quality.model.reclamoMP.ComplaintEstado;
-import com.isacore.quality.model.reclamoMP.ComplaintHistorial;
-import com.isacore.quality.model.reclamoMP.ComplaintOrdenFlujo;
+import com.isacore.quality.model.reclamoMP.*;
 import com.isacore.quality.repository.reclamoMP.ComplainDocumentoRepo;
 import com.isacore.quality.repository.reclamoMP.ComplaintHistorialRepo;
 import com.isacore.quality.service.reclamoMP.IComplaintHistorialService;
@@ -34,6 +31,15 @@ public class ComplaintHistorialServiceImpl implements IComplaintHistorialService
         String usuario = nombreUsuarioEnSesion();
         Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
         ComplaintHistorial historial = new ComplaintHistorial(observacion, usuarioOp.get(), ordenFlujo, estado.toString(), salidaMaterial.getId());
+        this.historialRepo.save(historial);
+        log.info(String.format("Historial Pnc Salida Material guardado %s", historial));
+    }
+
+    @Override
+    public void agregar(Complaint salidaMaterial, ComplaintEstado estado, ComplaintOrdenFlujo ordenFlujo, String observacion, ProviderActionPlan planAccion) {
+        String usuario = nombreUsuarioEnSesion();
+        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        ComplaintHistorial historial = new ComplaintHistorial(observacion, usuarioOp.get(), ordenFlujo, estado.toString(), salidaMaterial.getId(),planAccion.getId());
         this.historialRepo.save(historial);
         log.info(String.format("Historial Pnc Salida Material guardado %s", historial));
     }

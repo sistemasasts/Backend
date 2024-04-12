@@ -4,6 +4,7 @@ import com.isacore.quality.model.DocumentoBase;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -14,6 +15,8 @@ import javax.persistence.Enumerated;
 public class ComplaintDocumento extends DocumentoBase {
 
     private long solicitudId;
+    @Column(columnDefinition = "bigint default 0 ")
+    private long planAccionId;
     private String estado;
     private String orden;
     @Enumerated(EnumType.STRING)
@@ -29,4 +32,15 @@ public class ComplaintDocumento extends DocumentoBase {
         this.orden = orden;
         this.origen = origen;
     }
+
+    public ComplaintDocumento(String path, String nombreArchivo, long solicitudId, String estado, String orden,
+                              OrigenSolicitud origen, long planAccionId) {
+        super(path, nombreArchivo);
+        this.solicitudId = solicitudId;
+        this.estado = estado;
+        this.orden = orden;
+        this.origen = origen;
+        this.planAccionId = planAccionId;
+    }
+
 }

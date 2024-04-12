@@ -21,4 +21,6 @@ public class ProviderActionPlanDto {
     private String responsable;
     private ComplaintPlanAccionEstado estado;
 
+    private String observacion;
+
 }

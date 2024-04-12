@@ -83,7 +83,7 @@ public class ReclamoServiceImpl implements IComplaintService {
         complaint.setState(ComplaintEstado.CERRADO);
         complaint.setCloseDate(LocalDateTime.now());
         historialService.agregar(complaint, estadoOriginal, ComplaintOrdenFlujo.GESTION_CALIDAD,
-                UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? "RECLAMO CERRADO": dto.getObservacion());
+                UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? "RECLAMO CERRADO" : dto.getObservacion());
         log.info(String.format("Reclamo de MP id=%s ha sido CERRADO", complaint.getId()));
     }
 
@@ -398,6 +398,48 @@ public class ReclamoServiceImpl implements IComplaintService {
         this.reclamoRepo.save(reclamo);
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.GESTION_PLANES_ACCION, dto.getObservacion());
         //TODO: Hacer notificacion
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ComplaintDto> listarPorPlanerAccionPorUsuarioSesion() {
+        String usuarioSesion = UtilidadesSeguridad.nombreUsuarioEnSesion();
+        List<Complaint> reclamos = this.reclamoRepo.findByPlanesAccionPorUsuarioSesion(usuarioSesion);
+        List<ComplaintDto> reclamosDto = this.reclamoMapper.fromListReclamoToListDto(reclamos);
+        for (ComplaintDto dto : reclamosDto) {
+            dto.getListActionsPlanProvider().removeIf(x -> !x.getResponsable().equals(usuarioSesion));
+        }
+        return reclamosDto;
+    }
+
+    @Transactional
+    @Override
+    public List<ProviderActionPlanDto> procesarPlanAccion(ProviderActionPlanDto dto) {
+        Complaint reclamo = this.obtenerporId(dto.getIdReclamo());
+        ProviderActionPlan planAccion = reclamo.getListActionsPlanProvider().stream()
+                .filter(x -> x.getId() == dto.getId()).findFirst()
+                .orElseThrow(() -> new PncErrorException("Plan de acción no encontrado"));
+        planAccion.setEstado(ComplaintPlanAccionEstado.PENDIENTE_APROBACION);
+        reclamoRepo.save(reclamo);
+        String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción finalizado";
+        this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.PROCESAR_PLANES_ACCION, observacion, planAccion);
+        return this.reclamoPlanesAccionMapper.fromListToListDto(reclamo.getListActionsPlanProvider());
+    }
+
+    @Transactional
+    @Override
+    public List<ProviderActionPlanDto> validarPlanAccion(ProviderActionPlanDto dto) {
+        Complaint reclamo = this.obtenerporId(dto.getIdReclamo());
+        ProviderActionPlan planAccion = reclamo.getListActionsPlanProvider().stream()
+                .filter(x -> x.getId() == dto.getId()).findFirst()
+                .orElseThrow(() -> new PncErrorException("Plan de acción no encontrado"));
+        planAccion.setEstado(dto.getEstado());
+        String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción aprobado";
+        this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.VALIDAR_PLANES_ACCION, observacion, planAccion);
+        if(dto.getEstado().equals(ComplaintPlanAccionEstado.REGRESADO)){
+//            TOdo: Enviar notificacion
+        }
+        return this.reclamoPlanesAccionMapper.fromListToListDto(reclamo.getListActionsPlanProvider());
     }
 
     @Override

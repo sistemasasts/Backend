@@ -5,6 +5,7 @@ import com.isacore.sgc.acta.model.UserImptek;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -21,6 +22,9 @@ public class ComplaintHistorial extends SolicitudHistorialBase {
 
     private long solicitudId;
 
+    @Column(columnDefinition = "bigint default 0 ")
+    private long planAccionId;
+
     protected ComplaintHistorial (){}
 
     public ComplaintHistorial(String observacion, UserImptek usuario, ComplaintOrdenFlujo orden, String estado, long solicitudId) {
@@ -28,5 +32,13 @@ public class ComplaintHistorial extends SolicitudHistorialBase {
         this.orden = orden;
         this.estado = estado;
         this.solicitudId = solicitudId;
+    }
+
+    public ComplaintHistorial(String observacion, UserImptek usuario, ComplaintOrdenFlujo orden, String estado, long solicitudId, long planAccionId) {
+        super(observacion, usuario.getIdUser(), usuario.getEmployee().getCompleteName());
+        this.orden = orden;
+        this.estado = estado;
+        this.solicitudId = solicitudId;
+        this.planAccionId = planAccionId;
     }
 }

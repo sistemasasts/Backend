@@ -164,4 +164,24 @@ public class ComplaintController {
         service.enviarPlanesAccion(dto);
         return ResponseEntity.ok(true);
     }
+
+    @GetMapping("/listarPlanesAccionAsignadasPorEstado")
+    public ResponseEntity<Object> listarPlanesAccionAsignadasPorEstado() {
+        List<ComplaintDto> compraDto = service.listarPorPlanerAccionPorUsuarioSesion();
+        return ResponseEntity.ok(compraDto);
+    }
+
+    @PostMapping("/procesarPlanAccion")
+    public ResponseEntity<Object> procesarPlanAccion(@RequestBody ProviderActionPlanDto dto) {
+        List<ProviderActionPlanDto> problemas = service.procesarPlanAccion(dto);
+        return ResponseEntity.ok(problemas);
+    }
+
+    @PostMapping("/validarPlanAccion")
+    public ResponseEntity<Object> validarPlanAccion(@RequestBody ProviderActionPlanDto dto) {
+        List<ProviderActionPlanDto> problemas = service.validarPlanAccion(dto);
+        return ResponseEntity.ok(problemas);
+    }
+
+
 }
