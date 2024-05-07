@@ -12,6 +12,7 @@ public class ProblemDto implements Serializable {
 
     private long id;
     private long reclamoId;
+    private long defectoId;
     private String description;
     private String pictureStringB64;
     private String nameFileP;

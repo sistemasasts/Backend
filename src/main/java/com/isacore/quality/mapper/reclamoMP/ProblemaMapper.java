@@ -20,6 +20,7 @@ public interface ProblemaMapper {
 //    @Mapping(target = "creado_fecha", ignore = true)
 //    @Mapping(target = "creado_por", ignore = true)
 //    @Mapping(target = "modificado_fecha", ignore = true)
+    @Mapping(target = "defectoId", source = "defectoId")
     @Mapping(target = "reclamoId", ignore = true)
     @Mapping(target = "base64", source = "problem", qualifiedByName = "convertirImagen")
     ProblemDto fromProblemToDto(Problem problem);

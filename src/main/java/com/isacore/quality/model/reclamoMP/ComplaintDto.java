@@ -31,6 +31,7 @@ public class ComplaintDto implements Serializable {
     private ComplaintEstado state;
     private String estadoTexto;
     private String nombreProveedor;
+    private String ordenCompra;
     private List<ProblemDto> problemas;
     private List<ExecutedAction> listExecutedActons;
     private List<ProviderActionPlan> listActionsPlanProvider;
@@ -47,5 +48,7 @@ public class ComplaintDto implements Serializable {
     private String aprobadorComprasCompleto;
     private LocalDateTime fechaAprobadorCalidad;
     private LocalDateTime fechaAprobadorCompras;
+    private String userName;
+    private LocalDateTime dateCreateComplaint;
 
 }

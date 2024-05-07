@@ -19,6 +19,7 @@ import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
 import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.reclamoMP.*;
 import com.isacore.quality.model.se.TipoSolicitud;
+import com.isacore.quality.model.spp.SolicitudPruebaProcesoResponsable;
 import com.isacore.quality.repository.IProductRepo;
 import com.isacore.quality.repository.IProviderRepo;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
@@ -39,7 +40,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +52,9 @@ import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.isacore.util.UtilidadesCadena.esNuloOBlanco;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -151,6 +154,7 @@ public class ReclamoServiceImpl implements IComplaintService {
 
     private void crearProblema(Complaint reclamo, ProblemDto dto, String path, String nombreArchivo, String tipo) {
         Problem problema = new Problem(
+                dto.getDefectoId(),
                 dto.getDescription(),
                 path,
                 nombreArchivo,
@@ -164,6 +168,7 @@ public class ReclamoServiceImpl implements IComplaintService {
         Optional<Problem> problema = reclamo.getListProblems().stream().filter(x -> x.getId() == dto.getId()).findFirst();
         if (problema.isPresent()) {
             problema.get().setDescription(dto.getDescription());
+            problema.get().setDefectoId(dto.getDefectoId());
             if (UtilidadesCadena.noEsNuloNiBlanco(path)) {
                 PassFileToRepository.eliminarArchivoFisico(problema.get().getPictureStringB64());
                 problema.get().setPictureStringB64(path);
@@ -398,6 +403,18 @@ public class ReclamoServiceImpl implements IComplaintService {
         this.reclamoRepo.save(reclamo);
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.GESTION_PLANES_ACCION, dto.getObservacion());
         //TODO: Hacer notificacion
+
+        Map<String, List<ProviderActionPlan>> planes = reclamo.getListActionsPlanProvider()
+                .stream()
+                .filter(x -> x.getEstado().equals(ComplaintPlanAccionEstado.ASIGNADA))
+                .collect(Collectors.groupingBy(ProviderActionPlan::getResponsable));
+        planes.forEach((usuario, planesAcciones) -> {
+            try {
+                this.servicioNotificacion.notificarPlanAccionAsignado(reclamo, planesAcciones);
+            } catch (Exception ex) {
+                log.error(String.format("Error al notificar planes de asigancion de RECLAMO DE MATERIA PRIMA: %s", ex));
+            }
+        });
     }
 
     @Transactional(readOnly = true)
@@ -423,6 +440,11 @@ public class ReclamoServiceImpl implements IComplaintService {
         reclamoRepo.save(reclamo);
         String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción finalizado";
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.PROCESAR_PLANES_ACCION, observacion, planAccion);
+        try {
+            this.servicioNotificacion.notificarPlanAccionEstado(reclamo, Collections.singletonList(planAccion),ComplaintPlanAccionEstado.PENDIENTE_APROBACION, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
+        } catch (Exception ex) {
+            log.error(String.format("Error al notificar planes de asigancion de RECLAMO DE MATERIA PRIMA: %s", ex));
+        }
         return this.reclamoPlanesAccionMapper.fromListToListDto(reclamo.getListActionsPlanProvider());
     }
 
@@ -436,8 +458,12 @@ public class ReclamoServiceImpl implements IComplaintService {
         planAccion.setEstado(dto.getEstado());
         String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción aprobado";
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.VALIDAR_PLANES_ACCION, observacion, planAccion);
-        if(dto.getEstado().equals(ComplaintPlanAccionEstado.REGRESADO)){
-//            TOdo: Enviar notificacion
+        if (dto.getEstado().equals(ComplaintPlanAccionEstado.REGRESADO)) {
+            try {
+                this.servicioNotificacion.notificarPlanAccionEstado(reclamo, Collections.singletonList(planAccion),ComplaintPlanAccionEstado.REGRESADO, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
+            } catch (Exception ex) {
+                log.error(String.format("Error al notificar planes de asigancion de RECLAMO DE MATERIA PRIMA: %s", ex));
+            }
         }
         return this.reclamoPlanesAccionMapper.fromListToListDto(reclamo.getListActionsPlanProvider());
     }
@@ -458,7 +484,7 @@ public class ReclamoServiceImpl implements IComplaintService {
 
         Complaint reclamo = new Complaint(producto.getIdProduct(), proveedor != null ? proveedor.getIdProvider() : null, obj.getBatchProvider(), obj.getPalletNumber(), obj.getAffectedProduct(),
                 obj.getAffectedAmount(), obj.getTotalAmount(), obj.getPlace(), obj.getDateComplaint(), obj.isApplyReturn(), obj.getPorcentComplaint(), obj.getDetailNCP(), unidadMedida,
-                obj.getOtherProvider(), this.consultarUsuario(UtilidadesSeguridad.nombreUsuarioEnSesion()));
+                obj.getOtherProvider(), this.consultarUsuario(UtilidadesSeguridad.nombreUsuarioEnSesion()), obj.getOrdenCompra());
 
         reclamo.setNumber(this.reclamoRepo.secuencialSiguiente());
         log.info("Reclamo guardado {0}", reclamo);
@@ -484,6 +510,7 @@ public class ReclamoServiceImpl implements IComplaintService {
         reclamo.setDateComplaint(obj.getDateComplaint());
         reclamo.setOtherProvider(obj.getOtherProvider());
         reclamo.setPalletNumber(obj.getPalletNumber());
+        reclamo.setOrdenCompra(obj.getOrdenCompra());
         if (obj.getUnidadMedidaId() != reclamo.getUnit().getId()) {
             UnidadMedida unidadMedida = this.obtenerUnidadMedida(obj.getUnidadMedidaId());
             reclamo.setUnit(unidadMedida);

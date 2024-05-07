@@ -122,6 +122,8 @@ public class Complaint extends EntidadBase {
 	private String aprobadorCompras;
 	private LocalDateTime fechaAprobadorCalidad;
 	private LocalDateTime fechaAprobadorCompras;
+
+	private String ordenCompra;
 	
 	//@ManyToOne(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
 	//@JoinColumn(name = "COM_ID")
@@ -134,7 +136,7 @@ public class Complaint extends EntidadBase {
 
 	public Complaint(Integer idProduct, Integer idProvider, String batchProvider, String palletNumber, String affectedProduct,
 					 Double affectedAmount, Double totalAmount, String place, LocalDateTime dateComplaint, Boolean applyReturn,
-					 Double porcentComplaint, String detailNCP, UnidadMedida unit, String otherProvider, UserImptek usuario) {
+					 Double porcentComplaint, String detailNCP, UnidadMedida unit, String otherProvider, UserImptek usuario, String ordenCompra) {
 		this.idProduct = idProduct;
 		this.idProvider = idProvider;
 		this.batchProvider = batchProvider;
@@ -156,6 +158,7 @@ public class Complaint extends EntidadBase {
 		this.otherProvider = otherProvider;
 		this.dateCreateComplaint = LocalDateTime.now();
 		this.state = ComplaintEstado.CREADA;
+		this.ordenCompra = ordenCompra;
 		this.calcularTotal();
 	}
 
@@ -163,7 +166,8 @@ public class Complaint extends EntidadBase {
 	private Long kpiTime;
 
 	public void calcularTotal(){
-		this.porcentComplaint = (this.affectedAmount * 100 )/this.totalAmount;
+		double valor = (this.affectedAmount * 100 )/this.totalAmount;
+		this.porcentComplaint = Math.round(valor * 100.0) / 100.0;
 	}
 
 	public Long getKpiTime() {

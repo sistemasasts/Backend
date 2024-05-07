@@ -31,6 +31,8 @@
 	<field name="aprobadorComprasCompleto" class="java.lang.String"/>
 	<field name="fechaAprobadorCalidad" class="java.time.LocalDateTime"/>
 	<field name="fechaAprobadorCompras" class="java.time.LocalDateTime"/>
+	<field name="userName" class="java.lang.String"/>
+	<field name="dateCreateComplaint" class="java.time.LocalDateTime"/>
 	<variable name="v_applyReturn" class="java.lang.String">
 		<variableExpression><![CDATA[$F{applyReturn}? "SI": "NO"]]></variableExpression>
 	</variable>
@@ -651,7 +653,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="9" isBold="true" isUnderline="false"/>
 				</textElement>
-				<text><![CDATA[Gerente de I+D]]></text>
+				<text><![CDATA[Elaborado por]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="270" y="14" width="284" height="110" uuid="8e4dbccb-6b5c-472c-b2b8-91a9a740ad38"/>
@@ -661,7 +663,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="9" isBold="true" isUnderline="false"/>
 				</textElement>
-				<text><![CDATA[Jefe de Lógistica y Compras]]></text>
+				<text><![CDATA[Aprobado por]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="0" y="124" width="554" height="14" uuid="68ba5112-c06a-44aa-b8b4-c3774879eebb"/>
@@ -687,23 +689,30 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="20" y="60" width="230" height="18" uuid="e27e33d6-f26f-464e-9a9b-b74b4820ba01"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{aprobadorCalidadCompleto}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{userName}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="310" y="60" width="220" height="18" uuid="a782db5d-b103-4e1d-ab21-52afebb5a8d5"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{aprobadorComprasCompleto}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{aprobadorCalidadCompleto}]]></textFieldExpression>
 			</textField>
 			<textField isBlankWhenNull="true">
 				<reportElement x="66" y="79" width="140" height="21" uuid="f46684b3-4ef4-4978-bc04-39169b1419d0"/>
 				<textElement textAlignment="Center"/>
-				<textFieldExpression><![CDATA[$F{fechaAprobadorCalidad}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{dateCreateComplaint}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="337" y="80" width="155" height="21" uuid="394262dc-a3d0-4c22-a868-8403ac68c22e"/>
 				<textElement textAlignment="Center"/>
-				<textFieldExpression><![CDATA[$F{fechaAprobadorCompras}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{fechaAprobadorCalidad}.format( java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy") )]]></textFieldExpression>
 			</textField>
+			<image>
+				<reportElement x="408" y="20" width="101" height="93" uuid="974c5805-671b-447f-b6f8-68577a139bcb">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/Sello de calidad.png"]]></imageExpression>
+			</image>
 		</band>
 	</summary>
 </jasperReport>

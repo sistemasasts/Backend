@@ -34,6 +34,8 @@ public interface ReclamoMapper {
     @Mapping(target = "unidadMedidaDescripcion", source = "unit", qualifiedByName = "unidadMedidaDescripcion")
     @Mapping(target = "nombreProducto", source = "idProduct", qualifiedByName = "productoNombre")
     @Mapping(target = "number", source = "number")
+    @Mapping(target = "userName", source = "userName")
+    @Mapping(target = "dateCreateComplaint", source = "dateCreateComplaint")
     @Mapping(target = "estadoTexto", source = "state", qualifiedByName = "estadoTexto")
     @Mapping(target = "nombreProveedor", source = "idProvider", qualifiedByName = "proveedorNombre")
     @Mapping(target = "aprobadorCalidadCompleto", source = "aprobadorCalidad", qualifiedByName = "aprobadorCalidadNombre")

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -17,6 +18,9 @@ public class Problem extends EntidadBase {
 //    @Column(name = "PROBLEM_ID")
 //    private Integer idProblem;
 
+    @NotNull
+    @Column(columnDefinition = "bigint default 0")
+    private long defectoId;
     @Column(name = "PROBLEM_DESCRIPTION", nullable = true, columnDefinition = "varchar(max)")
     private String description;
 
@@ -31,7 +35,8 @@ public class Problem extends EntidadBase {
 
     protected Problem() {    }
 
-    public Problem(String description, String pictureStringB64, String nameFileP, String extensionFileP) {
+    public Problem(long defectoId, String description, String pictureStringB64, String nameFileP, String extensionFileP) {
+        this.defectoId = defectoId;
         this.description = description;
         this.pictureStringB64 = pictureStringB64;
         this.nameFileP = nameFileP;
