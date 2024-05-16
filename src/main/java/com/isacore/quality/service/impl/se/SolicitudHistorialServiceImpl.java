@@ -84,12 +84,12 @@ public class SolicitudHistorialServiceImpl implements ISolicitudHistorialService
             if (x.getSolicitudEnsayo().getNombreSolicitante().equals(usuarioSesion)) {
                 switch (x.getOrden()) {
                     case INGRESO_SOLICITUD:
-                        x.setTieneAdjuntos(repoDocumento.existsByEstadoAndOrdenFlujoAndSolicitudEnsayo_Id(x.getEstadoSolicitud(), x.getOrden(), solicitudId));
+                        x.setTieneAdjuntos(repoDocumento.existsByOrdenFlujoAndSolicitudEnsayo_Id(x.getOrden(), solicitudId));
                         break;
                     case APROBAR_INFORME:
                         count += 1;
                         if (!(x.getSolicitudEnsayo().getEstado().equals(EstadoSolicitud.REGRESADO_NOVEDAD_INFORME)) && count == numeroRegistros)
-                            x.setTieneAdjuntos(repoDocumento.existsByEstadoAndOrdenFlujoAndSolicitudEnsayo_Id(x.getEstadoSolicitud(), x.getOrden(), solicitudId));
+                            x.setTieneAdjuntos(repoDocumento.existsByOrdenFlujoAndSolicitudEnsayo_Id(x.getOrden(), solicitudId));
                         break;
                     default:
                         break;

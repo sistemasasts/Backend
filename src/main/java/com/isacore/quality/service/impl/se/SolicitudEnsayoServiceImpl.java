@@ -10,10 +10,7 @@ import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionAdjuntoRequeridoRepo;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
-import com.isacore.quality.repository.se.IConfiguracionTiempoSolicitudRepo;
-import com.isacore.quality.repository.se.IConfiguracionUsuarioRolEnsayoRepo;
-import com.isacore.quality.repository.se.ISolicitudEnsayoRepo;
-import com.isacore.quality.repository.se.ISolicitudHistorialRepo;
+import com.isacore.quality.repository.se.*;
 import com.isacore.quality.service.se.ISolicitudDocumentoService;
 import com.isacore.quality.service.se.ISolicitudEnsayoService;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
@@ -35,10 +32,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.isacore.util.UtilidadesCadena.esNuloOBlanco;
@@ -62,6 +56,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private ISolicitudPruebasProcesoService pruebasProcesoService;
     private ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo;
     private IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
+    private final ISolicitudDocumentoRepo repoDocumento;
 
     @Autowired
     public SolicitudEnsayoServiceImpl(
@@ -76,7 +71,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             IConfiguracionAdjuntoRequeridoRepo configuracionAdjuntoRequeridoRepo,
             ISolicitudPruebasProcesoService pruebasProcesoService,
             ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo,
-            IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo) {
+            IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo,
+            ISolicitudDocumentoRepo repoDocumento) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -89,6 +85,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         this.pruebasProcesoService = pruebasProcesoService;
         this.servicioNotificacionSolicitudEnsayo = servicioNotificacionSolicitudEnsayo;
         this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
+        this.repoDocumento = repoDocumento;
     }
 
     @Override
@@ -314,7 +311,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         SolicitudEnsayo solicitudRecargada = solicitudOP.get();
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.APROBAR_INFORME, solicitud.getObservacion());
-
+        copiarInforme(solicitudRecargada.getId());
         solicitudRecargada.marcarSolicitudComoAprobada(solicitud.getTipoAprobacion());
         if (solicitud.getTipoAprobacion().equals(TipoAprobacionSolicitud.SOLICITUD_PRUEBA_PROCESO)) {
             solicitudRecargada.setEstado(EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO);
@@ -327,6 +324,20 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             LOG.error(String.format("Error al notificar Solicitud Finalizada %s", e));
         }
         return true;
+    }
+
+    private void copiarInforme(long solicitudId){
+        boolean tieneAdjuntos = this.repoDocumento.existsByOrdenFlujoAndSolicitudEnsayo_Id(OrdenFlujo.APROBAR_INFORME, solicitudId);
+        if(!tieneAdjuntos){
+            List<SolicitudDocumento> documentos = this.repoDocumento.findByOrdenFlujoInAndSolicitudEnsayo_Id(Collections.singletonList(OrdenFlujo.REVISION_INFORME), solicitudId);
+            List<SolicitudDocumento> documentosNuevos = new ArrayList<>();
+            if(!documentos.isEmpty()){
+                documentos.forEach(x -> {
+                    documentosNuevos.add(new SolicitudDocumento(x.getSolicitudEnsayo(), x.getPath(), x.getNombreArchivo(), OrdenFlujo.APROBAR_INFORME));
+                });
+                this.repoDocumento.saveAll(documentosNuevos);
+            }
+        }
     }
 
     @Override
