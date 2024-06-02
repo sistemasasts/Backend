@@ -1,8 +1,10 @@
 package com.isacore.quality.controller.desviacionRequisito;
 
 import com.isacore.quality.model.desviacionRequisito.*;
+import com.isacore.quality.model.pnc.LineaAfecta;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoHistorialService;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
+import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/desviacion-requisito")
@@ -104,5 +110,23 @@ public class DesviacionRequisitoController {
     public ResponseEntity<List<DesviacionRequisitoHistorial>> listarHistorial(@PathVariable("id") long id) {
         List<DesviacionRequisitoHistorial> obj = historialService.buscarHistorial(id);
         return ResponseEntity.ok(obj);
+    }
+
+    @GetMapping("/catalogoLineaNegocio")
+    public ResponseEntity<List<CatalogDTO>> obtenerLineaAfecta() {
+        List<CatalogDTO> catalgo = new ArrayList<>();
+        for (LineaNegocio origen : Arrays.stream(LineaNegocio.values()).sorted().collect(Collectors.toList())) {
+            catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
+        }
+        return ResponseEntity.ok(catalgo);
+    }
+
+    @GetMapping("/catalogoEstado")
+    public ResponseEntity<List<CatalogDTO>> obtenerEstados() {
+        List<CatalogDTO> catalgo = new ArrayList<>();
+        for (EstadoDesviacion origen : Arrays.stream(EstadoDesviacion.values()).sorted().collect(Collectors.toList())) {
+            catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
+        }
+        return ResponseEntity.ok(catalgo);
     }
 }

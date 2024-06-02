@@ -96,16 +96,17 @@
 	<field name="seguimiento" class="java.lang.String"/>
 	<field name="listaLotes" class="java.util.List"/>
 	<field name="listaDefectos" class="java.util.List"/>
-	<field name="aprobadorGerenciaGeneral" class="java.lang.String"/>
+	<field name="aprobadorGerenciaComercialVial" class="java.lang.String"/>
 	<field name="aprobadorGerenciaOperaciones" class="java.lang.String"/>
 	<field name="aprobadorGerenciaCalidad" class="java.lang.String"/>
-	<field name="aprobadorJefeCompras" class="java.lang.String"/>
+	<field name="aprobadorTecnico" class="java.lang.String"/>
 	<field name="aprobadorGerenciaProducto" class="java.lang.String"/>
-	<field name="aprobadorGerenciaGeneralFecha" class="java.time.LocalDateTime"/>
+	<field name="aprobadorGerenciaComercialVialFecha" class="java.time.LocalDateTime"/>
 	<field name="aprobadorGerenciaOperacionesFecha" class="java.time.LocalDateTime"/>
 	<field name="aprobadorGerenciaCalidadFecha" class="java.time.LocalDateTime"/>
-	<field name="aprobadorJefeComprasFecha" class="java.time.LocalDateTime"/>
+	<field name="aprobadorTecnicoFecha" class="java.time.LocalDateTime"/>
 	<field name="aprobadorGerenciaProductoFecha" class="java.time.LocalDateTime"/>
+	<field name="lineaNegocio" class="java.lang.String"/>
 	<variable name="fechaActual" class="java.lang.String">
 		<variableExpression><![CDATA[new SimpleDateFormat("dd-MM-yyyy").format(new Date())]]></variableExpression>
 	</variable>
@@ -389,7 +390,7 @@
 				<textElement verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[1. Descripción del material]]></text>
+				<text><![CDATA[1. DESCRIPCIÓN DEL MATERIAL]]></text>
 			</staticText>
 		</band>
 		<band height="45">
@@ -638,7 +639,7 @@
 				<textFieldExpression><![CDATA[$F{alcance}]]></textFieldExpression>
 			</textField>
 		</band>
-		<band height="309">
+		<band height="116">
 			<staticText>
 				<reportElement x="10" y="6" width="529" height="20" uuid="ccfda2cd-3d22-43a5-beec-22ceab5970fe">
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -655,7 +656,7 @@
 				<text><![CDATA[Firma de los responsables]]></text>
 			</staticText>
 			<frame>
-				<reportElement x="10" y="26" width="529" height="274" uuid="7f10c534-2947-4c56-bbdd-ba7fca0bf763"/>
+				<reportElement x="10" y="26" width="529" height="83" uuid="7f10c534-2947-4c56-bbdd-ba7fca0bf763"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
@@ -663,25 +664,11 @@
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
 				<staticText>
-					<reportElement x="20" y="50" width="229" height="20" uuid="2f61e8af-d1d3-4b56-8e6a-21de1af7702b"/>
-					<textElement textAlignment="Center">
-						<font size="9" isBold="true"/>
-					</textElement>
-					<text><![CDATA[Gerente General / Gerente de Comercialización]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="20" y="131" width="228" height="21" uuid="6a8e6149-6916-45af-b0a8-0f155a54fe60"/>
+					<reportElement x="20" y="52" width="228" height="21" uuid="6a8e6149-6916-45af-b0a8-0f155a54fe60"/>
 					<textElement textAlignment="Center">
 						<font size="9" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Gerente de I&D y Calidad]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="20" y="209" width="228" height="14" uuid="ac534a5c-b812-42d0-a70d-e2e2ea6f236b"/>
-					<textElement textAlignment="Center">
-						<font size="9" isBold="true"/>
-					</textElement>
-					<text><![CDATA[Gerente de Producto]]></text>
 				</staticText>
 				<staticText>
 					<reportElement x="300" y="50" width="221" height="20" uuid="de9474c9-41fd-4016-8563-e39981d06dcc"/>
@@ -690,21 +677,8 @@
 					</textElement>
 					<text><![CDATA[Gerente de Operaciones]]></text>
 				</staticText>
-				<staticText>
-					<reportElement x="300" y="131" width="220" height="20" uuid="a2f7ad4e-448d-4670-b935-a02b021ffa14"/>
-					<textElement textAlignment="Center">
-						<font size="9" isBold="true"/>
-					</textElement>
-					<text><![CDATA[Jefe de Logística y Compras]]></text>
-				</staticText>
 				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-					<reportElement x="14" y="16" width="250" height="33" uuid="3a343855-3c2d-48e3-b10a-e96dfc22e2fd"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle"/>
-					<textFieldExpression><![CDATA[$F{aprobadorGerenciaGeneral} +"\n"+
-$F{aprobadorGerenciaGeneralFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
-				</textField>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-					<reportElement x="14" y="100" width="250" height="31" uuid="b905fe49-5a95-4de3-a651-7c3e6d611417"/>
+					<reportElement x="14" y="21" width="250" height="31" uuid="b905fe49-5a95-4de3-a651-7c3e6d611417"/>
 					<textElement textAlignment="Center" verticalAlignment="Middle"/>
 					<textFieldExpression><![CDATA[$F{aprobadorGerenciaCalidad} + "\n" +
 $F{aprobadorGerenciaCalidadFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
@@ -715,19 +689,86 @@ $F{aprobadorGerenciaCalidadFecha}.format( java.time.format.DateTimeFormatter.ofP
 					<textFieldExpression><![CDATA[$F{aprobadorGerenciaOperaciones} + "\n"+
 $F{aprobadorGerenciaOperacionesFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
 				</textField>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-					<reportElement x="300" y="100" width="220" height="31" uuid="b7fa1c22-e485-49e1-909f-94bfdccc9bb4"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle"/>
-					<textFieldExpression><![CDATA[$F{aprobadorJefeCompras} + "\n" +
-$F{aprobadorJefeComprasFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
-				</textField>
-				<textField textAdjust="StretchHeight" isBlankWhenNull="true">
-					<reportElement x="11" y="183" width="250" height="26" uuid="8405d321-abe6-4a13-b4ab-cc32978914e1"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle"/>
-					<textFieldExpression><![CDATA[$F{aprobadorGerenciaProducto} +
-$F{aprobadorGerenciaProductoFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
-				</textField>
+				<image>
+					<reportElement x="80" y="-5" width="101" height="93" uuid="a83dd9d4-67fa-4978-a057-94bf90c6208e">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/Sello de calidad.png"]]></imageExpression>
+				</image>
 			</frame>
+		</band>
+		<band height="62">
+			<printWhenExpression><![CDATA[$F{lineaNegocio} == "IMPERMEABILIZACION"]]></printWhenExpression>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="37" y="7" width="250" height="18" uuid="5f35fff2-d022-46eb-b097-27f7604de8e7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aprobadorGerenciaProducto}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="46" y="38" width="228" height="14" uuid="b21ce5f7-bf21-48dc-88ae-fa99a2e62548"/>
+				<textElement textAlignment="Center">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Gerente de Producto]]></text>
+			</staticText>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="37" y="20" width="250" height="18" uuid="d61f72ae-a011-49f1-8224-5bd9d0ef29ad"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aprobadorGerenciaProductoFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="53">
+			<printWhenExpression><![CDATA[$F{lineaNegocio} == "CONSTRUCCION_LIVIANA"]]></printWhenExpression>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="38" y="10" width="250" height="18" uuid="fe188d88-e934-4a0d-8dda-e1f3b35c4fc8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aprobadorGerenciaComercialVial}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="46" y="38" width="228" height="14" uuid="9ee909f0-f3a4-400f-bd55-3e4745cd94a6"/>
+				<textElement textAlignment="Center">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Gerente comercial - Vial]]></text>
+			</staticText>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="38" y="24" width="250" height="13" uuid="5eb0c2b5-c1e6-47f1-ad30-1917bbc9b761"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aprobadorGerenciaComercialVialFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="56">
+			<printWhenExpression><![CDATA[$F{lineaNegocio} == "VIALES"]]></printWhenExpression>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="37" y="14" width="250" height="14" uuid="cb6b2be2-87d1-446d-821b-9221e37042a7"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aprobadorTecnico}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="46" y="38" width="228" height="14" uuid="0394d2d7-f70d-4695-a43b-0e69b9c69385"/>
+				<textElement textAlignment="Center">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Técnico]]></text>
+			</staticText>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement x="38" y="25" width="250" height="13" uuid="9dd8c235-46c0-43b7-9518-7505ae921d80"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{aprobadorTecnicoFecha}.format( java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd") )]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 	<columnFooter>

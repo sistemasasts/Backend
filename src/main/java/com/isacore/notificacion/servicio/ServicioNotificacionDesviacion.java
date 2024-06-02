@@ -1,8 +1,10 @@
 package com.isacore.notificacion.servicio;
 
 import com.isacore.notificacion.ConfiguracionNotificacion;
+import com.isacore.notificacion.dominio.Adjunto;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
+import com.isacore.quality.model.comunes.TipoAprobacion;
 import com.isacore.quality.model.desviacionRequisito.DesviacionRequisito;
 import com.isacore.quality.model.desviacionRequisito.Lote;
 import com.isacore.quality.model.desviacionRequisito.SolicitudAprobacionAdicional;
@@ -24,6 +26,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Async
@@ -67,21 +70,26 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
         });
     }
 
-    public void notificarAprobacionUrl(DesviacionRequisito salidaMaterial, String observacion, SolicitudAprobacionAdicional solicitud) throws Exception {
-        String asunto = String.format("DESVIACIÓN REQUISITO %s POR APROBAR", salidaMaterial.getSecuencial());
+    public void notificarAprobacionUrl(DesviacionRequisito desviacionRequisito, String observacion, SolicitudAprobacionAdicional solicitud, List<Adjunto> adjuntoCorreo) throws Exception {
+        String asunto = String.format("DESVIACIÓN REQUISITO %s POR APROBAR", desviacionRequisito.getSecuencial());
 
         UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getDesviacionAprobacionAdicional().getUsuario());
         UserImptek usuarioResponsable = this.obtenerUsuario(solicitud.getCreadoPor());
+        UserImptek usuarioAprobadorPrincipal = this.obtenerUsuario((desviacionRequisito.getUsuarioAprobador()));
         DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getCorreo(), usuarioResponsable.getCorreo());
-        enviarHtml(destinos, asunto, "ProductoNoConforme/emailAprobacionDesviacionRequisito", (context) -> {
-            context.setVariable("numero", salidaMaterial.getSecuencial());
+        destinos.agregarDireccionCC(usuarioAprobadorPrincipal.getCorreo());
+        boolean enviarUrl = !solicitud.getDesviacionAprobacionAdicional().getTipoAprobacion().equals(TipoAprobacion.GERENCIA_GERENCIAL);
+        enviarHtml(destinos, asunto, "ProductoNoConforme/emailAprobacionDesviacionRequisito", adjuntoCorreo,(context) -> {
+            context.setVariable("numero", desviacionRequisito.getSecuencial());
             context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
-            context.setVariable("nombreSolicitante", usuarioResponsable.getEmployee().getCompleteName());
-            context.setVariable("producto", salidaMaterial.getProduct().getNameProduct());
-            context.setVariable("tipo", salidaMaterial.getProduct().getTypeProductTxt());
-            context.setVariable("cantidad", recuperarCantidadYUnidad(salidaMaterial));
-            context.setVariable("observacion", observacion);
+            context.setVariable("nombreAprobador", usuarioAprobadorPrincipal.getEmployee().getCompleteName());
+            context.setVariable("producto", desviacionRequisito.getProduct().getNameProduct());
+            context.setVariable("lote", obtenerLotes(desviacionRequisito));
+            context.setVariable("cantidad", recuperarCantidadYUnidad(desviacionRequisito));
             context.setVariable("urlAprobacion", crearUrlAprobacion(solicitud));
+            context.setVariable("descripcionDesviacion", desviacionRequisito.getDescripcion());
+            context.setVariable("alcanceDesviacion", desviacionRequisito.getAlcance());
+            context.setVariable("verUrlAprobacion", enviarUrl);
         });
     }
 
@@ -105,6 +113,13 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
         return urlBaseAprobacion
                 .concat(String.valueOf(solicitud.getId()))
                 .concat("/").concat(solicitud.getPrenda());
+    }
+
+    private String obtenerLotes(DesviacionRequisito desviacionRequisito){
+        List<Lote> lotes = loteRepo.findByDesviacionRequisito(desviacionRequisito);
+        if(lotes.isEmpty())
+            return "";
+        return lotes.stream().map(Lote::getLote).collect(Collectors.joining(", "));
     }
 
     @Override

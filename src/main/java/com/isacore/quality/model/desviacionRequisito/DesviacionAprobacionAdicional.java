@@ -30,5 +30,10 @@ public class DesviacionAprobacionAdicional extends EntidadBase {
         this.usuario = usuario;
         this.orden = orden;
         this.tipoAprobacion = tipoAprobacion;
+        this.activo = true;
+        if(tipoAprobacion.equals(TipoAprobacion.GERENCIA_GERENCIAL)){
+            this.activo = false;
+            this.fechaAprobacion = LocalDateTime.now();
+        }
     }
 }

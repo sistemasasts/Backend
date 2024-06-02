@@ -35,6 +35,9 @@ public class DesviacionRequisito {
     @Enumerated(EnumType.STRING)
     private LineaAfecta afectacion;
 
+    @Enumerated(EnumType.STRING)
+    private LineaNegocio lineaNegocio;
+
     @Column(columnDefinition = "varchar(max)")
     private String motivo;
 
@@ -118,7 +121,8 @@ public class DesviacionRequisito {
             String alcance,
             String responsable,
             boolean replanificacion,
-            String causa) {
+            String causa,
+            LineaNegocio lineaNegocio) {
         this.secuencial = secuencial;
         this.product = product;
         this.seguimiento = seguimiento;
@@ -131,6 +135,7 @@ public class DesviacionRequisito {
         this.responsable = responsable;
         this.replanificacion = replanificacion;
         this.causa = causa;
+        this.lineaNegocio = lineaNegocio;
         this.estado = EstadoDesviacion.NUEVO;
     }
 

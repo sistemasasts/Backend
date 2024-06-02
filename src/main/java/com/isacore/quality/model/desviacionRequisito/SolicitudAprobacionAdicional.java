@@ -1,6 +1,7 @@
 package com.isacore.quality.model.desviacionRequisito;
 
 import com.isacore.EntidadBase;
+import com.isacore.quality.model.comunes.TipoAprobacion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,5 +34,8 @@ public class SolicitudAprobacionAdicional extends EntidadBase {
         this.prenda = prenda;
         this.fechaSolicitud = LocalDateTime.now();
         this.desviacionAprobacionAdicional = desviacionAprobacionAdicional;
+        if(desviacionAprobacionAdicional.getTipoAprobacion().equals(TipoAprobacion.GERENCIA_GERENCIAL)){
+            this.estado = SolicitudAprobacionAdicionalEstado.CONFIRMADO;
+        }
     }
 }

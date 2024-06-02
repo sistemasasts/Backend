@@ -6,6 +6,7 @@ import com.isacore.quality.model.pnc.EstadoSalidaMaterial;
 import com.isacore.quality.model.pnc.PncSalidaMaterial;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,5 +19,10 @@ public interface IDesviacionRequisitoRepo extends JpaRepository<DesviacionRequis
     Long generarSecuencial();
 
     List<DesviacionRequisito> findByEstadoIn(Collection<EstadoDesviacion> estados);
+
+    @Query(value="select * from desviacion_requisito where id = (\n" +
+            "\tselect desviacion_requisito_id from desviacion_aprobacion_adicional where id = :idP " +
+            ")", nativeQuery = true)
+    DesviacionRequisito findDesviacionbyDesviacionAprobacionAdicionalId(@Param("idP") Long idP);
 
 }

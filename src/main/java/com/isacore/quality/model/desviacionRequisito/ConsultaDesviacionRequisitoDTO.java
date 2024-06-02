@@ -2,11 +2,13 @@ package com.isacore.quality.model.desviacionRequisito;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.isacore.quality.model.pnc.LineaAfecta;
 import com.isacore.util.LocalDateTimeDeserialize;
 import com.isacore.util.LocalDateTimeSerialize;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ConsultaDesviacionRequisitoDTO {
@@ -19,6 +21,8 @@ public class ConsultaDesviacionRequisitoDTO {
     private LocalDateTime fechaFin;
 
     private Long productoId;
-    private String afectacion;
+    private LineaAfecta afectacion;
+    private LineaNegocio lineaNegocio;
     private Long secuencial;
+    private List<EstadoDesviacion> estados;
 }

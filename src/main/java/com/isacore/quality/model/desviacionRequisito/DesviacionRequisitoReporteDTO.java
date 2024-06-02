@@ -22,17 +22,17 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
     private List<Lote> listaLotes;
     private String seguimiento;
     private List<DesviacionRequisitoDefecto> listaDefectos;
-    private String aprobadorGerenciaGeneral;
-    private LocalDateTime aprobadorGerenciaGeneralFecha;
     private String aprobadorGerenciaOperaciones;
     private LocalDateTime aprobadorGerenciaOperacionesFecha;
     private String aprobadorGerenciaCalidad;
     private LocalDateTime aprobadorGerenciaCalidadFecha;
-    private String aprobadorJefeCompras;
-    private LocalDateTime aprobadorJefeComprasFecha;
+    private String aprobadorTecnico;
+    private LocalDateTime aprobadorTecnicoFecha;
     private String aprobadorGerenciaProducto;
     private LocalDateTime aprobadorGerenciaProductoFecha;
-
+    private String aprobadorGerenciaComercialVial;
+    private LocalDateTime aprobadorGerenciaComercialVialFecha;
+    private String lineaNegocio;
 
     public DesviacionRequisitoReporteDTO(
         DesviacionRequisito desviacionRequisito,
@@ -49,6 +49,7 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
         this.listaLotes = lotes;
         this.secuencial = desviacionRequisito.getSecuencial();
         this.listaDefectos = desviacionRequisito.getDefectos();
+        this.lineaNegocio = desviacionRequisito.getLineaNegocio().name();
     }
 
     public String getTipoProductoTexto(){

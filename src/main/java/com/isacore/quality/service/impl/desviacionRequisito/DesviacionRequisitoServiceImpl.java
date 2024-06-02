@@ -2,11 +2,13 @@ package com.isacore.quality.service.impl.desviacionRequisito;
 
 import com.isacore.exception.reporte.JasperReportsException;
 import com.isacore.exception.reporte.ReporteExeption;
+import com.isacore.notificacion.dominio.Adjunto;
 import com.isacore.notificacion.servicio.ServicioNotificacionDesviacion;
 import com.isacore.quality.exception.ConfiguracionErrorException;
 import com.isacore.quality.exception.PncErrorException;
 import com.isacore.quality.mapper.pnc.DesviacionRequisitoMapper;
 import com.isacore.quality.model.comunes.MatrizAprobacionAdicional;
+import com.isacore.quality.model.comunes.TipoAprobacion;
 import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
 import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.desviacionRequisito.*;
@@ -81,7 +83,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                 desviacionRequisito.getAlcance(),
                 desviacionRequisito.getResponsable(),
                 desviacionRequisito.isReplanificacion(),
-                desviacionRequisito.getCausa()
+                desviacionRequisito.getCausa(),
+                desviacionRequisito.getLineaNegocio()
         );
 
         this.desviacionRequisitoRepo.save(nuevaDesviacionRequisito);
@@ -131,6 +134,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         desviacionRequisito.get().setUnidadDesperdicio(obj.getUnidadDesperdicio());
         desviacionRequisito.get().setUnidadRecuperada(obj.getUnidadRecuperada());
         desviacionRequisito.get().setCausa(obj.getCausa());
+        desviacionRequisito.get().setLineaNegocio(obj.getLineaNegocio());
 
         log.info(String.format("Desviacion de requisito actualizado %s", desviacionRequisito));
 
@@ -188,7 +192,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                         c.getAlcance(),
                         c.getResponsable(),
                         c.isReplanificacion(),
-                        c.getCausa()
+                        c.getCausa(),
+                        c.getLineaNegocio()
                 );
                 desviacion.setId(c.getId());
                 desviacion.setAfectacionText(c.getAfectacion().getDescripcion());
@@ -260,11 +265,14 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
         String observacion = "";
         switch (dto.getAccion()) {
-            case APROBADO:
+            case APROBADO_CC:
                 observacion = "DESVIACIÓN REQUISITOS APROBADA";
                 break;
             case RECHAZADO:
                 observacion = "DESVIACIÓN REQUISITOS RECHAZADA";
+                break;
+            case REGRESADO:
+                observacion = "DESVIACIÓN REQUISITOS REGRESADA";
                 break;
             default:
                 break;
@@ -272,7 +280,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         String observacionFinal = UtilidadesCadena.esNuloOBlanco(dto.getObservacion()) ? observacion :
                 dto.getObservacion();
 
-        if(dto.getAccion().equals(EstadoDesviacion.APROBADO))
+        if(dto.getAccion().equals(EstadoDesviacion.APROBADO_CC))
             inicarAprobacionesAdicionales(desviacion, observacionFinal);
 
         this.historialService.agregar(desviacion, DesviacionRequisitoOrdenFlujo.APROBACION_GERENCIA_CALIDAD, observacionFinal);
@@ -312,25 +320,28 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
         DesviacionRequisitoReporteDTO dto = new DesviacionRequisitoReporteDTO(desviacionRequisito, lotesReporte);
         desviacionRequisito.getAprobacioneAdicionales().forEach(x -> {
             switch (x.getTipoAprobacion()){
-                case GERENCIA_GERENCIAL:
-                    dto.setAprobadorGerenciaGeneral(this.obtenerNombreUsuario(x.getUsuario()));
-                    dto.setAprobadorGerenciaGeneralFecha(x.getFechaAprobacion());
+                case GERENCIA_COMERCIAL_VIAL:
+                    dto.setAprobadorGerenciaComercialVial(this.obtenerNombreUsuario(x.getUsuario()));
+                    dto.setAprobadorGerenciaComercialVialFecha(x.getFechaAprobacion());
                     break;
                 case GERENCIA_PRODUCTO:
                     dto.setAprobadorGerenciaProducto(this.obtenerNombreUsuario(x.getUsuario()));
                     dto.setAprobadorGerenciaProductoFecha(x.getFechaAprobacion());
                     break;
-                case JEFE_COMPRAS:
-                    dto.setAprobadorJefeCompras(this.obtenerNombreUsuario(x.getUsuario()));
-                    dto.setAprobadorJefeComprasFecha(x.getFechaAprobacion());
-                    break;
                 case GERENCIA_OPERACIONES:
                     dto.setAprobadorGerenciaOperaciones(this.obtenerNombreUsuario(x.getUsuario()));
                     dto.setAprobadorGerenciaOperacionesFecha(x.getFechaAprobacion());
                     break;
+                case TECNICO:
+                    dto.setAprobadorTecnico(this.obtenerNombreUsuario(x.getUsuario()));
+                    dto.setAprobadorTecnicoFecha(x.getFechaAprobacion());
+                    break;
                 default: break;
             }
         });
+
+        dto.setAprobadorGerenciaCalidad(this.obtenerNombreUsuario(desviacionRequisito.getUsuarioAprobador()));
+        dto.setAprobadorGerenciaCalidadFecha(desviacionRequisito.getFechaAprobacion());
         return dto;
     }
 
@@ -361,7 +372,13 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("secuencial"), consulta.getSecuencial()));
 
             if (consulta.getAfectacion() != null)
-                predicadosConsulta.add(criteriaBuilder.ge(root.get("afectacion"), consulta.getSecuencial()));
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("afectacion"), consulta.getAfectacion()));
+
+            if (consulta.getLineaNegocio() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("lineaNegocio"), consulta.getLineaNegocio()));
+
+            if (null != consulta.getEstados() && !consulta.getEstados().isEmpty())
+                predicadosConsulta.add(criteriaBuilder.in(root.get("estado")).value(consulta.getEstados()));
 
             query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
                     .orderBy(criteriaBuilder.desc(root.get("secuencial")));
@@ -383,9 +400,31 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
 
     private void inicarAprobacionesAdicionales(DesviacionRequisito desviacionRequisito, String observacion) {
         List<MatrizAprobacionAdicional> matrix = matrizAprobacionAdicionalRepo.findByTipoSolicitud(TipoSolicitud.DESVIACION_REQUISITO);
+        switch (desviacionRequisito.getLineaNegocio()){
+            case IMPERMEABILIZACION:
+                matrix = matrix.stream()
+                        .filter(x -> !Arrays.asList(TipoAprobacion.TECNICO, TipoAprobacion.GERENCIA_COMERCIAL_VIAL)
+                        .contains(x.getTipoAprobacion()))
+                        .collect(Collectors.toList());
+                break;
+            case CONSTRUCCION_LIVIANA:
+                matrix = matrix.stream()
+                        .filter(x -> !Arrays.asList(TipoAprobacion.GERENCIA_PRODUCTO, TipoAprobacion.GERENCIA_COMERCIAL_VIAL)
+                                .contains(x.getTipoAprobacion()))
+                        .collect(Collectors.toList());
+                break;
+            case VIALES:
+                matrix = matrix.stream()
+                        .filter(x -> !Arrays.asList(TipoAprobacion.GERENCIA_PRODUCTO, TipoAprobacion.TECNICO)
+                                .contains(x.getTipoAprobacion()))
+                        .collect(Collectors.toList());
+                break;
+            default:break;
+        }
         List<DesviacionAprobacionAdicional> adicionales = matrix.stream().map(x -> {
             return new DesviacionAprobacionAdicional(x.getUsuario(), x.getOrden(), x.getTipoAprobacion());
         }).collect(Collectors.toList());
+
         desviacionRequisito.setAprobacioneAdicionales(adicionales);
         desviacionRequisitoRepo.save(desviacionRequisito);
         crearSolicitudesAprobacion(desviacionRequisito, observacion);
@@ -403,13 +442,27 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     }
 
     private void enviarNotificacionesAprobacion(List<SolicitudAprobacionAdicional> solicitudes, String observacion, DesviacionRequisito desviacionRequisito) {
-        solicitudes.forEach(x -> {
+        byte[] reporteBytes = null;
+        List<Adjunto> adjuntos = new ArrayList<>();
+        try {
+            reporteBytes = reporteServicio.generarReporte("DesviacionRequisito",
+                    Collections.singleton(this.crearReporteDTO(desviacionRequisito)), new HashMap<>());
+        } catch (JasperReportsException e) {
+            log.error("Error al generar el reporte de desviacion requisito: {}", e.getMessage());
+        }
+
+        if(reporteBytes != null){
+            String nombreReporte = "Desviacion_".concat(String.valueOf(desviacionRequisito.getSecuencial())).concat(".pdf");
+            adjuntos = Collections.singletonList(new Adjunto(nombreReporte, reporteBytes));
+        }
+
+        for (SolicitudAprobacionAdicional x : solicitudes) {
             try {
-                this.servicioNotificacionDesviacion.notificarAprobacionUrl(desviacionRequisito, observacion, x);
+                this.servicioNotificacionDesviacion.notificarAprobacionUrl(desviacionRequisito, observacion, x, adjuntos);
             } catch (Exception exception) {
                 log.error("Error al notificar {0}", exception);
             }
-        });
+        }
     }
 
     private String crearPrenda() {
