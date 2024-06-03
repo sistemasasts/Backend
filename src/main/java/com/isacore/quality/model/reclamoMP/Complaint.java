@@ -159,6 +159,8 @@ public class Complaint extends EntidadBase {
 		this.dateCreateComplaint = LocalDateTime.now();
 		this.state = ComplaintEstado.CREADA;
 		this.ordenCompra = ordenCompra;
+		if(this.dateComplaint == null)
+			this.dateComplaint = LocalDateTime.now();
 		this.calcularTotal();
 	}
 

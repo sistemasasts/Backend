@@ -553,24 +553,30 @@ public class ReclamoServiceImpl implements IComplaintService {
             final Root<Complaint> root = query.from(Complaint.class);
             final List<Predicate> predicadosConsulta = new ArrayList<>();
 
-
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
-                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
+                predicadosConsulta.add(criteriaBuilder.between(root.get("creadoFecha"),
                         consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
                         consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
             }
 
             if (consulta.getFechaInicio() != null && consulta.getFechaFin() == null) {
-                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
+                predicadosConsulta.add(criteriaBuilder.between(root.get("creadoFecha"),
                         consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
                         consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
             }
 
-//            if (consulta.getProductoId() != null)
-//                predicadosConsulta.add(criteriaBuilder.equal(root.get("product").get("idProduct"), consulta.getProductoId()));
+            if (consulta.getProductoId() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("idProduct"), consulta.getProductoId()));
+
+            if (consulta.getProveedorId() != null)
+                predicadosConsulta.add(criteriaBuilder.equal(root.get("idProvider"), consulta.getProveedorId()));
 
             if (consulta.getNumero() != null)
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("number"), consulta.getNumero()));
+
+            if(!consulta.getEstados().isEmpty()){
+                predicadosConsulta.add(criteriaBuilder.in(root.get("state")).value(consulta.getEstados()));
+            }
 
             query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
                     .orderBy(criteriaBuilder.desc(root.get("number")));

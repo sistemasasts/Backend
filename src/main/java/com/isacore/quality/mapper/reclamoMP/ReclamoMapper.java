@@ -57,6 +57,7 @@ public interface ReclamoMapper {
     @Mapping(target = "nombreProveedor", source = "idProvider", qualifiedByName = "proveedorNombre")
     @Mapping(target = "aprobadorCalidadCompleto", ignore = true)
     @Mapping(target = "aprobadorComprasCompleto", ignore = true)
+    @Mapping(target = "kpiTime", source = "complaint", qualifiedByName = "indicador")
     ComplaintDto fromReclamoBasicoToDto(Complaint complaint);
 
     default List<ComplaintDto> fromListReclamoToListDto(List<Complaint> honorarios) {
@@ -110,5 +111,10 @@ public interface ReclamoMapper {
         final IUserImptekRepo repo = StaticInjector.getInstance().getBean(IUserImptekRepo.class);
         UserImptek product = repo.findByIdUser(compras).orElse(null);
         return product == null ? "": product.getEmployee().getCompleteName();
+    }
+
+    @Named("indicador")
+    default Long indicador(Complaint complaint) {
+        return complaint.getKpiTime();
     }
 }

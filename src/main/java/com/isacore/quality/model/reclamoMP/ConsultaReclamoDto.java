@@ -23,6 +23,7 @@ public class ConsultaReclamoDto {
     private LocalDateTime fechaFin;
 
     private Long productoId;
+    private Long proveedorId;
     private List<ComplaintEstado> estados;
     private Long numero;
 

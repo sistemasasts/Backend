@@ -1,8 +1,10 @@
 package com.isacore.quality.api;
 
+import com.isacore.quality.model.desviacionRequisito.EstadoDesviacion;
 import com.isacore.quality.model.reclamoMP.*;
 import com.isacore.quality.service.reclamoMP.IComplaintHistorialService;
 import com.isacore.quality.service.reclamoMP.IComplaintService;
+import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/complaints")
@@ -181,6 +186,15 @@ public class ComplaintController {
     public ResponseEntity<Object> validarPlanAccion(@RequestBody ProviderActionPlanDto dto) {
         List<ProviderActionPlanDto> problemas = service.validarPlanAccion(dto);
         return ResponseEntity.ok(problemas);
+    }
+
+    @GetMapping("/catalogoEstado")
+    public ResponseEntity<List<CatalogDTO>> obtenerEstados() {
+        List<CatalogDTO> catalgo = new ArrayList<>();
+        for (ComplaintEstado origen : Arrays.stream(ComplaintEstado.values()).sorted().collect(Collectors.toList())) {
+            catalgo.add(new CatalogDTO(origen.getDescripcion(), origen.toString()));
+        }
+        return ResponseEntity.ok(catalgo);
     }
 
 

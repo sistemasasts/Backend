@@ -1,5 +1,6 @@
 package com.isacore.quality.model.reclamoMP;
 
+import com.isacore.util.date.MoreDates;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,5 +51,6 @@ public class ComplaintDto implements Serializable {
     private LocalDateTime fechaAprobadorCompras;
     private String userName;
     private LocalDateTime dateCreateComplaint;
+    private Long kpiTime;
 
 }

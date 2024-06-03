@@ -1,9 +1,10 @@
 package com.isacore.quality.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import com.isacore.quality.dto.ProductoDto;
+import com.isacore.quality.dto.ProveedorDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import com.isacore.quality.exception.ProveedorEliminarErrorException;
 import com.isacore.quality.model.Provider;
 import com.isacore.quality.repository.IProviderRepo;
 import com.isacore.quality.service.IProviderService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProviderServiceImpl implements IProviderService {
@@ -90,6 +92,17 @@ public class ProviderServiceImpl implements IProviderService {
 			});
 			return listProvider;
 		}
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public  List<ProveedorDto> listarPorNombreCriterio(String criterio) {
+		List<ProveedorDto> productos = this.repo.findByNameProviderContaining(criterio)
+				.stream()
+				.map(x -> new ProveedorDto(x.getIdProvider(), x.getNameProvider(), x.getDescProvider(),x.getTypeProvider()))
+				.sorted(Comparator.comparing(ProveedorDto::getNameProvider))
+				.collect(Collectors.toList());
+		return productos;
 	}
 
 }

@@ -30,16 +30,16 @@
                         <table class="detalle">
                             <tr class="detalle">
                                 <th class="detalle" style="text-align:center; width:10%"></th>
-                                <th class="detalle" style="text-align:center; width:25%">Fecha Inicio</th>
-                                <th class="detalle" style="text-align:center; width:25%">Fecha Fin</th>
                                 <th class="detalle" style="text-align:center; width:50%">Descripción</th>
+                                <th class="detalle" style="text-align:center; width:25%">Fecha Inicio</th>
+                                <th class="detalle" style="text-align:center; width:25%">Fecha Proyectada</th>
                             </tr>
                             <th:block th:each="plan : ${planes}" >
                                 <tr class="detalle">
                                     <td class="detalle" style="text-align:center; width:10%"></td>
+                                    <td th:text="${plan.description}" style="text-align:center; width:50%" >PLAN ACCION 1</td>
                                     <td th:text="${plan.dateStart}"  style="text-align:center; width:25%">2022/02/01</td>
                                     <td th:text="${plan.dateLimit}" style="text-align:center; width:25%" >2022/02/01</td>
-                                    <td th:text="${plan.description}" style="text-align:center; width:50%" >PLAN ACCION 1</td>
                                 </tr>
                             </th:block>
                         </table>

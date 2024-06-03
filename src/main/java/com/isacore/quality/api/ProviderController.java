@@ -1,5 +1,6 @@
 package com.isacore.quality.api;
 
+import com.isacore.quality.dto.ProveedorDto;
 import com.isacore.quality.model.Provider;
 import com.isacore.quality.service.IProviderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,4 +47,11 @@ public class ProviderController {
         List<Provider> proveedores = service.findByProductId(productId);
         return ResponseEntity.ok(proveedores);
     }
+
+    @GetMapping("/porNombre/{criterio}")
+    public ResponseEntity<List<ProveedorDto>> listarPorCriterio(@PathVariable("criterio") String criterio) {
+        List<ProveedorDto> product = service.listarPorNombreCriterio(criterio);
+        return ResponseEntity.ok(product);
+    }
+
 }
