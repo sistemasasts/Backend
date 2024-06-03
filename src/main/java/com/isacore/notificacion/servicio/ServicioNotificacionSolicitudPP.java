@@ -3,8 +3,11 @@ package com.isacore.notificacion.servicio;
 import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
+import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
+import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
+import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.util.UtilidadesFecha;
@@ -14,6 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.spring5.SpringTemplateEngine;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.isacore.util.UtilidadesCadena.noEsNuloNiBlanco;
 
@@ -25,14 +33,18 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
 
     private IUserImptekRepo userImptekRepo;
 
+    private final IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
+
     @Autowired
     public ServicioNotificacionSolicitudPP(
             final ConfiguracionNotificacion configuracionNotificacion,
             final ProveedorCorreoElectronicoOffice365 proveedorCorreoElectronico,
             final SpringTemplateEngine springTemplateEngine,
-            IUserImptekRepo userImptekRepo) {
+            IUserImptekRepo userImptekRepo,
+            IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo) {
         super(configuracionNotificacion, LOG, proveedorCorreoElectronico, springTemplateEngine);
         this.userImptekRepo = userImptekRepo;
+        this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
     }
 
     public void mensajePrueba(String correo) {
@@ -121,8 +133,9 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         String asunto = this.crearAsunto(String.format("Solicitud %s %s - ", solicitud.getCodigo(), mensajeAprobado), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getUsuarioAprobador());
-        DireccionesDestino destinatarios = new DireccionesDestino(usuarioSolicitante.getCorreo());
-        destinatarios.agregarDireccionCC(usuarioAprobador.getCorreo());
+        Set<String> direccionesA = new HashSet<>();
+        direccionesA.add(usuarioSolicitante.getCorreo());
+        DireccionesDestino destinatarios = new DireccionesDestino(direccionesA, crearDireccionCC(usuarioAprobador.getCorreo()));
         enviarHtml(destinatarios, asunto, "emailAprobacionSolicitudPP", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("usuario", usuarioSolicitante.getEmployee().getCompleteName());
@@ -237,6 +250,23 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         if (asunto.length() > 200)
             asunto = asunto.substring(0, 200);
         return asunto;
+    }
+
+    private Set<String> crearDireccionCC(String correoAprobador) {
+        Set<String> direccion = new HashSet<>();
+        direccion.add(correoAprobador);
+        ConfiguracionGeneralFlujo config = this.configuracionGeneralFlujoRepo
+                .findByTipoSolicitudAndNombreConfiguracionFlujo(
+                        TipoSolicitud.SOLICITUD_PRUEBAS_EN_PROCESO,
+                        NombreConfiguracionFlujo.CORREOS_ADICIONALES_SOLICITUD_APROBADA)
+                .orElse(null);
+        if (config != null) {
+            if (noEsNuloNiBlanco(config.getValorConfiguracion())) {
+                List<String> datos = Arrays.asList(config.getValorConfiguracion().split(";"));
+                direccion.addAll(datos);
+            }
+        }
+        return direccion;
     }
 
     @Override
