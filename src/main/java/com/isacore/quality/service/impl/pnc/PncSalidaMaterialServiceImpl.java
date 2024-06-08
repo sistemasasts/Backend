@@ -246,7 +246,8 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
                 salida.getPncDefecto().getValidez(),
                 salida.getProductoNoConforme().getLote(),
                 salida.getSalidaConcesion().getFactura(),
-                String.valueOf(salida.getProductoNoConforme().getNumero())
+                String.valueOf(salida.getProductoNoConforme().getNumero()),
+                salida.getPncDefecto().getDefectoDescripcion()
         );
     }
 
@@ -326,5 +327,9 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
                 dto.getResponsableBodega());
         this.pncSalidaConcesionRepo.save(salidaConcesion);
         salidaMaterial.setSalidaConcesion(salidaConcesion);
+    }
+
+    private String obtenerDefectos(List<PncDefecto> defectos){
+        return defectos.stream().map(x -> x.getDefecto().getNombre()).collect(Collectors.joining(","));
     }
 }

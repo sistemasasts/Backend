@@ -27,6 +27,7 @@
 	<field name="codigoPnc" class="java.lang.String"/>
 	<field name="cantidad" class="java.math.BigDecimal"/>
 	<field name="validez" class="java.math.BigDecimal"/>
+	<field name="detalleNoConformidad" class="java.lang.String"/>
 	<background>
 		<band height="802" splitType="Stretch">
 			<image>
@@ -341,47 +342,12 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 		</band>
 	</title>
 	<detail>
-		<band height="105">
-			<line>
-				<reportElement x="2" y="18" width="552" height="1" uuid="691c368e-2965-49c5-8e98-e514d39bfc76">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement x="1" y="40" width="552" height="1" uuid="a21c2617-18e5-46d2-8c57-6ff966c247f8">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement x="1" y="60" width="552" height="1" uuid="517d73cd-696b-49f5-a13b-f598d40cf43e">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement x="2" y="79" width="552" height="1" uuid="1ac22a50-6030-45ba-a695-0db6bb167e82">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement x="1" y="97" width="552" height="1" uuid="2e636740-b246-4499-b177-0a2747eeb27c">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
+		<band height="38">
+			<textField textAdjust="StretchHeight">
+				<reportElement x="2" y="4" width="551" height="30" uuid="601c96c6-ef8c-4896-918f-3895b54192b3"/>
+				<box topPadding="0" leftPadding="3" bottomPadding="3" rightPadding="3"/>
+				<textFieldExpression><![CDATA[$F{detalleNoConformidad}]]></textFieldExpression>
+			</textField>
 		</band>
 		<band height="89">
 			<staticText>
@@ -528,7 +494,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{fechaSalida}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="190" y="19" width="182" height="56" uuid="ab60e7b6-bc66-45a5-b945-ce1c98739ccf"/>
 				<box>
 					<topPen lineWidth="1.0"/>
@@ -540,7 +506,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{responsableBodega}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="372" y="19" width="182" height="56" uuid="e272b03c-ea3b-4f25-b66e-adccaed81b03"/>
 				<box>
 					<topPen lineWidth="1.0"/>
@@ -551,7 +517,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{cliente}]]></textFieldExpression>
 			</textField>
-			<textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="0" y="19" width="190" height="56" uuid="7e6e55d1-2744-4c1a-90f0-56c37f0bd254"/>
 				<box>
 					<topPen lineWidth="1.0"/>

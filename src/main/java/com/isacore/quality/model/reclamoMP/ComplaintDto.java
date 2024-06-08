@@ -35,7 +35,7 @@ public class ComplaintDto implements Serializable {
     private String ordenCompra;
     private List<ProblemDto> problemas;
     private List<ExecutedAction> listExecutedActons;
-    private List<ProviderActionPlan> listActionsPlanProvider;
+    private List<ProviderActionPlanDto> listActionsPlanProvider;
 
     private String observacion;
     private ComplaintOrdenFlujo orden;

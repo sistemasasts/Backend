@@ -30,6 +30,7 @@ public interface ReclamoMapper {
     @Mapping(target = "mensaje", ignore = true)
     @Mapping(target = "asunto", ignore = true)
     @Mapping(target = "problemas", source = "listProblems")
+    @Mapping(target = "listActionsPlanProvider", source = "listActionsPlanProvider")
     @Mapping(target = "unidadMedidaId", source = "unit", qualifiedByName = "unidadMedidaId")
     @Mapping(target = "unidadMedidaDescripcion", source = "unit", qualifiedByName = "unidadMedidaDescripcion")
     @Mapping(target = "nombreProducto", source = "idProduct", qualifiedByName = "productoNombre")
