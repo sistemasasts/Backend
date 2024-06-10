@@ -641,7 +641,7 @@ $F{aprobadorGerenciaOperacionesFecha}.format( java.time.format.DateTimeFormatter
 			</textField>
 		</band>
 		<band height="53">
-			<printWhenExpression><![CDATA[$F{lineaNegocio} == "CONSTRUCCION_LIVIANA"]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{lineaNegocio} == "VIALES"]]></printWhenExpression>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="38" y="10" width="250" height="18" uuid="fe188d88-e934-4a0d-8dda-e1f3b35c4fc8"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
@@ -665,7 +665,7 @@ $F{aprobadorGerenciaOperacionesFecha}.format( java.time.format.DateTimeFormatter
 			</textField>
 		</band>
 		<band height="56">
-			<printWhenExpression><![CDATA[$F{lineaNegocio} == "VIALES"]]></printWhenExpression>
+			<printWhenExpression><![CDATA[$F{lineaNegocio} == "CONSTRUCCION_LIVIANA"]]></printWhenExpression>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="37" y="14" width="250" height="14" uuid="cb6b2be2-87d1-446d-821b-9221e37042a7"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">

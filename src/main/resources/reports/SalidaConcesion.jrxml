@@ -100,7 +100,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="8"/>
 				</textElement>
-				<text><![CDATA[REV. 02]]></text>
+				<text><![CDATA[REV. 03]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="97" y="113" width="360" height="22" uuid="52034b13-8ee0-42a7-813e-f4e785a7f5be">
@@ -259,7 +259,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[#Factura/Pedido:]]></text>
+				<text><![CDATA[#Factura/Albarán:]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="97" y="178" width="163" height="19" uuid="f5a3041e-7fc0-4f42-a08d-84ecd2f05e8b"/>
@@ -280,7 +280,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Codigo material PNC-03]]></text>
+				<text><![CDATA[Código PNC]]></text>
 			</staticText>
 			<textField>
 				<reportElement x="344" y="178" width="110" height="19" uuid="7ab517b3-04a4-4509-8166-3336bf4ac6a4"/>
@@ -348,45 +348,6 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<box topPadding="0" leftPadding="3" bottomPadding="3" rightPadding="3"/>
 				<textFieldExpression><![CDATA[$F{detalleNoConformidad}]]></textFieldExpression>
 			</textField>
-		</band>
-		<band height="89">
-			<staticText>
-				<reportElement x="1" y="0" width="554" height="19" uuid="8dfe7a70-9eff-4594-bbee-dcce2338817e"/>
-				<box topPadding="0" leftPadding="3" bottomPadding="0" rightPadding="0">
-					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement verticalAlignment="Middle">
-					<font size="9" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Lugar de la instalación del prducto:]]></text>
-			</staticText>
-			<line>
-				<reportElement x="2" y="37" width="552" height="1" uuid="6eb8d9cf-ad6f-4f25-9a58-4d6523bab744">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement x="1" y="59" width="552" height="1" uuid="6f402e20-02e4-4d66-9014-43088301c15b">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
-			<line>
-				<reportElement x="1" y="79" width="552" height="1" uuid="49cfaaa3-4885-4e43-aa0c-ac6b652064b3">
-					<property name="com.jaspersoft.studio.unit.width" value="cm"/>
-				</reportElement>
-				<graphicElement>
-					<pen lineStyle="Dotted"/>
-				</graphicElement>
-			</line>
 		</band>
 		<band height="59">
 			<staticText>

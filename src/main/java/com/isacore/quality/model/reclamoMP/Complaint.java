@@ -99,7 +99,7 @@ public class Complaint extends EntidadBase {
 	
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "COM_ID", nullable = false)
-	private List<ProviderActionPlan> listActionsPlanProvider;
+	private List<ProviderActionPlan> listActionsPlanProvider = new ArrayList<>();
 
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "COM_ID", nullable = true)
@@ -107,7 +107,7 @@ public class Complaint extends EntidadBase {
 	
 	@OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
 	@JoinColumn(name = "COM_ID", nullable = false)
-	private List<ExecutedAction> listExecutedActons;
+	private List<ExecutedAction> listExecutedActons = new ArrayList<>();
 	
 	private String otherProvider;
 	
