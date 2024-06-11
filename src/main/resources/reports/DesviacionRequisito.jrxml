@@ -678,7 +678,7 @@ $F{aprobadorGerenciaOperacionesFecha}.format( java.time.format.DateTimeFormatter
 				<textElement textAlignment="Center">
 					<font size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Técnico]]></text>
+				<text><![CDATA[Jefe Técnico Producto Sierra]]></text>
 			</staticText>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="38" y="25" width="250" height="13" uuid="9dd8c235-46c0-43b7-9518-7505ae921d80"/>

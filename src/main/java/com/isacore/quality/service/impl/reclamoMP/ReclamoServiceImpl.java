@@ -456,7 +456,7 @@ public class ReclamoServiceImpl implements IComplaintService {
                 .filter(x -> x.getId() == dto.getId()).findFirst()
                 .orElseThrow(() -> new PncErrorException("Plan de acción no encontrado"));
         planAccion.setEstado(dto.getEstado());
-        if(dto.equals(ComplaintPlanAccionEstado.FINALIZADO))
+        if(dto.getEstado().equals(ComplaintPlanAccionEstado.FINALIZADO))
             planAccion.setFechaCierre(LocalDateTime.now());
         String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción aprobado";
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.VALIDAR_PLANES_ACCION, observacion, planAccion);
