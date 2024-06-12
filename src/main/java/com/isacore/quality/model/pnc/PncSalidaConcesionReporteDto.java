@@ -21,10 +21,12 @@ public class PncSalidaConcesionReporteDto implements Serializable {
     private String factura;
     private String codigoPnc;
     private String detalleNoConformidad;
+    private String unidad;
 
     public PncSalidaConcesionReporteDto(String producto, String responsableVenta, String responsableBodega,
                                         String cliente, LocalDate fechaSalida, BigDecimal cantidad, BigDecimal validez,
-                                        String lote, String factura, String codigoPnc, String detalleNoConformidad) {
+                                        String lote, String factura, String codigoPnc, String detalleNoConformidad,
+                                        String unidad) {
         this.producto = producto;
         this.responsableVenta = responsableVenta;
         this.responsableBodega = responsableBodega;
@@ -36,5 +38,6 @@ public class PncSalidaConcesionReporteDto implements Serializable {
         this.factura = factura;
         this.codigoPnc = codigoPnc;
         this.detalleNoConformidad = detalleNoConformidad;
+        this.unidad = unidad;
     }
 }

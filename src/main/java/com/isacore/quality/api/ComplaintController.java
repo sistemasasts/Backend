@@ -152,9 +152,9 @@ public class ComplaintController {
         return ResponseEntity.ok(problemas);
     }
 
-    @DeleteMapping("/eliminarPlanAccion/{reclamoId}/{planId}")
-    public ResponseEntity<Object> eliminarPlanAccion(@PathVariable("reclamoId") long reclamoId, @PathVariable("planId") long planId ) {
-        List<ProviderActionPlanDto> problemas = service.eliminarPlanAccion(reclamoId, planId);
+    @PostMapping("/eliminarPlanAccion/{reclamoId}/{planId}")
+    public ResponseEntity<Object> eliminarPlanAccion(@PathVariable("reclamoId") long reclamoId, @PathVariable("planId") long planId, @RequestBody ProviderActionPlanDto dto ) {
+        List<ProviderActionPlanDto> problemas = service.eliminarPlanAccion(reclamoId, planId, dto);
         return ResponseEntity.ok(problemas);
     }
 

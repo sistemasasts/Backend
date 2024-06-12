@@ -19,7 +19,6 @@ import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
 import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.reclamoMP.*;
 import com.isacore.quality.model.se.TipoSolicitud;
-import com.isacore.quality.model.spp.SolicitudPruebaProcesoResponsable;
 import com.isacore.quality.repository.IProductRepo;
 import com.isacore.quality.repository.IProviderRepo;
 import com.isacore.quality.repository.IUnidadMedidadRepo;
@@ -53,8 +52,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.isacore.util.UtilidadesCadena.esNuloOBlanco;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -329,11 +326,13 @@ public class ReclamoServiceImpl implements IComplaintService {
 
     @Transactional
     @Override
-    public List<ProviderActionPlanDto> eliminarPlanAccion(long reclamoId, long planAccionId) {
+    public List<ProviderActionPlanDto> eliminarPlanAccion(long reclamoId, long planAccionId, ProviderActionPlanDto dto) {
         Complaint reclamo = this.obtenerporId(reclamoId);
         ProviderActionPlan problema = reclamo.getListActionsPlanProvider().stream().filter(x -> x.getId() == planAccionId)
                 .findFirst().orElseThrow(() -> new PncErrorException("Problema no encontrado"));
-
+        if (ComplaintPlanAccionEstado.ASIGNADA.equals(problema.getEstado())) {
+            this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.GESTION_PLANES_ACCION, dto.getObservacion());
+        }
         log.info(String.format("Reclamo %s : Plan de accion eliminado %s", reclamo.getNumber(), problema));
         reclamo.eliminarPlanAccion(problema.getId());
         this.reclamoRepo.save(reclamo);
@@ -441,7 +440,7 @@ public class ReclamoServiceImpl implements IComplaintService {
         String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción finalizado";
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.PROCESAR_PLANES_ACCION, observacion, planAccion);
         try {
-            this.servicioNotificacion.notificarPlanAccionEstado(reclamo, Collections.singletonList(planAccion),ComplaintPlanAccionEstado.PENDIENTE_APROBACION, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
+            this.servicioNotificacion.notificarPlanAccionEstado(reclamo, Collections.singletonList(planAccion), ComplaintPlanAccionEstado.PENDIENTE_APROBACION, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
         } catch (Exception ex) {
             log.error(String.format("Error al notificar planes de asigancion de RECLAMO DE MATERIA PRIMA: %s", ex));
         }
@@ -456,13 +455,13 @@ public class ReclamoServiceImpl implements IComplaintService {
                 .filter(x -> x.getId() == dto.getId()).findFirst()
                 .orElseThrow(() -> new PncErrorException("Plan de acción no encontrado"));
         planAccion.setEstado(dto.getEstado());
-        if(dto.getEstado().equals(ComplaintPlanAccionEstado.FINALIZADO))
+        if (dto.getEstado().equals(ComplaintPlanAccionEstado.FINALIZADO))
             planAccion.setFechaCierre(LocalDateTime.now());
         String observacion = UtilidadesCadena.noEsNuloNiBlanco(dto.getObservacion()) ? dto.getObservacion() : "Plan de acción aprobado";
         this.historialService.agregar(reclamo, reclamo.getState(), ComplaintOrdenFlujo.VALIDAR_PLANES_ACCION, observacion, planAccion);
         if (dto.getEstado().equals(ComplaintPlanAccionEstado.REGRESADO)) {
             try {
-                this.servicioNotificacion.notificarPlanAccionEstado(reclamo, Collections.singletonList(planAccion),ComplaintPlanAccionEstado.REGRESADO, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
+                this.servicioNotificacion.notificarPlanAccionEstado(reclamo, Collections.singletonList(planAccion), ComplaintPlanAccionEstado.REGRESADO, observacion, UtilidadesSeguridad.nombreUsuarioEnSesion());
             } catch (Exception ex) {
                 log.error(String.format("Error al notificar planes de asigancion de RECLAMO DE MATERIA PRIMA: %s", ex));
             }
@@ -576,7 +575,7 @@ public class ReclamoServiceImpl implements IComplaintService {
             if (consulta.getNumero() != null)
                 predicadosConsulta.add(criteriaBuilder.equal(root.get("number"), consulta.getNumero()));
 
-            if(!consulta.getEstados().isEmpty()){
+            if (!consulta.getEstados().isEmpty()) {
                 predicadosConsulta.add(criteriaBuilder.in(root.get("state")).value(consulta.getEstados()));
             }
 

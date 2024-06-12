@@ -247,7 +247,8 @@ public class PncSalidaMaterialServiceImpl implements IPncSalidaMaterialService {
                 salida.getProductoNoConforme().getLote(),
                 salida.getSalidaConcesion().getFactura(),
                 String.valueOf(salida.getProductoNoConforme().getNumero()),
-                salida.getPncDefecto().getDefectoDescripcion()
+                salida.getPncDefecto().getDefectoDescripcion(),
+                salida.getPncDefecto().getUnidadDescripcion()
         );
     }
 

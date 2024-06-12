@@ -37,7 +37,7 @@ public interface IComplaintService extends CRUD<ComplaintDto> {
 
 	List<ProviderActionPlanDto> actualizarPLanAccion(ProviderActionPlanDto dto);
 
-	List<ProviderActionPlanDto> eliminarPlanAccion(long reclamoId, long planAccionId);
+	List<ProviderActionPlanDto> eliminarPlanAccion(long reclamoId, long planAccionId, ProviderActionPlanDto dto);
 
 	List<ExecutedActionDto> agregarAccionEjecutada(ExecutedActionDto dto);
 

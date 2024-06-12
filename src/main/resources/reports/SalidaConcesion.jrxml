@@ -28,6 +28,7 @@
 	<field name="cantidad" class="java.math.BigDecimal"/>
 	<field name="validez" class="java.math.BigDecimal"/>
 	<field name="detalleNoConformidad" class="java.lang.String"/>
+	<field name="unidad" class="java.lang.String"/>
 	<background>
 		<band height="802" splitType="Stretch">
 			<image>
@@ -243,7 +244,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font size="9"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{cantidad}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{cantidad} + " " + $F{unidad}]]></textFieldExpression>
 			</textField>
 			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
 				<reportElement x="457" y="90" width="97" height="22" uuid="38473f32-0e3c-4e24-aedb-b43982da4525"/>
