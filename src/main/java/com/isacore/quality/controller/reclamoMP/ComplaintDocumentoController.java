@@ -29,6 +29,15 @@ public class ComplaintDocumentoController {
         return ResponseEntity.ok(files);
     }
 
+    @GetMapping("/{orden}/{salidaId}/{planAccionId}")
+    public ResponseEntity<Object> listarArchivos(
+            @PathVariable("orden") ComplaintOrdenFlujo orden,
+            @PathVariable("salidaId") Long salidaId,
+            @PathVariable("planAccionId") Long planAccionId) {
+        List<ComplaintDocumento> files = service.buscarPorOrdenYReclamoIdAndPlanAccionId(orden, salidaId, planAccionId);
+        return ResponseEntity.ok(files);
+    }
+
     @GetMapping(value = "/ver/{id}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> ver(@PathVariable("id") Long id) {
         byte[] data = null;

@@ -35,11 +35,11 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
     private String lineaNegocio;
 
     public DesviacionRequisitoReporteDTO(
-        DesviacionRequisito desviacionRequisito,
-        List<Lote> lotes
+            DesviacionRequisito desviacionRequisito,
+            List<Lote> lotes
     ) {
-        this.nombreProducto = desviacionRequisito.getProduct().getNameProduct();
-        this.afectacion = desviacionRequisito.getAfectacion().getDescripcion();
+        this.nombreProducto = desviacionRequisito.getProduct() == null ? "" : desviacionRequisito.getProduct().getNameProduct();
+        this.afectacion = desviacionRequisito.getAfectacion() == null ? "" : desviacionRequisito.getAfectacion().getDescripcion();
         this.seguimiento = desviacionRequisito.getSeguimiento();
         this.descripcion = desviacionRequisito.getDescripcion();
         this.control = desviacionRequisito.getControl();
@@ -49,10 +49,10 @@ public class DesviacionRequisitoReporteDTO implements Serializable {
         this.listaLotes = lotes;
         this.secuencial = desviacionRequisito.getSecuencial();
         this.listaDefectos = desviacionRequisito.getDefectos();
-        this.lineaNegocio = desviacionRequisito.getLineaNegocio().name();
+        this.lineaNegocio = desviacionRequisito.getLineaNegocio() == null ? "" : desviacionRequisito.getLineaNegocio().name();
     }
 
-    public String getTipoProductoTexto(){
-        return  this.tipoProducto.getDescripcion();
+    public String getTipoProductoTexto() {
+        return this.tipoProducto.getDescripcion();
     }
 }

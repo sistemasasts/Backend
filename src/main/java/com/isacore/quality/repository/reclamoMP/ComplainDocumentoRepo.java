@@ -13,4 +13,7 @@ public interface ComplainDocumentoRepo extends RepositorioBase<ComplaintDocument
     boolean existsBySolicitudIdAndOrden(long solicitudid, String orden);
 
     List<ComplaintDocumento> findByOrdenAndSolicitudId(String orden, long solicitudId);
+
+    List<ComplaintDocumento> findByOrdenAndSolicitudIdAndPlanAccionId(String orden, long solicitudId, long planAccionId);
+
 }

@@ -77,6 +77,12 @@ public class ComplaintDocumentoServiceImpl implements IComplaintDocumentoService
         return this.repositorio.findByOrdenAndSolicitudId(orden.name(), salidaId);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<ComplaintDocumento> buscarPorOrdenYReclamoIdAndPlanAccionId(ComplaintOrdenFlujo orden, long salidaId, long planAccionId) {
+        return this.repositorio.findByOrdenAndSolicitudIdAndPlanAccionId(orden.name(), salidaId, planAccionId);
+    }
+
     @Override
     public boolean eliminarDocumento(long documentoId) {
         ComplaintDocumento documento = this.repositorio.findById(documentoId).orElse(null);

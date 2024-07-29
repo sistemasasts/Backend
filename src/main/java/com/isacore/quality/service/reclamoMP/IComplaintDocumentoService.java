@@ -12,6 +12,8 @@ public interface IComplaintDocumentoService {
 
     List<ComplaintDocumento> buscarPorOrdenYReclamoId(ComplaintOrdenFlujo orden, long salidaId);
 
+    List<ComplaintDocumento> buscarPorOrdenYReclamoIdAndPlanAccionId(ComplaintOrdenFlujo orden, long salidaId, long planAccionId);
+
     boolean eliminarDocumento(long documentoId);
 
     byte[] descargar(long id);
