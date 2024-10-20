@@ -1,5 +1,15 @@
 package com.isacore.quality.model.se;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.isacore.quality.model.UnidadMedida;
+import com.isacore.util.LocalDateDeserializeIsa;
+import com.isacore.util.LocalDateSerializeIsa;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -8,19 +18,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.persistence.*;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.isacore.quality.model.UnidadMedida;
-import com.isacore.util.LocalDateDeserializeIsa;
-import com.isacore.util.LocalDateSerializeIsa;
-
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import org.apache.tomcat.jni.Local;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -88,6 +85,8 @@ public class SolicitudEnsayo extends SolicitudBase {
     private LocalDate fechaEntregaInforme;
 
     private String nombreComercial;
+    private String tipoDiseno;
+    private String tipoDisenoOtro;
 
     @Transient
     private String observacion;
@@ -97,7 +96,8 @@ public class SolicitudEnsayo extends SolicitudBase {
 
     public SolicitudEnsayo(String codigo, String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String objetivo,
                            PrioridadNivel prioridad, TiempoEntrega tiempoEntrega, String detalleMaterial, String lineaAplicacion, BigDecimal cantidad,
-                           UnidadMedida unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, String nombreComercial, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
+                           UnidadMedida unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, String nombreComercial,
+                           String tipoDiseno, String tipoDisenoOtro, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
         super(codigo, nombreSolicitante);
         this.proveedorNombre = proveedorNombre;
         this.proveedorId = proveedorId;
@@ -114,6 +114,8 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.muestraUbicacion = muestraUbicacion;
         this.adjuntosRequeridos = adjuntos;
         this.nombreComercial = nombreComercial;
+        this.tipoDiseno = tipoDiseno;
+        this.tipoDisenoOtro = tipoDisenoOtro;
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado, int tiempoRespuesta, LocalDate fechaInicioEntregaInforme) {
@@ -204,8 +206,26 @@ public class SolicitudEnsayo extends SolicitudBase {
         return this.adjuntosRequeridos.stream().filter(SolicitudEnsayoAdjuntoRequerido::isObligatorio).allMatch(x -> x.getDocumentoId() != null);
     }
 
-    public void marcarAdjuntoRespaldoComoObligatorio(boolean obligatorio) {
-        this.adjuntosRequeridos.stream().filter(x -> x.getNombre().equalsIgnoreCase("Respaldo")).findFirst().ifPresent(adjuntoRequerido -> adjuntoRequerido.setObligatorio(obligatorio));
+    public void marcarAdjuntoRespaldoComoObligatorio() {
+        boolean proyectoVial = this.getObjetivo().contains("Diseño Vial");
+        if (this.getPrioridad().equals(PrioridadNivel.ALTO) || proyectoVial) {
+            this.adjuntosRequeridos
+                    .stream()
+                    .filter(x -> x.getNombre().equalsIgnoreCase("Respaldo"))
+                    .findFirst()
+                    .ifPresent(adjuntoRequerido -> adjuntoRequerido.setObligatorio(true));
+        }
+
+        if (proyectoVial) {
+            this.descmarcarAdjuntosComoObligatorio();
+        }
+    }
+
+    private void descmarcarAdjuntosComoObligatorio() {
+        this.adjuntosRequeridos
+                .stream()
+                .filter(x -> !x.getNombre().equalsIgnoreCase("Respaldo"))
+                .forEach(x -> x.setObligatorio(false));
     }
 
     public void marcarEstadoFinal(EstadoSolicitud estado, TipoAprobacionSolicitud tipoAprobacion) {

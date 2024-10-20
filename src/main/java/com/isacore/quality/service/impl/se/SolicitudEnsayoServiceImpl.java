@@ -113,8 +113,11 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                 obj.getMuestraEntrega(),
                 obj.getMuestraUbicacion(),
                 obj.getNombreComercial(),
+                obj.getTipoDiseno(),
+                obj.getTipoDisenoOtro(),
                 this.crearAdjuntosRequeridos());
-        nuevo.marcarAdjuntoRespaldoComoObligatorio(obj.getPrioridad().equals(PrioridadNivel.ALTO));
+
+        nuevo.marcarAdjuntoRespaldoComoObligatorio();
         LOG.info(String.format("Solicitud Ensayo a guardar %s", nuevo));
         return repo.save(nuevo);
     }
@@ -134,7 +137,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         SolicitudEnsayo solicitud = solicitudOP.get();
         solicitud.setFechaEntrega(obj.getFechaEntrega());
         solicitud.setPrioridad(obj.getPrioridad());
-        solicitud.marcarAdjuntoRespaldoComoObligatorio(obj.getPrioridad().equals(PrioridadNivel.ALTO));
+        solicitud.marcarAdjuntoRespaldoComoObligatorio();
         solicitud.setProveedorId(obj.getProveedorId());
         solicitud.setProveedorNombre(obj.getProveedorNombre());
         solicitud.setObjetivo(obj.getObjetivo());
@@ -146,6 +149,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitud.setMuestraEntrega(obj.getMuestraEntrega());
         solicitud.setMuestraUbicacion(obj.getMuestraUbicacion());
         solicitud.setNombreComercial(obj.getNombreComercial());
+        solicitud.setTipoDiseno(obj.getTipoDiseno());
+        solicitud.setTipoDisenoOtro(obj.getTipoDisenoOtro());
         LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
         return solicitud;
     }
