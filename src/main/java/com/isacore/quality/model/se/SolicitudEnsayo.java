@@ -88,6 +88,10 @@ public class SolicitudEnsayo extends SolicitudBase {
     private String tipoDiseno;
     private String tipoDisenoOtro;
 
+    @JsonSerialize(using = LocalDateSerializeIsa.class)
+    @JsonDeserialize(using = LocalDateDeserializeIsa.class)
+    private LocalDate extensionFecha;
+
     @Transient
     private String observacion;
 

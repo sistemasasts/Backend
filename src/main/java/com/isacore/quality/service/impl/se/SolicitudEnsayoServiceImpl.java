@@ -250,6 +250,14 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         int diaMaxEntregaInforme = this.obtenerDiaMaxEntregaInforme();
         LocalDate fechaInicioEntregaInforme = this.obtenerFechaInicioEntregaInforme(diaMaxEntregaInforme);
         solicitudRecargada.marcarSolicitudComoValidada(solicitud.getUsuarioGestion(), configuracionTiempoOP.get().getVigenciaDias(), fechaInicioEntregaInforme);
+        if (solicitud.getExtensionFecha() != null) {
+            if (solicitudRecargada.getFechaEntregaInforme().isAfter(solicitud.getExtensionFecha())) {
+                throw new SolicitudEnsayoErrorException("La extensión de fecha debe ser mayor que la fecha de entrega informe: " + solicitudRecargada.getFechaEntregaInforme());
+            }
+            solicitudRecargada.setExtensionFecha(solicitud.getExtensionFecha());
+            solicitudRecargada.setFechaEntregaInforme(solicitud.getExtensionFecha());
+
+        }
 
         LOG.info(String.format("Solicitud id=%s validada..", solicitudRecargada.getId()));
         try {
@@ -331,12 +339,12 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         return true;
     }
 
-    private void copiarInforme(long solicitudId){
+    private void copiarInforme(long solicitudId) {
         boolean tieneAdjuntos = this.repoDocumento.existsByOrdenFlujoAndSolicitudEnsayo_Id(OrdenFlujo.APROBAR_INFORME, solicitudId);
-        if(!tieneAdjuntos){
+        if (!tieneAdjuntos) {
             List<SolicitudDocumento> documentos = this.repoDocumento.findByOrdenFlujoInAndSolicitudEnsayo_Id(Collections.singletonList(OrdenFlujo.REVISION_INFORME), solicitudId);
             List<SolicitudDocumento> documentosNuevos = new ArrayList<>();
-            if(!documentos.isEmpty()){
+            if (!documentos.isEmpty()) {
                 documentos.forEach(x -> {
                     documentosNuevos.add(new SolicitudDocumento(x.getSolicitudEnsayo(), x.getPath(), x.getNombreArchivo(), OrdenFlujo.APROBAR_INFORME));
                 });
@@ -407,9 +415,9 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         agregarHistorial(solicitudRecargada, solicitud.getOrden(), solicitud.getObservacion());
         solicitudRecargada.rechazar();
 
-        try{
-            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudEstado(solicitudRecargada,solicitud.getObservacion());
-        }catch (Exception e) {
+        try {
+            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudEstado(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
             LOG.error(String.format("Error al notificar Solicitud rechazada %s", e));
         }
         LOG.info(String.format("Solicitud id=%s rechazada..", solicitudRecargada.getId()));
@@ -580,7 +588,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                         c.getMuestraEntrega(),
                         c.getDetalleMaterial(),
                         TipoSolicitud.SOLICITUD_ENSAYOS,
-                        c.getTipoAprobacion() == null ? "":c.getTipoAprobacion().getDescripcion(),
+                        c.getTipoAprobacion() == null ? "" : c.getTipoAprobacion().getDescripcion(),
                         c.getPrioridad()
                 );
             }).collect(Collectors.toList());
@@ -637,7 +645,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private int obtenerDiaMaxEntregaInforme() {
         Optional<ConfiguracionGeneralFlujo> diaMaxEntregaInforme = this.configuracionGeneralFlujoRepo.findByTipoSolicitudAndNombreConfiguracionFlujo(TipoSolicitud.SOLICITUD_ENSAYOS, NombreConfiguracionFlujo.DIA_MAX_PERMITIDO_ENTREGAR_MUESTRAS);
         if (!diaMaxEntregaInforme.isPresent())
-            throw new SolicitudEnsayoErrorException(String.format("Configuración día máximo entrega muestras no existe"));
+            throw new SolicitudEnsayoErrorException("Configuración día máximo entrega muestras no existe");
         return Integer.parseInt(diaMaxEntregaInforme.get().getValorConfiguracion());
     }
 }

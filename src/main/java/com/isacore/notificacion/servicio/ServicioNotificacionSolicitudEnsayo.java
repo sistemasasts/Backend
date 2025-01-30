@@ -61,6 +61,7 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
         destinos.agregarDireccionA(usuarioSolicitante.getCorreo());
         destinos.agregarDireccionCC(usuarioResponsable.getCorreo());
         destinos.agregarDireccionCC(usuarioValidador.getCorreo());
+        boolean tieneExtensionFecha = solicitud.getExtensionFecha() != null;
         enviarHtml(destinos, asunto, "emailSolicitudEnsayoIngresoMuestra", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());
             context.setVariable("nombreUsuario", usuarioSolicitante.getEmployee().getCompleteName());
@@ -68,6 +69,7 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             context.setVariable("prioridad", solicitud.getPrioridad().toString());
             context.setVariable("proveedor", solicitud.getProveedorNombre());
             context.setVariable("nombreComercial", solicitud.getNombreComercial());
+            context.setVariable("tieneExtensionFecha", tieneExtensionFecha);
         });
     }
 
