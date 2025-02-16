@@ -17,6 +17,7 @@ public enum EstadoSolicitud {
 	PLANES_ACCION_REVISADOS,
     PENDIENTE_PRUEBAS_PROCESO,
     GESTION_PRUEBAS_PROCESO,
+	PENDIENTE_APROBACION_EXTENSION_PLAZO,
 //TODO: Estados que puede tomar la solicitud despues de finalizar la prueba en proceso.
 	ENVIAR_SOLUCIONES_TECNICAS,
 	CREACION_MATERIA_PRIMA,

@@ -56,10 +56,14 @@ public class SolicitudDTO implements Serializable{
 
 	private PrioridadNivel prioridad;
 
+	@JsonSerialize(using = LocalDateSerializeIsa.class)
+	@JsonDeserialize(using = LocalDateDeserializeIsa.class)
+	private LocalDate extensionFecha;
+
 	public SolicitudDTO(Long id, String codigo, LocalDateTime fechaCreacion, LocalDate fechaAprobacion,
 			String nombreSolicitante, String usuarioGestion, String usuarioAprobador, EstadoSolicitud estado,
 			String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String detalleMaterial,
-			TipoSolicitud tipoSolicitud, String tipoAprobacion, PrioridadNivel prioridad) {
+			TipoSolicitud tipoSolicitud, String tipoAprobacion, PrioridadNivel prioridad, LocalDate extensionFecha) {
 		super();
 		this.id = id;
 		this.codigo = codigo;
@@ -76,6 +80,7 @@ public class SolicitudDTO implements Serializable{
 		this.tipoSolicitud = tipoSolicitud;
 		this.tipoAprobacion = tipoAprobacion;
 		this.prioridad = prioridad;
+		this.extensionFecha = extensionFecha;
 	}
 
 	public LocalDate getFechaCreacion2() {

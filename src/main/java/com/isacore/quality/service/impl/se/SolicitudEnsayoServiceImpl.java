@@ -517,6 +517,65 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         return this.repo.findByEstadoAndValidadorOrderByFechaCreacionDesc(EstadoSolicitud.PENDIENTE_PLANES_ACCION, usuario);
     }
 
+    @Transactional
+    @Override
+    public boolean solicitudExtensionPlazo(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
+//        documentoServicio.validarInformeSubido(solicitudRecargada.getId(), solicitudRecargada.getEstado());
+        ConfiguracionUsuarioRolEnsayo configuracionOP = repoConfiguracion.findByOrdenAndTipoSolicitud(OrdenFlujo.APROBACION_EXTENSION_PLAZO,
+                        TipoSolicitud.SOLICITUD_ENSAYOS)
+                .orElseThrow(() -> new SolicitudEnsayoErrorException(String.format("Configuración para el rol %s no existe.", OrdenFlujo.APROBACION_EXTENSION_PLAZO)));
+
+        String observacion = esNuloOBlanco(solicitud.getObservacion()) ? "SOLICITUD DE EXTENSIÓN DE PLAZO ENVIADA" : solicitud.getObservacion();
+        agregarHistorial(solicitudRecargada, OrdenFlujo.RESPONDER_SOLICITUD, observacion);
+        solicitudRecargada.setEstado(EstadoSolicitud.PENDIENTE_APROBACION_EXTENSION_PLAZO);
+        solicitudRecargada.setUsuarioAprobadorExtensionPlazo(configuracionOP.getUsuarioId());
+        SolicitudExtensionPlazo extensionPlazo = new SolicitudExtensionPlazo(configuracionOP.getUsuarioId(), observacion, solicitudRecargada.getFechaEntregaInforme());
+        solicitudRecargada.agregarExtensionPlazo(extensionPlazo);
+        LOG.info(String.format("Solicitud id=%s enviada a aprobacion de extension plazo..", solicitudRecargada.getId()));
+        try {
+            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudExtensionIngreso(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud Extension Plazo %s", e));
+        }
+        return true;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<SolicitudEnsayo> obtenerSolicitudesPendienteExtensionPlazo() {
+        return this.repo.findByEstadoAndUsuarioAprobadorExtensionPlazoOrderByFechaCreacionDesc(EstadoSolicitud.PENDIENTE_APROBACION_EXTENSION_PLAZO, nombreUsuarioEnSesion());
+    }
+
+    @Transactional
+    @Override
+    public void ejecutarAccionExtensionPlazo(SolicitudEnsayo solicitud) {
+        SolicitudEnsayo solicitudRecargada = this.obtenerSolicitudPorId(solicitud.getId());
+        EstadoExtensionPlazo estadoFinal = EstadoExtensionPlazo.RECHAZADA;
+        if (solicitud.getExtensionFecha() != null) {
+            solicitudRecargada.setFechaEntregaInforme(solicitud.getExtensionFecha());
+            solicitudRecargada.setExtensionFecha(solicitud.getExtensionFecha());
+            estadoFinal = EstadoExtensionPlazo.APROBADA;
+            this.actualizarSolicitudExtension(solicitudRecargada, estadoFinal);
+        }
+        String observacion = esNuloOBlanco(solicitud.getObservacion()) ? "SOLICITUD EXTENSIÓN DE PLAZO " + estadoFinal : solicitud.getObservacion();
+        agregarHistorial(solicitudRecargada, OrdenFlujo.APROBACION_EXTENSION_PLAZO, observacion);
+        solicitudRecargada.setEstado(EstadoSolicitud.EN_PROCESO);
+        try {
+            this.servicioNotificacionSolicitudEnsayo.notificarSolicitudExtensionEstado(solicitudRecargada, observacion, estadoFinal);
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar estado de Solicitud Extension Plazo %s", e));
+        }
+    }
+
+    private void actualizarSolicitudExtension(SolicitudEnsayo solicitudEnsayo, EstadoExtensionPlazo estadoExtensionPlazo){
+        SolicitudExtensionPlazo solicitudExtensionPlazo = solicitudEnsayo.getExtensionesPlazo().stream()
+                .filter(x -> x.getEstado().equals(EstadoExtensionPlazo.PENDIENTE))
+                .filter(x -> x.getUsuarioAprobador().equals(nombreUsuarioEnSesion()))
+                .findFirst().orElseThrow(() -> new SolicitudEnsayoErrorException("No se encontro solicitud de extensión de plazo"));
+        solicitudExtensionPlazo.marcarAprobacion(estadoExtensionPlazo, solicitudEnsayo.getFechaEntregaInforme());
+    }
+
     private List<SolicitudDTO> obtenerSolicitudesEnsayo(ConsultaSolicitudDTO consulta) {
         try {
             final CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
@@ -589,7 +648,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                         c.getDetalleMaterial(),
                         TipoSolicitud.SOLICITUD_ENSAYOS,
                         c.getTipoAprobacion() == null ? "" : c.getTipoAprobacion().getDescripcion(),
-                        c.getPrioridad()
+                        c.getPrioridad(),
+                        c.getExtensionFecha()
                 );
             }).collect(Collectors.toList());
 

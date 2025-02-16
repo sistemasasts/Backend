@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.UnidadMedida;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -17,9 +15,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-@Data
+@Getter
+@Setter
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @Entity
@@ -91,6 +91,12 @@ public class SolicitudEnsayo extends SolicitudBase {
     @JsonSerialize(using = LocalDateSerializeIsa.class)
     @JsonDeserialize(using = LocalDateDeserializeIsa.class)
     private LocalDate extensionFecha;
+
+    private String usuarioAprobadorExtensionPlazo;
+
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
+    private List<SolicitudExtensionPlazo> extensionesPlazo = new ArrayList<>();
 
     @Transient
     private String observacion;
@@ -252,5 +258,22 @@ public class SolicitudEnsayo extends SolicitudBase {
         if (this.tipoAprobacion != null)
             return this.tipoAprobacion.getDescripcion();
         return "";
+    }
+
+    public void agregarExtensionPlazo(SolicitudExtensionPlazo extensionPlazo){
+        this.extensionesPlazo.add(extensionPlazo);
+    }
+
+    public LocalDate getFechaSolicitudExtension(){
+        LocalDate fechaTentativa = LocalDate.of(1999,1, 1);
+        if(this.extensionesPlazo.isEmpty())
+            return fechaTentativa;
+        else{
+            SolicitudExtensionPlazo extensionPlazo = extensionesPlazo
+                    .stream()
+                    .filter(x -> x.getEstado().equals(EstadoExtensionPlazo.PENDIENTE))
+                    .findFirst().orElse(null);
+            return extensionPlazo == null ? fechaTentativa: extensionPlazo.getFechaSolicitud();
+        }
     }
 }

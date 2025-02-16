@@ -202,4 +202,21 @@ public class SolicitudEnsayoControlador {
         return ResponseEntity.ok(respuesta);
     }
 
+    @PostMapping("/solicitudExtensionPlazo")
+    public ResponseEntity<Object> solicitudExtensionPlazo(@RequestBody SolicitudEnsayo obj) {
+        boolean respuesta = servicio.solicitudExtensionPlazo(obj);
+        return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+    }
+
+    @GetMapping("/pendienteExtensionPlazo")
+    public ResponseEntity<List<SolicitudEnsayo>> listarSolicitudesPendienteExtensionPlazo() {
+        List<SolicitudEnsayo> solicitudes = servicio.obtenerSolicitudesPendienteExtensionPlazo();
+        return ResponseEntity.ok(solicitudes);
+    }
+
+    @PostMapping("/ejecutarAccionExtensionPlazo")
+    public ResponseEntity<Object> ejecutarAccionExtensionPlazo(@RequestBody SolicitudEnsayo obj) {
+        servicio.ejecutarAccionExtensionPlazo(obj);
+        return ResponseEntity.ok(Boolean.TRUE);
+    }
 }

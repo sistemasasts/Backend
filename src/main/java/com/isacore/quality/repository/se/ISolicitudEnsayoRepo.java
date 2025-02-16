@@ -40,4 +40,6 @@ public interface ISolicitudEnsayoRepo extends JpaRepository<SolicitudEnsayo, Lon
     List<Object[]> obtenerSolicitudesHija(@Param("solicitudId")long solicitudId);
 
     Optional<SolicitudEnsayo> findBySolicitudPruebaProcesoId(long solicitudPruebaProcesoId);
+
+    List<SolicitudEnsayo> findByEstadoAndUsuarioAprobadorExtensionPlazoOrderByFechaCreacionDesc(EstadoSolicitud estado, String usuarioAprobador);
 }

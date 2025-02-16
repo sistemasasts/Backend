@@ -3,6 +3,7 @@ package com.isacore.notificacion.servicio;
 import com.isacore.notificacion.ConfiguracionNotificacion;
 import com.isacore.notificacion.dominio.DireccionesDestino;
 import com.isacore.notificacion.dominio.MensajeTipo;
+import com.isacore.quality.model.se.EstadoExtensionPlazo;
 import com.isacore.quality.model.se.SolicitudEnsayo;
 import com.isacore.quality.model.se.TipoAprobacionSolicitud;
 import com.isacore.quality.model.se.TipoSolicitud;
@@ -26,10 +27,10 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
 
     @Autowired
     public ServicioNotificacionSolicitudEnsayo(
-        final ConfiguracionNotificacion configuracionNotificacion,
-        final ProveedorCorreoElectronicoOffice365 proveedorCorreoElectronico,
-        final SpringTemplateEngine springTemplateEngine,
-        IUserImptekRepo userImptekRepo) {
+            final ConfiguracionNotificacion configuracionNotificacion,
+            final ProveedorCorreoElectronicoOffice365 proveedorCorreoElectronico,
+            final SpringTemplateEngine springTemplateEngine,
+            IUserImptekRepo userImptekRepo) {
         super(configuracionNotificacion, LOG, proveedorCorreoElectronico, springTemplateEngine);
         this.userImptekRepo = userImptekRepo;
     }
@@ -91,6 +92,41 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
         });
     }
 
+    public void notificarSolicitudExtensionIngreso(SolicitudEnsayo solicitud, String observacion) throws Exception {
+        String asunto = this.crearAsunto(String.format("SOLICITUD EXTENSIÓN INGRESADA %s - ", solicitud.getCodigo()), solicitud);
+        UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getUsuarioAprobadorExtensionPlazo());
+        UserImptek usuarioGestion = this.obtenerUsuario(solicitud.getUsuarioGestion());
+        DireccionesDestino destinos = new DireccionesDestino();
+        destinos.agregarDireccionA(usuarioAprobador.getCorreo());
+        enviarHtml(destinos, asunto, "ExtensionPlazo/emailSolicitudExtensionIngreso", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("usuarioResponsable", usuarioGestion.getEmployee().getCompleteName());
+            context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
+            context.setVariable("observacion", observacion);
+            context.setVariable("prioridad", solicitud.getPrioridad().toString());
+            context.setVariable("proveedor", solicitud.getProveedorNombre());
+            context.setVariable("nombreComercial", solicitud.getNombreComercial());
+        });
+    }
+
+    public void notificarSolicitudExtensionEstado(SolicitudEnsayo solicitud, String observacion, EstadoExtensionPlazo estadoExtensionPlazo) throws Exception {
+        String asunto = this.crearAsunto(String.format("SOLICITUD EXTENSIÓN %s - %s ", estadoExtensionPlazo, solicitud.getCodigo()), solicitud);
+        UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
+        UserImptek usuarioGestion = this.obtenerUsuario(solicitud.getUsuarioGestion());
+        DireccionesDestino destinos = new DireccionesDestino();
+        destinos.agregarDireccionA(usuarioGestion.getCorreo());
+        if (EstadoExtensionPlazo.APROBADA.equals(estadoExtensionPlazo)) {
+            destinos.agregarDireccionCC(usuarioSolicitante.getCorreo());
+        }
+        enviarHtml(destinos, asunto, "ExtensionPlazo/emailSolicitudExtensionEstado", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("nombreUsuario", usuarioGestion.getEmployee().getCompleteName());
+            context.setVariable("estado", estadoExtensionPlazo);
+            context.setVariable("aprobado", EstadoExtensionPlazo.APROBADA.equals(estadoExtensionPlazo));
+            context.setVariable("nuevaFecha", solicitud.getFechaEntregaInforme());
+        });
+    }
+
     private UserImptek obtenerUsuario(String usuarioId) throws Exception {
         UserImptek usuario = this.userImptekRepo.findOneByNickName(usuarioId);
         if (usuario == null)
@@ -112,13 +148,13 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
         }
     }
 
-    private String crearAsunto(String trama, SolicitudEnsayo solicitud){
+    private String crearAsunto(String trama, SolicitudEnsayo solicitud) {
         String asunto = trama + " " +
                 solicitud.getPrioridad().toString() + " " +
                 solicitud.getNombreComercial() + " " +
                 solicitud.getProveedorNombre();
-        if(asunto.length() > 200)
-            asunto = asunto.substring(0,200);
+        if (asunto.length() > 200)
+            asunto = asunto.substring(0, 200);
         return asunto;
     }
 
