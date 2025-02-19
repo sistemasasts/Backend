@@ -257,6 +257,9 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             solicitudRecargada.setExtensionFecha(solicitud.getExtensionFecha());
             solicitudRecargada.setFechaEntregaInforme(solicitud.getExtensionFecha());
 
+        } else if (solicitudRecargada.getObjetivo().contains("Diseño Vial") && solicitud.getFechaEntregaInforme() != null) {
+            solicitudRecargada.setFechaEntregaInforme(solicitud.getFechaEntregaInforme());
+            solicitudRecargada.setTiempoEntrega(TiempoEntrega.DEFINIDO_POR_USUARIO);
         }
 
         LOG.info(String.format("Solicitud id=%s validada..", solicitudRecargada.getId()));
@@ -568,7 +571,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         }
     }
 
-    private void actualizarSolicitudExtension(SolicitudEnsayo solicitudEnsayo, EstadoExtensionPlazo estadoExtensionPlazo){
+    private void actualizarSolicitudExtension(SolicitudEnsayo solicitudEnsayo, EstadoExtensionPlazo estadoExtensionPlazo) {
         SolicitudExtensionPlazo solicitudExtensionPlazo = solicitudEnsayo.getExtensionesPlazo().stream()
                 .filter(x -> x.getEstado().equals(EstadoExtensionPlazo.PENDIENTE))
                 .filter(x -> x.getUsuarioAprobador().equals(nombreUsuarioEnSesion()))
