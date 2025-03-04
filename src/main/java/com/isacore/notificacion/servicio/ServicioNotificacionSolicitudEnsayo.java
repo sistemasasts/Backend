@@ -137,11 +137,14 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
     private String castearTipoAprobacion(TipoAprobacionSolicitud tipoAprobacion) {
         switch (tipoAprobacion) {
             case NO_APROBADO:
+            case VALIDACION_NO_APROBADA:
                 return tipoAprobacion.getDescripcion();
             case NIVEL_PLANTA:
             case GESTION_COMPRA:
             case NIVEL_LABORATORIO:
             case SOLICITUD_PRUEBA_PROCESO:
+            case LIBRE_USO_GESTION_COMPRA:
+            case REQUIERE_PRUEBA_PROCESO:
                 return String.format("APROBADO %s", tipoAprobacion.getDescripcion());
             default:
                 return "";

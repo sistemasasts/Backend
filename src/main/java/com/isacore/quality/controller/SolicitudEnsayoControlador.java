@@ -146,8 +146,8 @@ public class SolicitudEnsayoControlador {
 
     @GetMapping("/tiposAprobacion")
     public ResponseEntity<List<CatalogDTO>> listarTiposAprobacion() {
-        final List<CatalogDTO> lista = Arrays.asList(TipoAprobacionSolicitud.values()).parallelStream().map(x -> {
-            return new CatalogDTO(x.toString(), x.toString());
+        final List<CatalogDTO> lista = TipoAprobacionSolicitud.soloActivosParaSeleccion().stream().map(x -> {
+            return new CatalogDTO(x.getDescripcion(), x.toString());
         }).collect(Collectors.toList());
         return ResponseEntity.ok(lista);
     }

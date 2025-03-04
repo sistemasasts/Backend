@@ -328,12 +328,13 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
         agregarHistorial(solicitudRecargada, OrdenFlujo.APROBAR_INFORME, solicitud.getObservacion());
         copiarInforme(solicitudRecargada.getId());
-        solicitudRecargada.marcarSolicitudComoAprobada(solicitud.getTipoAprobacion());
-        if (solicitud.getTipoAprobacion().equals(TipoAprobacionSolicitud.SOLICITUD_PRUEBA_PROCESO)) {
+
+        solicitudRecargada.marcarSolicitudComoAprobada(solicitud.getTipoAprobacion(), solicitud.isRequiereMateriaPrima());
+        List<TipoAprobacionSolicitud> estadosRequierePruebasProceso = Arrays.asList(TipoAprobacionSolicitud.SOLICITUD_PRUEBA_PROCESO, TipoAprobacionSolicitud.REQUIERE_PRUEBA_PROCESO);
+        if (estadosRequierePruebasProceso.contains(solicitud.getTipoAprobacion()) && !solicitud.isRequiereMateriaPrima()) {
             solicitudRecargada.setEstado(EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO);
         }
         LOG.info(String.format("Solicitud id=%s aprobada, tipo aprobacion %s..", solicitudRecargada.getId(), solicitudRecargada.getTipoAprobacion()));
-        //TODO: se debe agregar metodo de notificar al solicitante el estado de la solicitud
         try {
             this.servicioNotificacionSolicitudEnsayo.notificarSolicitudFinalizada(solicitudRecargada, solicitud.getObservacion());
         } catch (Exception e) {
@@ -491,8 +492,13 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         SolicitudEnsayo solicitudEnsayo = this.obtenerSolicitudPorId(solicitud.getId());
         String observacion = noEsNuloNiBlanco(solicitud.getObservacion()) ? solicitud.getObservacion() : "REVISIÓN FINALIZADA";
         this.agregarHistorial(solicitudEnsayo, OrdenFlujo.REVISION_PLANES_ACCION, observacion);
-        solicitudEnsayo.setEstado(EstadoSolicitud.PLANES_ACCION_REVISADOS);
-        LOG.info(String.format("Solicitud %s planes de accion revisados", solicitudEnsayo.getCodigo()));
+        List<TipoAprobacionSolicitud> estadosRequierePruebasProceso = Arrays.asList(TipoAprobacionSolicitud.SOLICITUD_PRUEBA_PROCESO, TipoAprobacionSolicitud.REQUIERE_PRUEBA_PROCESO);
+        if (estadosRequierePruebasProceso.contains(solicitudEnsayo.getTipoAprobacion())) {
+            solicitudEnsayo.setEstado(EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO);
+        } else {
+            solicitudEnsayo.setEstado(EstadoSolicitud.PLANES_ACCION_REVISADOS);
+        }
+        LOG.info(String.format("Solicitud %s planes de accion revisados, tipo aprobacion: %s", solicitudEnsayo.getCodigo(), solicitudEnsayo.getTipoAprobacion()));
         return true;
     }
 

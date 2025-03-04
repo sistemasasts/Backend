@@ -8,6 +8,7 @@ import com.isacore.util.LocalDateSerializeIsa;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -98,6 +99,10 @@ public class SolicitudEnsayo extends SolicitudBase {
     @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
     private List<SolicitudExtensionPlazo> extensionesPlazo = new ArrayList<>();
 
+    @NotNull
+    @Column(columnDefinition = "bit default  0")
+    private boolean requiereMateriaPrima;
+
     @Transient
     private String observacion;
 
@@ -154,9 +159,10 @@ public class SolicitudEnsayo extends SolicitudBase {
         setUsuarioAprobador(usuarioAsignado);
     }
 
-    public void marcarSolicitudComoAprobada(TipoAprobacionSolicitud tipoAprobacion) {
+    public void marcarSolicitudComoAprobada(TipoAprobacionSolicitud tipoAprobacion, boolean requiereMateriaPrima) {
         setEstado(EstadoSolicitud.FINALIZADO);
         this.tipoAprobacion = tipoAprobacion;
+        this.requiereMateriaPrima = requiereMateriaPrima;
         finalizarSolicitud();
     }
 

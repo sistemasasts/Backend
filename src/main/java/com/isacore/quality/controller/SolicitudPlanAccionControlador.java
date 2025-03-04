@@ -35,8 +35,8 @@ public class SolicitudPlanAccionControlador {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> eliminar(@PathVariable("solicitudId") long solicitudId) {
-        boolean resultadoConsulta = this.servicio.eliminar(solicitudId);
+    public ResponseEntity<Object> eliminar(@PathVariable("id") long id) {
+        boolean resultadoConsulta = this.servicio.eliminar(id);
         return ResponseEntity.ok(resultadoConsulta);
     }
 
