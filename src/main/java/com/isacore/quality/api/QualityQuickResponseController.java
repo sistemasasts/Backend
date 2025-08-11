@@ -40,8 +40,6 @@ import com.isacore.quality.tx.TxPropertyList;
 import com.isacore.quality.tx.TxProvider;
 import com.isacore.quality.tx.TxReadFormulation;
 import com.isacore.quality.tx.TxTest;
-import com.isacore.sgc.acta.model.Role;
-import com.isacore.sgc.acta.service.impl.RoleServiceImpl;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
 import com.isacore.util.WebResponseMessage;
@@ -89,8 +87,8 @@ public class QualityQuickResponseController {
 	@Autowired
 	private GeneralReadMP readMP;
 	
-	@Autowired
-	private RoleServiceImpl roleService;
+//	@Autowired
+//	private RoleServiceImpl roleService;
 	
 	@Autowired
 	private GeneralReadTest readTest;
@@ -261,15 +259,15 @@ public class QualityQuickResponseController {
 		}
 	}	
 	
-	@PostMapping(value = "/testRole", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Role testExcel(@RequestBody String id) {
-		
-		Role r = new Role();
-		r.setRolName(id);
-		return roleService.findById(r);
-		
-		
-	}
+//	@PostMapping(value = "/testRole", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//	public Role testExcel(@RequestBody String id) {
+//
+//		Role r = new Role();
+//		r.setRolName(id);
+//		return roleService.findById(r);
+//
+//
+//	}
 	
 	@RequestMapping(value = "/varios", method = RequestMethod.GET)
 	public void varios() {

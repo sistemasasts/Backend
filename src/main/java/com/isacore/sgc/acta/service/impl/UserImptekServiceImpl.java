@@ -6,15 +6,12 @@ import com.isacore.quality.model.Area;
 import com.isacore.quality.repository.IEmployeeRepo;
 import com.isacore.quality.service.impl.GeneradorContrasena;
 import com.isacore.sgc.acta.model.Employee;
-import com.isacore.sgc.acta.model.Role;
 import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IRoleRepo;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.sgc.acta.service.IUserImptekService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,15 +25,15 @@ public class UserImptekServiceImpl implements IUserImptekService {
     private static final Log LOG = LogFactory.getLog(UserImptekServiceImpl.class);
 
     private IUserImptekRepo repo;
-    private IRoleRepo repoRole;
+//    private IRoleRepo repoRole;
     private IEmployeeRepo employeeRepo;
     private GeneradorContrasena generadorContrasena;
 
     @Autowired
-    public UserImptekServiceImpl(IUserImptekRepo repo, IRoleRepo repoRole, IEmployeeRepo employeeRepo,
+    public UserImptekServiceImpl(IUserImptekRepo repo, IEmployeeRepo employeeRepo,
                                  GeneradorContrasena generadorContrasena) {
         this.repo = repo;
-        this.repoRole = repoRole;
+//        this.repoRole = repoRole;
         this.employeeRepo = employeeRepo;
         this.generadorContrasena = generadorContrasena;
     }
@@ -51,7 +48,7 @@ public class UserImptekServiceImpl implements IUserImptekService {
     public UserImptek create(UserImptek user) {
         this.validarUnicoUsuario(user.getIdUser());
         Employee empleado = this.crearEmpleado(user.getEmployee());
-        UserImptek userNuevo = new UserImptek(user.getIdUser(), empleado, user.getRole());
+        UserImptek userNuevo = new UserImptek();
         userNuevo.setUserPass(this.generadorContrasena.generar(user.getEmployee().getCiEmployee()));
         LOG.info(String.format("Usuario registrado %s", userNuevo));
         return this.repo.save(userNuevo);
@@ -85,7 +82,7 @@ public class UserImptekServiceImpl implements IUserImptekService {
     @Override
     public UserImptek update(UserImptek user) {
         UserImptek usuarioRecargado = this.buscarUsuario(user.getIdUser());
-        usuarioRecargado.setRole(user.getRole());
+//        usuarioRecargado.setRole(user.getRole());
         usuarioRecargado.getEmployee().setCiEmployee(user.getEmployee().getCiEmployee());
         usuarioRecargado.getEmployee().setName(user.getEmployee().getName());
         usuarioRecargado.getEmployee().setLastName(user.getEmployee().getLastName());
@@ -121,9 +118,9 @@ public class UserImptekServiceImpl implements IUserImptekService {
             Employee emp = new Employee();
             emp.setCiEmployee((String) o[4]);
 
-            Optional<Role> op = this.repoRole.findById((String) o[5]);
-            if (op.isPresent())
-                ui.setRole(op.get());
+//            Optional<Role> op = this.repoRole.findById((String) o[5]);
+//            if (op.isPresent())
+//                ui.setRole(op.get());
 
             //ui.setRole(this.repoRole.findOne((String)o[6]));
 

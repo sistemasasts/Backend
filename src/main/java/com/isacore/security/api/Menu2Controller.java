@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.isacore.sgc.acta.model.Menu;
+import com.isacore.security.model.Menu;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.service.IUserImptekService;
 
 @RestController
 @RequestMapping(value = "/menus")
-public class MenuController {
+public class Menu2Controller {
 
 	@Autowired
 	private IUserImptekService service;

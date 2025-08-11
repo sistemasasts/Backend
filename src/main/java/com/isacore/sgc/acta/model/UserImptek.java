@@ -50,9 +50,9 @@ public class UserImptek {
 	@JsonDeserialize(using = LocalDateTimeDeserializeIsa.class)
 	private LocalDateTime lastAccess;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "ROLE_NAME",insertable = true, updatable = true, nullable = true)
-	private Role role;
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	@JoinColumn(name = "ROLE_NAME",insertable = true, updatable = true, nullable = true)
+//	private Role role;
 
 	public UserImptek() {
 		super();
@@ -69,26 +69,14 @@ public class UserImptek {
 		this.lastAccess = lastAccess;
 	}
 
-	public UserImptek(String idUser, Employee employee, String nickName, String userPass,
-			LocalDateTime lastKeyDateChange, LocalDateTime lastAccess, Role role) {
-		super();
-		this.idUser = idUser;
-		this.employee = employee;
-		this.nickName = nickName;
-		this.userPass = userPass;
-		this.lastKeyDateChange = lastKeyDateChange;
-		this.lastAccess = lastAccess;
-		this.role = role;
-	}
-
-    public UserImptek(String idUser, Employee employee, Role role) {
-        this.idUser = idUser;
-        this.nickName = idUser;
-        this.employee = employee;
-        this.role = role;
-        this.lastKeyDateChange = LocalDateTime.now();
-        this.lastAccess = LocalDateTime.now();
-    }
+//    public UserImptek(String idUser, Employee employee, Role role) {
+//        this.idUser = idUser;
+//        this.nickName = idUser;
+//        this.employee = employee;
+//        this.role = role;
+//        this.lastKeyDateChange = LocalDateTime.now();
+//        this.lastAccess = LocalDateTime.now();
+//    }
 
     public String getIdUser() {
 		return idUser;
@@ -128,14 +116,6 @@ public class UserImptek {
 
 	public void setLastAccess(LocalDateTime lastAccess) {
 		this.lastAccess = lastAccess;
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
 	}
 
 	public Employee getEmployee() {
