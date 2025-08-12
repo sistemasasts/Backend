@@ -34,6 +34,7 @@ public class PerfilService {
             throw new IllegalArgumentException("Ya existe un perfil con el nombre: '" + perfilDTO.getNombre() + "'.");
         }
         Perfil perfil = perfilMapper.toEntity(perfilDTO);
+        perfil.setActivo(true);
         this.perfilRepositorio.save(perfil);
         return perfilMapper.toDTO(perfil);
     }

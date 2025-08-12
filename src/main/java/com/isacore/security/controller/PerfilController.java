@@ -2,13 +2,17 @@ package com.isacore.security.controller;
 
 
 import com.isacore.security.dto.PerfilDTO;
+import com.isacore.security.model.RolEnum;
 import com.isacore.security.service.PerfilService;
+import com.isacore.util.CatalogDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/perfiles")
@@ -42,6 +46,13 @@ public class PerfilController {
             @Valid @RequestBody PerfilDTO PerfilDTO) {
         PerfilDTO updatedProfile = perfilService.actualizarPerfil(PerfilDTO);
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<List<CatalogDTO>> getRoles() {
+        List<CatalogDTO> catalogo = Arrays.stream(RolEnum.values())
+                .map(x -> new CatalogDTO(x.getDescripcion(), x.name())).collect(Collectors.toList());
+        return ResponseEntity.ok(catalogo);
     }
 
 }

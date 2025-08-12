@@ -91,7 +91,17 @@ public class MenuService {
     @Transactional(readOnly = true)
     public List<MenuDTO> getAllMenus() {
         List<Menu> menus = menuRepositorio.findAll();
+        List<Menu> subMenu = new ArrayList<>();
+        menus.forEach(mp -> {
+            if (mp.getPadreMenu() != null)
+                subMenu.add(mp);
+        });
+        menus.removeAll(subMenu);
+        menus.forEach(mp -> {
+            mp.setMenus(subMenu.stream().filter(sp -> Objects.equals(sp.getPadreMenu().getId(), mp.getId())).collect(Collectors.toList()));
+        });
         return menuMapper.toResponseDTOList(menus);
+
     }
 
     @Transactional(readOnly = true)
