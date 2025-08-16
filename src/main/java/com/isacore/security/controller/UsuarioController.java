@@ -1,5 +1,7 @@
 package com.isacore.security.controller;
 
+import com.isacore.quality.model.Area;
+import com.isacore.quality.service.IAreasService;
 import com.isacore.security.dto.UsuarioDTO;
 import com.isacore.security.dto.UsuarioPerfilDTO;
 import com.isacore.security.model.RolEnum;
@@ -22,9 +24,12 @@ import java.util.stream.Collectors;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final IAreasService servicioArea;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService,
+                             IAreasService servicioArea) {
         this.usuarioService = usuarioService;
+        this.servicioArea = servicioArea;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,9 +82,9 @@ public class UsuarioController {
         return ResponseEntity.ok(catalogo);
     }
 
-    @GetMapping("/roles/por-usuario/{userId}")
-    public ResponseEntity<List<String>> getRolesPorUsuarioId(@PathVariable long userId) {
-        List<String> roles = usuarioService.obtenerRolesPorUsuarioId(userId);
+    @GetMapping("/usuario-perfil/por-usuario/{userId}")
+    public ResponseEntity<List<UsuarioPerfilDTO>> getRolesPorUsuarioId(@PathVariable long userId) {
+        List<UsuarioPerfilDTO> roles = usuarioService.obtenerPerfilesPorUsuarioId(userId);
         return ResponseEntity.ok(roles);
     }
 
@@ -95,6 +100,12 @@ public class UsuarioController {
             @PathVariable long perfilId) {
         Map<String, Object> result = usuarioService.eliminarPerfilPorUsuarioIdPerfilId(usuarioId, perfilId);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/areas")
+    public ResponseEntity<List<Area>> listarAreas() {
+        List<Area> areas = servicioArea.findAll();
+        return ResponseEntity.ok(areas);
     }
 
 }

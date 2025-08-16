@@ -1,5 +1,7 @@
 package com.isacore.security.service;
 
+import com.isacore.quality.model.Area;
+import com.isacore.quality.repository.IAreasRepo;
 import com.isacore.security.dto.UsuarioDTO;
 import com.isacore.security.dto.UsuarioPerfilDTO;
 import com.isacore.security.exception.*;
@@ -12,7 +14,6 @@ import com.isacore.security.model.UsuarioPerfil;
 import com.isacore.security.repository.PerfilRepositorio;
 import com.isacore.security.repository.UsuarioPerfilRepositorio;
 import com.isacore.security.repository.UsuarioRepositorio;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -32,19 +32,22 @@ public class UsuarioService {
     private final UsuarioPerfilRepositorio usuarioPerfilRepositorio;
     private final PerfilRepositorio perfilRepositorio;
     private final UsuarioPerfilMapper usuarioPerfilMapper;
+    private final IAreasRepo areaRepositorio;
 
     public UsuarioService(
             UsuarioRepositorio usuarioRepositorio,
             UsuarioMapper usuarioMapper,
             UsuarioPerfilRepositorio usuarioPerfilRepositorio,
             PerfilRepositorio perfilRepositorio,
-            UsuarioPerfilMapper usuarioPerfilMapper
-            ) {
+            UsuarioPerfilMapper usuarioPerfilMapper,
+            IAreasRepo areaRepositorio
+    ) {
         this.usuarioRepositorio = usuarioRepositorio;
         this.usuarioMapper = usuarioMapper;
         this.usuarioPerfilRepositorio = usuarioPerfilRepositorio;
         this.perfilRepositorio = perfilRepositorio;
         this.usuarioPerfilMapper = usuarioPerfilMapper;
+        this.areaRepositorio = areaRepositorio;
     }
 
     public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
@@ -91,7 +94,7 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<UsuarioDTO> obtenerUsuarios() {
-        List<Usuario> allUsers = usuarioRepositorio.findAll(Sort.by(Sort.Direction.DESC,"entidaBase.lastModifiedDate"));
+        List<Usuario> allUsers = usuarioRepositorio.findAll();
         return usuarioMapper.toDTOLista(allUsers);
     }
 
@@ -99,13 +102,11 @@ public class UsuarioService {
         return usuarioRepositorio.findById(id).orElseThrow(() ->
                 new RecursoNotFoundException("El usuario con id:" + id + " no existe."));
     }
+
     @Transactional(readOnly = true)
-    public List<String> obtenerRolesPorUsuarioId(long userId) {
-        return this.usuarioPerfilRepositorio.findByUsuarioId(userId)
-                .stream()
-                .map(x -> x.getPerfil().getRol().name())
-                .distinct()
-                .collect(Collectors.toList());
+    public List<UsuarioPerfilDTO> obtenerPerfilesPorUsuarioId(long userId) {
+        List<UsuarioPerfil> usuarioPerfils = this.usuarioPerfilRepositorio.findByUsuarioId(userId);
+        return usuarioPerfilMapper.toDTOList(usuarioPerfils);
     }
 
 
@@ -121,6 +122,11 @@ public class UsuarioService {
             userToUpdate.setNombre(userRequestDTO.getNombre());
             userToUpdate.setTrabajo(userRequestDTO.getTrabajo());
             userToUpdate.setEstado(userRequestDTO.getEstado());
+            if (userRequestDTO.getArea() != null) {
+                Area area = this.areaRepositorio.findById((int)userRequestDTO.getArea().getIdArea()).orElseThrow(
+                        () -> new RecursoNotFoundException("Area no encontrada con ID: " + userRequestDTO.getArea().getIdArea()));
+                userToUpdate.setArea(area);
+            }
             this.usuarioRepositorio.save(userToUpdate);
             return usuarioMapper.toDTO(userToUpdate);
         } catch (Exception rte) {
@@ -159,8 +165,8 @@ public class UsuarioService {
             Map<String, Object> resultado = new HashMap<>();
             resultado.put("status", true);
             resultado.put("message", "El proceso se completó correctamente");
-            return  resultado;
-        }catch (RuntimeException rte) {
+            return resultado;
+        } catch (RuntimeException rte) {
             throw new EliminarUsuarioPerfilException("No se pudo eliminar Vínculo Usuario Perfil para usuario: " + usuarioId + " y perfil: " + perfilId, rte);
         }
     }

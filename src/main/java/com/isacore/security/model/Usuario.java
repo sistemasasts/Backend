@@ -35,6 +35,8 @@ public class Usuario extends EntidadBase {
 
     private String trabajo;
 
+    private String contrasena;
+
     public Usuario() {
     }
 

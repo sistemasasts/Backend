@@ -12,4 +12,5 @@ public class UsuarioPerfilDTO {
     private long usuarioId;
     private long perfilId;
     private boolean activo;
+    private PerfilDTO perfil;
 }
