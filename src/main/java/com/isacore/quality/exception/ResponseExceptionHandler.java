@@ -2,6 +2,7 @@ package com.isacore.quality.exception;
 
 import java.time.LocalDate;
 
+import com.isacore.security.exception.CrearUsuarioException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,14 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler{
 		ExceptionResponse er = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false));		
 		return new ResponseEntity<ExceptionResponse>(er, HttpStatus.NOT_FOUND);
 		
+	}
+
+	@ExceptionHandler(CrearUsuarioException.class)
+	public final ResponseEntity<ExceptionResponse> manejarModeloExceptionUsuario(ModeloNotFoundxception ex, WebRequest request){
+
+		ExceptionResponse er = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<ExceptionResponse>(er, HttpStatus.NOT_FOUND);
+
 	}
 	
 	//Método sobre escrito para lanzar excepciones de acuerdo a los argumentos validados en la clase

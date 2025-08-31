@@ -8,7 +8,7 @@ import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, uses = {Usuario.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, uses = {AreaMapper.class})
 public interface UsuarioMapper {
 
     UsuarioDTO toDTO(Usuario usuario);
@@ -17,7 +17,7 @@ public interface UsuarioMapper {
     @Mapping(target = "creadoFecha", ignore = true)
     @Mapping(target = "creadoPor", ignore = true)
     @Mapping(target = "modificadoPor", ignore = true)
-    @Mapping(target = "area", ignore = true)
+    @Mapping(target = "contrasena", ignore = true)
     Usuario toEntity(UsuarioDTO usuarioDTO);
 
     List<UsuarioDTO> toDTOLista(List<Usuario> usuarios);
