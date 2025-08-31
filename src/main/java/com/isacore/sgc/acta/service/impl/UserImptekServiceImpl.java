@@ -4,7 +4,6 @@ import com.isacore.localdate.converter.LocalDateTimeConverter;
 import com.isacore.quality.exception.UsuarioErrorException;
 import com.isacore.quality.model.Area;
 import com.isacore.quality.repository.IEmployeeRepo;
-import com.isacore.quality.service.impl.GeneradorContrasena;
 import com.isacore.sgc.acta.model.Employee;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
@@ -27,15 +26,14 @@ public class UserImptekServiceImpl implements IUserImptekService {
     private IUserImptekRepo repo;
 //    private IRoleRepo repoRole;
     private IEmployeeRepo employeeRepo;
-    private GeneradorContrasena generadorContrasena;
+//    private GeneradorContrasena generadorContrasena;
 
     @Autowired
-    public UserImptekServiceImpl(IUserImptekRepo repo, IEmployeeRepo employeeRepo,
-                                 GeneradorContrasena generadorContrasena) {
+    public UserImptekServiceImpl(IUserImptekRepo repo, IEmployeeRepo employeeRepo) {
         this.repo = repo;
 //        this.repoRole = repoRole;
         this.employeeRepo = employeeRepo;
-        this.generadorContrasena = generadorContrasena;
+//        this.generadorContrasena = generadorContrasena;
     }
 
     @Override
@@ -49,7 +47,7 @@ public class UserImptekServiceImpl implements IUserImptekService {
         this.validarUnicoUsuario(user.getIdUser());
         Employee empleado = this.crearEmpleado(user.getEmployee());
         UserImptek userNuevo = new UserImptek();
-        userNuevo.setUserPass(this.generadorContrasena.generar(user.getEmployee().getCiEmployee()));
+//        userNuevo.setUserPass(this.generadorContrasena.generar(user.getEmployee().getCiEmployee()));
         LOG.info(String.format("Usuario registrado %s", userNuevo));
         return this.repo.save(userNuevo);
     }
@@ -158,7 +156,7 @@ public class UserImptekServiceImpl implements IUserImptekService {
     @Override
     public boolean reestablecerContrasena(UserImptek userImptek) {
         UserImptek usuario = this.buscarUsuario(userImptek.getIdUser());
-        usuario.setUserPass(this.generadorContrasena.generar(userImptek.getUserPass()));
+//        usuario.setUserPass(this.generadorContrasena.generar(userImptek.getUserPass()));
         LOG.info(String.format("Usuario %s contrasena reestablecida", usuario.getIdUser()));
         return true;
     }

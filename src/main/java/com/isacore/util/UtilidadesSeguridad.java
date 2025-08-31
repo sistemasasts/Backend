@@ -2,6 +2,7 @@ package com.isacore.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 public class UtilidadesSeguridad {
 
@@ -22,13 +23,14 @@ public class UtilidadesSeguridad {
 		final Authentication authentication = authentication();
 		return (authentication != null) && (!authenticationCorrespondeAUsuarioAnonimo(authentication));
 	}
-	
+
 	public static final String nombreUsuarioEnSesion() {
-		return authentication().getName();
+		Jwt detalles = authentication() == null ? null : (Jwt) authentication().getPrincipal();
+		return detalles != null ? detalles.getClaims().get("preferred_username").toString().split("@")[0] : "anonymousUser";
 	}
-	
-	public static final String usuarioEnSesion() {
-		return authentication() == null ? "desconocido" : (String) authentication().getName();
+
+	public static final Jwt usuarioEnSesion() {
+		return authentication() == null ? null : (Jwt) authentication().getPrincipal();
 	}
 	
 	private UtilidadesSeguridad() {}

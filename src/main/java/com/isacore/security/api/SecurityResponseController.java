@@ -37,9 +37,7 @@ public class SecurityResponseController {
 	
 	@Autowired
 	private IUserImptekRepo userImptekRepo;
-	
-	@Autowired
-	private BCryptPasswordEncoder bcrypt;
+
 
 	@RequestMapping(value = "/api", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> txQuickResponse(@RequestBody WebRequestIsa wri) {
@@ -58,14 +56,14 @@ public class SecurityResponseController {
 		}
 	}
 	
-	@RequestMapping(value = "/seteoPassword", method = RequestMethod.GET)
-	public void varios() {
-		List<UserImptek> usuarios=this.userImptekRepo.findAll();
-		usuarios.forEach(usuario ->{
-			usuario.setUserPass(bcrypt.encode("123"));
-		});
-		
-		
-	}
+//	@RequestMapping(value = "/seteoPassword", method = RequestMethod.GET)
+//	public void varios() {
+//		List<UserImptek> usuarios=this.userImptekRepo.findAll();
+//		usuarios.forEach(usuario ->{
+//			usuario.setUserPass(bcrypt.encode("123"));
+//		});
+//
+//
+//	}
 
 }

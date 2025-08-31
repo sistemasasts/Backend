@@ -42,6 +42,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.isacore.util.UtilidadesSeguridad.nombreUsuarioEnSesion;
 import static com.isacore.util.UtilidadesSeguridad.usuarioEnSesion;
 
 @Slf4j
@@ -66,7 +67,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     public ProductoNoConforme registrar(ProductoNoConforme dto) {
         ProductoNoConforme pnc = new ProductoNoConforme(
                 repositorio.secuencialSiguiente(),
-                usuarioEnSesion(),
+                nombreUsuarioEnSesion(),
                 dto.getFechaProduccion(),
                 dto.getFechaDeteccion(),
                 dto.getCantidadProducida(),

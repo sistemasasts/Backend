@@ -33,8 +33,6 @@ public class UserImptekController {
     @Autowired
     private IKindEmployeeRepo servicioTipo;
 
-    @Autowired
-    private BCryptPasswordEncoder bcrypt;
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserImptek>> findAll() {
@@ -59,11 +57,11 @@ public class UserImptekController {
             return new ResponseEntity<UserImptek>(userI, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/hash/{pass}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    private ResponseEntity<String> crearHashPassword(@PathVariable("pass") String pass) {
-        String claveHash = bcrypt.encode(pass);
-        return new ResponseEntity<String>(claveHash, HttpStatus.OK);
-    }
+//    @RequestMapping(value = "/hash/{pass}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+//    private ResponseEntity<String> crearHashPassword(@PathVariable("pass") String pass) {
+//        String claveHash = bcrypt.encode(pass);
+//        return new ResponseEntity<String>(claveHash, HttpStatus.OK);
+//    }
 
     @GetMapping("/{idUser}")
     private ResponseEntity<UserImptek> findByIdUserr(@PathVariable("idUser") String idUser) {

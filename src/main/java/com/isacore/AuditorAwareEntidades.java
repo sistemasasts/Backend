@@ -1,32 +1,35 @@
 package com.isacore;
 
-import com.isacore.util.UtilidadesSeguridad;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.Optional;
 
-public class AuditorAwareEntidades implements AuditorAware<String>   {
+public class AuditorAwareEntidades implements AuditorAware<String> {
 
-	private static final int AUDITORIA_LONGITUD_USUARIO_MAX = 100;
-	private static final String AUDITORIA_USUARIO_DESCONOCIDO = "desconocido";
-	private static final String AUDITORIA_USUARIO_ANONIMO = "anonimo";
+    private static final int AUDITORIA_LONGITUD_USUARIO_MAX = 100;
+    private static final String AUDITORIA_USUARIO_DESCONOCIDO = "desconocido";
+    private static final String AUDITORIA_USUARIO_ANONIMO = "anonimo";
 
-	@Override
-	public Optional<String> getCurrentAuditor() {
+    @Override
+    public Optional<String> getCurrentAuditor() {
 
-		if (UtilidadesSeguridad.esUsuarioIdentificado()) {
-			return Optional.of(usuarioDeSesion());
-		} else if (UtilidadesSeguridad.esUsuarioAnonimo()) {
-			return Optional.of(AUDITORIA_USUARIO_ANONIMO);
-		} else {
-			return Optional.of(AUDITORIA_USUARIO_DESCONOCIDO);
-		}
-	}
-
-	private final String usuarioDeSesion() {
-		final String userDetailsNombreUsuario = UtilidadesSeguridad.usuarioEnSesion();
-		final String usuario = String.format("%s", userDetailsNombreUsuario);
-		return StringUtils.left(usuario, AUDITORIA_LONGITUD_USUARIO_MAX);
-	}
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        if (authentication == null) {
+            return Optional.of("Queue Process");
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Jwt) {
+            Jwt jwt = (Jwt) principal;
+            return Optional.of(jwt.getClaimAsString("preferred_username"));
+        } else if (principal instanceof String && principal.equals("anonymousUser")) {
+            return Optional.of("Anonymous User");
+        } else {
+            return Optional.of("Unknown User");
+        }
+    }
 }
