@@ -12,7 +12,7 @@ import com.isacore.quality.model.se.TipoSolicitud;
 @Repository
 public interface IConfiguracionUsuarioRolEnsayoRepo extends JpaRepository<ConfiguracionUsuarioRolEnsayo, Integer>{
 
-	Optional<ConfiguracionUsuarioRolEnsayo> findByOrdenAndTipoSolicitudAndUsuario_IdUser(OrdenFlujo orden, TipoSolicitud tipoSolicitud, String idUsuario);
+	Optional<ConfiguracionUsuarioRolEnsayo> findByOrdenAndTipoSolicitudAndUsuario_NombreUsuario(OrdenFlujo orden, TipoSolicitud tipoSolicitud, String idUsuario);
 	
 	Optional<ConfiguracionUsuarioRolEnsayo> findByOrdenAndTipoSolicitud(OrdenFlujo orden, TipoSolicitud tipoSolicitud);
 }

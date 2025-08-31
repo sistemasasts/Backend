@@ -8,6 +8,7 @@ import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
 import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
+import com.isacore.security.model.Usuario;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.util.UtilidadesFecha;
@@ -106,7 +107,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         });
     }
 
-    public void notificarPruebaNoEjecutadaDefinitiva(SolicitudPruebasProceso solicitud, String observacion, UserImptek usuarioAprobador) throws Exception {
+    public void notificarPruebaNoEjecutadaDefinitiva(SolicitudPruebasProceso solicitud, String observacion, Usuario usuarioAprobador) throws Exception {
         String asunto = this.crearAsunto(String.format("SOLICITUD FINALIZADA %s PRUEBA NO EJECUTADA - ", solicitud.getCodigo()), solicitud);
         UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
         UserImptek usuarioCalidad = this.obtenerUsuario(solicitud.getUsuarioGestionCalidadJefe());
@@ -118,7 +119,7 @@ public class ServicioNotificacionSolicitudPP extends ServicioNotificacionBase {
         destinos.agregarDireccionA(usuarioSolicitante.getCorreo());
         destinos.agregarDireccionA(usuarioMantenimiento.getCorreo());
         destinos.agregarDireccionA(usuarioProduccion.getCorreo());
-        destinos.agregarDireccionA(usuarioAprobador.getCorreo());
+        destinos.agregarDireccionA(usuarioAprobador.getEmail());
 
         enviarHtml(destinos, asunto, "emailPruebaNoEjecutadaDefinitiva", (context) -> {
             context.setVariable("codigo", solicitud.getCodigo());

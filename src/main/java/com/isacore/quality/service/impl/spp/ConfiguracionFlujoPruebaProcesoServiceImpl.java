@@ -51,12 +51,12 @@ public class ConfiguracionFlujoPruebaProcesoServiceImpl implements IConfiguracio
 	
 	private void validarDuplicidad(ConfiguracionFlujoPruebaProceso obj) {
 
-		Optional<ConfiguracionFlujoPruebaProceso> optional = repo.findByOrdenAndUsuario_IdUser(
-				obj.getOrden(), obj.getUsuario().getIdUser());
+		Optional<ConfiguracionFlujoPruebaProceso> optional = repo.findByOrdenAndUsuario_NombreUsuario(
+				obj.getOrden(), obj.getUsuario().getNombreUsuario());
 		if (optional.isPresent())
 			throw new SolicitudEnsayoErrorException(
 					String.format("Usuario %s con Rol %s ya está configurado.",
-							obj.getUsuario().getIdUser(), obj.getOrden()));
+							obj.getUsuario().getNombreUsuario(), obj.getOrden()));
 
 	}
 	

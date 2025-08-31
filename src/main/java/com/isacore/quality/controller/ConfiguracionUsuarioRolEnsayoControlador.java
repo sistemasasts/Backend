@@ -46,7 +46,7 @@ public class ConfiguracionUsuarioRolEnsayoControlador {
 	
 	@GetMapping("/ordenFlujo")
     public ResponseEntity<List<CatalogDTO>> listarOrdenFlujo() {
-        final List<CatalogDTO> lista = Arrays.asList(OrdenFlujo.VALIDAR_SOLICITUD, OrdenFlujo.RESPONDER_SOLICITUD, OrdenFlujo.APROBAR_INFORME).parallelStream().map( x -> {
+        final List<CatalogDTO> lista = Arrays.asList(OrdenFlujo.VALIDAR_SOLICITUD, OrdenFlujo.RESPONDER_SOLICITUD, OrdenFlujo.APROBAR_INFORME, OrdenFlujo.APROBACION_EXTENSION_PLAZO).parallelStream().map( x -> {
         	return new CatalogDTO(x.toString(), x.toString());
         }).collect(Collectors.toList());
         return ResponseEntity.ok(lista);

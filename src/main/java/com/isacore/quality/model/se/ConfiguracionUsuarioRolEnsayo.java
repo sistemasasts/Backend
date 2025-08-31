@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.isacore.security.model.Usuario;
 import com.isacore.sgc.acta.model.UserImptek;
 
 import lombok.Data;
@@ -24,7 +25,7 @@ public class ConfiguracionUsuarioRolEnsayo {
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "usuario_id", nullable = false, updatable = false)
-	private UserImptek usuario;
+	private Usuario usuario;
 	
 	@Enumerated(EnumType.STRING)
 	private TipoSolicitud tipoSolicitud;
@@ -33,6 +34,6 @@ public class ConfiguracionUsuarioRolEnsayo {
 	private OrdenFlujo orden;
 	
 	public String getUsuarioId() {
-		return getUsuario().getIdUser();
+		return getUsuario().getNombreUsuario();
 	}
 }

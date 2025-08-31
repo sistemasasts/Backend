@@ -1,6 +1,7 @@
 package com.isacore.quality.model.spp;
 
 import com.isacore.quality.model.se.TipoSolicitud;
+import com.isacore.security.model.Usuario;
 import com.isacore.sgc.acta.model.UserImptek;
 import lombok.Data;
 
@@ -17,7 +18,7 @@ public class ConfiguracionFlujoPruebaProceso {
 
 	@NotNull
 	@ManyToOne(fetch = FetchType.EAGER)
-	private UserImptek usuario;
+	private Usuario usuario;
 
 	@Enumerated(EnumType.STRING)
 	private TipoSolicitud tipoSolicitud;
@@ -26,6 +27,6 @@ public class ConfiguracionFlujoPruebaProceso {
 	private OrdenFlujoPP orden;
 	
 	public String getUsuarioId() {
-		return getUsuario().getIdUser();
+		return getUsuario().getNombreUsuario();
 	}
 }

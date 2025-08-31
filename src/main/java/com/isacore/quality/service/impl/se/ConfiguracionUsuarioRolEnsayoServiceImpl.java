@@ -54,12 +54,12 @@ public class ConfiguracionUsuarioRolEnsayoServiceImpl implements IConfiguracionU
 	
 	private void validarDuplicidad(ConfiguracionUsuarioRolEnsayo obj) {
 
-		Optional<ConfiguracionUsuarioRolEnsayo> optional = repo.findByOrdenAndTipoSolicitudAndUsuario_IdUser(
-				obj.getOrden(), obj.getTipoSolicitud(), obj.getUsuario().getIdUser());
+		Optional<ConfiguracionUsuarioRolEnsayo> optional = repo.findByOrdenAndTipoSolicitudAndUsuario_NombreUsuario(
+				obj.getOrden(), obj.getTipoSolicitud(), obj.getUsuario().getNombreUsuario());
 		if (optional.isPresent())
 			throw new SolicitudEnsayoErrorException(
 					String.format("Usuario %s con Rol %s para %s ya está configurado.",
-							obj.getUsuario().getIdUser(), obj.getOrden(), obj.getTipoSolicitud()));
+							obj.getUsuario().getNombreUsuario(), obj.getOrden(), obj.getTipoSolicitud()));
 
 	}
 	

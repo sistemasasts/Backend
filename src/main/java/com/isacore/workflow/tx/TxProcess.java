@@ -146,7 +146,7 @@ public class TxProcess {
 								+ pp.getTestRequest().getProviderName());
 						notiTmp.setIdProcess(pp.getIdProcess());
 						//notiTmp.setUserImptek("vpillajo");
-						notiTmp.setUserImptek(configResponderSolicitud.getUsuario().getIdUser());
+						notiTmp.setUserImptek(configResponderSolicitud.getUsuario().getNombreUsuario());
 						notiTmp.setIdActionProcess(pp.getListActionsProcess().get(0).getIdactionProcess());
 						this.txNoti.sendNotification(notiTmp);
 					}

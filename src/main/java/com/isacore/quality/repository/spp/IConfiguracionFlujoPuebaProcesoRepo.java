@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface IConfiguracionFlujoPuebaProcesoRepo extends JpaRepository<ConfiguracionFlujoPruebaProceso, Integer>{
 
-	Optional<ConfiguracionFlujoPruebaProceso> findByOrdenAndUsuario_IdUser(OrdenFlujoPP orden, String idUsuario);
+	Optional<ConfiguracionFlujoPruebaProceso> findByOrdenAndUsuario_NombreUsuario(OrdenFlujoPP orden, String idUsuario);
 	
 	Optional<ConfiguracionFlujoPruebaProceso> findByOrden(OrdenFlujoPP orden);
 }
