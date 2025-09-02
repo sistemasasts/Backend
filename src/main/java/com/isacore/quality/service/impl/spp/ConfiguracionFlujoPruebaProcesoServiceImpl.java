@@ -1,9 +1,11 @@
 package com.isacore.quality.service.impl.spp;
 
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
+import com.isacore.quality.model.se.ConfiguracionUsuarioRolEnsayo;
 import com.isacore.quality.model.spp.ConfiguracionFlujoPruebaProceso;
 import com.isacore.quality.repository.spp.IConfiguracionFlujoPuebaProcesoRepo;
 import com.isacore.quality.service.spp.IConfiguracionFlujoPruebaProceso;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class ConfiguracionFlujoPruebaProcesoServiceImpl implements IConfiguracionFlujoPruebaProceso {
 
@@ -40,7 +43,10 @@ public class ConfiguracionFlujoPruebaProcesoServiceImpl implements IConfiguracio
 
 	@Override
 	public ConfiguracionFlujoPruebaProceso update(ConfiguracionFlujoPruebaProceso obj) {
-		return null;
+		ConfiguracionFlujoPruebaProceso configuracionSolicitudPP = this.repo.findById(obj.getId()).orElseThrow(() -> new SolicitudEnsayoErrorException("configuración no encontrada"));
+		configuracionSolicitudPP.setUsuario(obj.getUsuario());
+		log.info("Actualizando la condifiuracion de solicitud de pruebas en proceso.");
+		return configuracionSolicitudPP;
 	}
 
 	@Override

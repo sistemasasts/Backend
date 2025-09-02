@@ -24,7 +24,7 @@ public class ConfiguracionUsuarioRolEnsayo {
 	private Integer id;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "usuario_id", nullable = false, updatable = false)
+	@JoinColumn(name = "usuario_id", nullable = false)
 	private Usuario usuario;
 	
 	@Enumerated(EnumType.STRING)
