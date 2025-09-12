@@ -41,6 +41,14 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler{
 		return new ResponseEntity<ExceptionResponse>(er, HttpStatus.NOT_FOUND);
 
 	}
+
+	@ExceptionHandler(QualityException.class)
+	public final ResponseEntity<ExceptionResponse> manejarModeloExceptionUsuario(QualityException ex, WebRequest request){
+
+		ExceptionResponse er = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<ExceptionResponse>(er, HttpStatus.CONFLICT);
+
+	}
 	
 	//Método sobre escrito para lanzar excepciones de acuerdo a los argumentos validados en la clase
 	@Override
