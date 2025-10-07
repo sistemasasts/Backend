@@ -11,8 +11,15 @@ public interface IPropertyListService extends CRUD<PropertyList> {
 	List<PropertyList> findAllOnlyProperty();
 
 	PropertyList findOneOnlyPropertyById(PropertyList pl);
+
+	PropertyList buscarPorId(String id);
 	
 	List<PropertyList> BuscarTodasPropiedades();
 
 	List<LaboratoryNorm> findNormsAssignNot(String idPropl);
+
+	PropertyList agregarNorma(String id, long idNorma);
+
+	PropertyList eliminarNorma(String id, long idNorma);
+
 }

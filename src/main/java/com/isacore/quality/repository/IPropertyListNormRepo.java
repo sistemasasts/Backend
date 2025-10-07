@@ -29,4 +29,8 @@ public interface IPropertyListNormRepo extends JpaRepository<PropertyListNorm, P
 	@Modifying
 	@Query(value = "delete property_list_norm where propl_id = :idProperty", nativeQuery = true)
 	int deleteByPropertyId(@Param("idProperty") String idProperty);
+
+	@Modifying
+	@Query(value = "delete property_list_norm where propl_id = :idProperty and laboratory_norm_id= :idNorm", nativeQuery = true)
+	int deleteByPropertyIdAndNormId(@Param("idProperty") String idProperty, @Param("idNorm") long idNorm);
 }

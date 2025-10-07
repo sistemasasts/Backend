@@ -1,6 +1,8 @@
 package com.isacore.quality.model;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,7 +49,7 @@ public class PropertyList {
 	private String samplingPlan;
 
 	@OneToMany(mappedBy = "propertyList", cascade = {CascadeType.DETACH}, fetch = FetchType.LAZY)
-	private List<PropertyListNorm> norms;
+	private List<PropertyListNorm> norms = new ArrayList<>();
 
 	
 	public PropertyList() {	}
@@ -144,6 +146,10 @@ public class PropertyList {
 
 	public void setNorms(List<PropertyListNorm> norms) {
 		this.norms = norms;
+	}
+
+	public List<LaboratoryNorm> getNormas(){
+		return this.getNorms().stream().map(PropertyListNorm::getLaboratoryNorm).collect(Collectors.toList());
 	}
 
 	@Override

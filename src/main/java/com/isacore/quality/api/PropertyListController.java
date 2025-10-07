@@ -32,6 +32,12 @@ public class PropertyListController {
 		
 		return new ResponseEntity<List<PropertyList>>(propiedades, HttpStatus.OK);
 	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<PropertyList> listarPorId(@PathVariable("id") String id) {
+		PropertyList propiedad = service.buscarPorId(id);
+		return ResponseEntity.ok(propiedad);
+	}
 	
 	@PostMapping
 	public ResponseEntity<PropertyList> crear(@RequestBody PropertyList propiedad) {
@@ -55,5 +61,17 @@ public class PropertyListController {
 	public ResponseEntity<List<LaboratoryNorm>> listarNormasNoAsigandas(@PathVariable("idProp") String idProp) {
 		List<LaboratoryNorm> normas = service.findNormsAssignNot(idProp);		
 		return new ResponseEntity<List<LaboratoryNorm>>(normas, HttpStatus.OK);
+	}
+
+	@GetMapping(value="/agregarNorma/{idProp}/{idNorma}" ,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PropertyList> agregarNorma(@PathVariable("idProp") String idProp, @PathVariable("idNorma") long idNorma) {
+		PropertyList propiedad = service.agregarNorma(idProp, idNorma);
+		return ResponseEntity.ok(propiedad);
+	}
+
+	@GetMapping(value="/eliminarNorma/{idProp}/{idNorma}" ,produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<PropertyList> eliminarNorma(@PathVariable("idProp") String idProp, @PathVariable("idNorma") long idNorma) {
+		PropertyList propiedad = service.eliminarNorma(idProp, idNorma);
+		return ResponseEntity.ok(propiedad);
 	}
 }

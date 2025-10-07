@@ -282,4 +282,8 @@ public class SolicitudEnsayo extends SolicitudBase {
             return extensionPlazo == null ? fechaTentativa: extensionPlazo.getFechaSolicitud();
         }
     }
+
+    public String getEstadoTexto(){
+        return estado.getDescripcion();
+    }
 }
