@@ -39,7 +39,7 @@ public class EncuestaSatisfaccionControlador {
     @GetMapping("/escalaSatisfaccion")
     public ResponseEntity<List<CatalogDTO>> listarEscalaSatisfaccion() {
         final List<CatalogDTO> lista = Arrays.asList(EscalaSatisfaccion.values()).stream().map(x -> {
-            return new CatalogDTO(x.toString(), x.toString());
+            return new CatalogDTO(x.getDescripcion(), x.toString());
         }).collect(Collectors.toList());
         return ResponseEntity.ok(lista);
     }
