@@ -239,6 +239,10 @@ public class SolicitudPruebasProceso extends SolicitudBase {
         return getTipoAprobacion() != null ? isAprobado() ? "SI" : "NO" : "";
     }
 
+    public String getEstadoTexto() {
+        return getEstado() != null ? getEstado().getDescripcion() : "";
+    }
+
     private LocalDate calcularFechaLimiteDiasLaborables(int dias) {
         LocalDate result = LocalDate.now();
         int agregarDias = 0;
