@@ -33,6 +33,12 @@ public class UnidadMedidaController {
         return ResponseEntity.ok(unidades);
     }
 
+	@GetMapping("v2/activos")
+	public ResponseEntity<List<UnidadMedida>> listarUnidadesActivos() {
+		List<UnidadMedida> unidades = service.listarActivos();
+		return ResponseEntity.ok(unidades);
+	}
+
 	@PostMapping
 	public ResponseEntity<UnidadMedida> crear(@RequestBody UnidadMedida proveedor) {
 		UnidadMedida proveedorCreado = service.create(proveedor);
