@@ -27,6 +27,6 @@ public interface IComplaintRepo extends RepositorioBase<Complaint> {
 
 	@Query(value = "select DISTINCT a.* from complaint(nolock) a inner join\n" +
 			"provider_actionplan(nolock)b on  a.id = b.com_id\n" +
-			"where b.estado ='ASIGNADA' AND B.pap_responsable= :responsable", nativeQuery = true)
+			"where b.estado in ('ASIGNADA','REGRESADO') AND B.pap_responsable= :responsable", nativeQuery = true)
 	List<Complaint> findByPlanesAccionPorUsuarioSesion(@Param("responsable")String responsable);
 }
