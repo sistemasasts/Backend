@@ -11,6 +11,7 @@ import com.isacore.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -79,6 +80,9 @@ public class TxHcc {
 
     @Autowired
     IPropertyService serviceProperty;
+
+    @Value("${reporteRutaBase}")
+    private String reporteRutaBase;
 
     /**
      * TX NAME: GetAllHCC_TP obtiene las hcc en base al tipo de producto TP
@@ -247,7 +251,7 @@ public class TxHcc {
 
                     List<ProductType> tipos = Arrays.asList(ProductType.PRODUCTO_TERMINADO, ProductType.PRODUCTO_MAQUILA, ProductType.PRODUCTO_EN_PROCESO);
                     if (tipos.contains(hcc.getProduct().getTypeProduct())) {
-                        String statusReport = GenerateReportQuality.runReportJasperHcc(rpt);
+                        String statusReport = GenerateReportQuality.runReportJasperHcc(rpt, reporteRutaBase);
                         if (statusReport.equals(GenerateReportQuality.REPORT_SUCCESS)) {
                             logger.info(">> Reporte generado correctamente");
                             wrei.setMessage("El reporte de la HCC " + hh.getSapCode()
@@ -261,7 +265,7 @@ public class TxHcc {
                             return new ResponseEntity<Object>(wrei, HttpStatus.INTERNAL_SERVER_ERROR);
                         }
                     } else {
-                        String pathFile = GenerateReportQuality.runReportJasperHcc(rpt);
+                        String pathFile = GenerateReportQuality.runReportJasperHcc(rpt, reporteRutaBase);
                         EmailDto emd = new EmailDto();
                         emd.setFilePath(pathFile);
                         if (!emd.getFilePath().isEmpty()) {

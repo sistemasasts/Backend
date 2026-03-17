@@ -1,5 +1,14 @@
 package com.isacore.quality.report;
 
+import com.isacore.quality.dto.ReportDto;
+import com.isacore.quality.dto.ReportProcessTestRequestDto;
+import com.isacore.quality.model.reclamoMP.Complaint;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -7,22 +16,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.isacore.quality.dto.ReportDto;
-import com.isacore.quality.dto.ReportProcessTestRequestDto;
-import com.isacore.quality.model.reclamoMP.Complaint;
-
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.beans.factory.annotation.Value;
-
 public class GenerateReportQuality {
 
 	public static final String REPORT_SUCCESS = "OK";
 	public static final String REPORT_ERROR = "ERROR";
-	private static String reporteRutaBase;
 
 	/*
 	public static String runReport(String idHcc) {
@@ -44,7 +41,7 @@ public class GenerateReportQuality {
 	}*/
 	
 	// Método para generar el reporte de Calidad
-	public static String runReportJasperHcc(ReportDto rep) {
+	public static String runReportJasperHcc(ReportDto rep, String reporteRutaBase) {
 		Map parameters = new HashMap();
 		JRBeanCollectionDataSource beanColDataSource = new JRBeanCollectionDataSource(Arrays.asList(rep));
 		String nameProduct = (rep.getHccHead().getProduct().getNameProduct()).replaceAll("/"," ");
@@ -123,7 +120,7 @@ public class GenerateReportQuality {
 	
 	
 	//Generación de certificado de calidad Usando JasperReport
-	public static String runReportJasperQualityCertificate(ReportDto qc) {
+	public static String runReportJasperQualityCertificate(ReportDto qc, String reporteRutaBase) {
 		Map parameters = new HashMap();
 		try {
 			//final File outputFilename = new File("C:/CRIMPTEK/Calidad/QualityCertificate/QualityCertificate_" + qc.getHccHead().getSapCode() + ".pdf");
@@ -191,11 +188,6 @@ public class GenerateReportQuality {
 			e.printStackTrace();
 			return REPORT_ERROR;
 		}
-	}
-
-	@Value("${reporteRutaBase}")
-	public void setReporteRutaBase(String ruta) {
-		reporteRutaBase = ruta;
 	}
 
 }

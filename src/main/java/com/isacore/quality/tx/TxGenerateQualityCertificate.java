@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -47,6 +48,10 @@ public class TxGenerateQualityCertificate {
 
 	@Autowired
 	private IHccHeadService hccHeadService;
+
+	@Value("${reporteRutaBase}")
+	private String reporteRutaBase;
+
 
 	/**
 	 * TX NAME: GenerateQualityCertificate genera un certificado de una hcc en
@@ -103,7 +108,7 @@ public class TxGenerateQualityCertificate {
 					qcD.setNormProductText(normTextTmp);
 				}
 				qcD.setQc(qc);
-				String pathFile = GenerateReportQuality.runReportJasperQualityCertificate(qcD);
+				String pathFile = GenerateReportQuality.runReportJasperQualityCertificate(qcD, reporteRutaBase);
 
 				if (!pathFile.equals(GenerateReportQuality.REPORT_ERROR)) {
 					logger.info(">> Reporte generado correctamente");

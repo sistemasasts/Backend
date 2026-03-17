@@ -23,6 +23,7 @@ import com.isacore.util.WebResponseMessage;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,8 @@ public class HccHeadServiceImpl implements IHccHeadService {
     private ConfiguracionSolicitud configuracion;
     @Autowired
     private IReportHeadTService serviceRH;
+    @Value("${reporteRutaBase}")
+    private String reporteRutaBase;
 
     @Override
     public List<HccHead> findAll() {
@@ -215,7 +218,7 @@ public class HccHeadServiceImpl implements IHccHeadService {
 
         List<ProductType> tipos = Arrays.asList(ProductType.PRODUCTO_TERMINADO, ProductType.PRODUCTO_MAQUILA, ProductType.PRODUCTO_EN_PROCESO);
         if (tipos.contains(hh.getProduct().getTypeProduct())) {
-            String statusReport = GenerateReportQuality.runReportJasperHcc(rpt);
+            String statusReport = GenerateReportQuality.runReportJasperHcc(rpt, reporteRutaBase);
             if (statusReport.equals(GenerateReportQuality.REPORT_SUCCESS)) {
                 LOG.info(">> Reporte generado correctamente");
                 resultado.setMensaje("El reporte de la HCC " + hh.getSapCode()
@@ -225,7 +228,7 @@ public class HccHeadServiceImpl implements IHccHeadService {
                 throw new HCCErrorException("El reporte de la HCC" + hh.getSapCode() + "no se a podido crear");
             }
         } else {
-            String pathFile = GenerateReportQuality.runReportJasperHcc(rpt);
+            String pathFile = GenerateReportQuality.runReportJasperHcc(rpt, reporteRutaBase);
             resultado.setRutaArchivo(pathFile);
             if (UtilidadesCadena.noEsNuloNiBlanco(resultado.getRutaArchivo())) {
                 LOG.info(">> Reporte generado correctamente");
