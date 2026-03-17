@@ -25,11 +25,9 @@ public class AadOAuth2ResourceServerSecurityConfig {
     @Autowired
     private AppProperties appProperties;
 
-    private String jwkSetUri = "https://login.microsoftonline.com/6a4bb97a-6776-4e91-90dd-8d40f0e19091/discovery/v2.0/keys";
-
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        return NimbusJwtDecoder.withJwkSetUri(appProperties.getJwtUri()).build();
     }
     @Bean
     public SecurityFilterChain apiFilterChain(final HttpSecurity http) throws Exception {

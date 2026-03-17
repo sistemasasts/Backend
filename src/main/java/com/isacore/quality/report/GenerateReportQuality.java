@@ -16,11 +16,13 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.beans.factory.annotation.Value;
 
 public class GenerateReportQuality {
 
 	public static final String REPORT_SUCCESS = "OK";
 	public static final String REPORT_ERROR = "ERROR";
+	private static String reporteRutaBase;
 
 	/*
 	public static String runReport(String idHcc) {
@@ -51,10 +53,12 @@ public class GenerateReportQuality {
 			case PRODUCTO_TERMINADO:
 				String period=rep.getHccHead().getPeriodicity();
 				period=period.equalsIgnoreCase("Diaria") ? "" : period;
-				final File outputFilename = new File("C:/CRIMPTEK/Calidad/HCC/PT/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + period + ".pdf") ;
+				//final File outputFilename = new File("C:/CRIMPTEK/Calidad/HCC/PT/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + period + ".pdf") ;
+				final File outputFilename = new File(reporteRutaBase+ "/HCC/PT/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + period + ".pdf") ;
 				
 				String pathReporte = "HccPT.jasper";			
-				String ruta = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporte;
+				//String ruta = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporte;
+				String ruta = reporteRutaBase + "/ReportPrpt/" + pathReporte;
 				JasperPrint jasperPrint = JasperFillManager.fillReport(ruta, parameters, beanColDataSource);
 				JasperExportManager.exportReportToPdfFile(jasperPrint, outputFilename.getAbsolutePath());
 		        return REPORT_SUCCESS;
@@ -62,28 +66,32 @@ public class GenerateReportQuality {
 			case PRODUCTO_EN_PROCESO:
 				String periodEP=rep.getHccHead().getPeriodicity();
 				//periodEP=periodEP.equalsIgnoreCase("Diaria") ? "" : periodEP;
-				final File outputFilenameEP = new File("C:/CRIMPTEK/Calidad/HCC/PEP/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + periodEP + ".pdf") ;
-				
+				//final File outputFilenameEP = new File("C:/CRIMPTEK/Calidad/HCC/PEP/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + periodEP + ".pdf") ;
+				final File outputFilenameEP = new File(reporteRutaBase+"/HCC/PEP/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + periodEP + ".pdf") ;
 				String pathReporteEP = "HccPT.jasper";			
-				String rutaEP = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporteEP;
+				//String rutaEP = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporteEP;
+				String rutaEP = reporteRutaBase + "/ReportPrpt/" + pathReporteEP;
 				JasperPrint jasperPrintEP = JasperFillManager.fillReport(rutaEP, parameters, beanColDataSource);
 				JasperExportManager.exportReportToPdfFile(jasperPrintEP, outputFilenameEP.getAbsolutePath());
 		        return REPORT_SUCCESS;
 			case PRODUCTO_MAQUILA:
 				String periodM=rep.getHccHead().getPeriodicity();
 				//periodM=periodM.equalsIgnoreCase("Diaria") ? "" : periodM;
-				final File outputFilenameM = new File("C:/CRIMPTEK/Calidad/HCC/PMQ/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + periodM + ".pdf") ;
-				
+				//final File outputFilenameM = new File("C:/CRIMPTEK/Calidad/HCC/PMQ/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + periodM + ".pdf") ;
+				final File outputFilenameM = new File(reporteRutaBase+"/HCC/PMQ/HCC " + nameProduct + " " + rep.getHccHead().getHcchBatch() + " " + periodM + ".pdf") ;
 				String pathReporteM = "HccPT.jasper";			
-				String rutaM = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporteM;
+				//String rutaM = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporteM;
+				String rutaM = reporteRutaBase+"/ReportPrpt/" + pathReporteM;
 				JasperPrint jasperPrintM = JasperFillManager.fillReport(rutaM, parameters, beanColDataSource);
 				JasperExportManager.exportReportToPdfFile(jasperPrintM, outputFilenameM.getAbsolutePath());
 		        return REPORT_SUCCESS;
 			
 			case MATERIA_PRIMA:
-				final File outputFilenameMP = new File("C:/CRIMPTEK/Calidad/HCC/MP/HCC" + nameProduct + " " + rep.getHccHead().getHcchBatch() + ".pdf");
+				//final File outputFilenameMP = new File("C:/CRIMPTEK/Calidad/HCC/MP/HCC" + nameProduct + " " + rep.getHccHead().getHcchBatch() + ".pdf");
+				final File outputFilenameMP = new File(reporteRutaBase+"/HCC/MP/HCC" + nameProduct + " " + rep.getHccHead().getHcchBatch() + ".pdf");
 				String pathReporteMP = "HccMP.jasper";			
-				String rutaMP = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporteMP;
+				//String rutaMP = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporteMP;
+				String rutaMP = reporteRutaBase + "/ReportPrpt/" + pathReporteMP;
 				JasperPrint jasperPrintMP = JasperFillManager.fillReport(rutaMP, parameters, beanColDataSource);
 				JasperExportManager.exportReportToPdfFile(jasperPrintMP, outputFilenameMP.getAbsolutePath());
 				return outputFilenameMP.getAbsolutePath();	
@@ -118,10 +126,12 @@ public class GenerateReportQuality {
 	public static String runReportJasperQualityCertificate(ReportDto qc) {
 		Map parameters = new HashMap();
 		try {
-			final File outputFilename = new File("C:/CRIMPTEK/Calidad/QualityCertificate/QualityCertificate_" + qc.getHccHead().getSapCode() + ".pdf");
+			//final File outputFilename = new File("C:/CRIMPTEK/Calidad/QualityCertificate/QualityCertificate_" + qc.getHccHead().getSapCode() + ".pdf");
+			final File outputFilename = new File(reporteRutaBase+"/QualityCertificate/QualityCertificate_" + qc.getHccHead().getSapCode() + ".pdf");
 			JRBeanCollectionDataSource beanColDataSource = new JRBeanCollectionDataSource(Arrays.asList(qc));
 			String pathReporte = "QualityCertificate.jasper";			
-			String ruta = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporte;
+			//String ruta = "C:\\CRIMPTEK\\Calidad\\ReportPrpt\\" + pathReporte;
+			String ruta = reporteRutaBase+"/ReportPrpt/" + pathReporte;
 			JasperPrint jasperPrint = JasperFillManager.fillReport(ruta, parameters, beanColDataSource);
 			JasperExportManager.exportReportToPdfFile(jasperPrint, outputFilename.getAbsolutePath());
 			return outputFilename.getAbsolutePath();
@@ -181,6 +191,11 @@ public class GenerateReportQuality {
 			e.printStackTrace();
 			return REPORT_ERROR;
 		}
+	}
+
+	@Value("${reporteRutaBase}")
+	public void setReporteRutaBase(String ruta) {
+		reporteRutaBase = ruta;
 	}
 
 }

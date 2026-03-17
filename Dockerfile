@@ -1,14 +1,12 @@
-# Use an official Java runtime as a parent image
-FROM tomcat:9.0.74-jre8-temurin
+# Usamos una imagen ligera de Java 8
+FROM eclipse-temurin:8-jre
 
-# Set the working directory in the container
-WORKDIR /usr/local/tomcat
+# Definimos el puerto (por defecto Spring Boot usa 8080)
+EXPOSE 8440
 
-# Copy the WAR file into the Tomcat webapps directory
-COPY ISACore.war /usr/local/tomcat/webapps/
+# Copiamos el archivo .jar generado (asegúrate de hacer 'mvn package' primero)
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
 
-# Make port 8080 available to the world outside this container
-EXPOSE 8080
-
-# Run Tomcat server
-CMD ["catalina.sh", "run"]
+# Ejecutamos la aplicación
+ENTRYPOINT ["java", "-Xmx512m", "-jar", "/app.jar"]
