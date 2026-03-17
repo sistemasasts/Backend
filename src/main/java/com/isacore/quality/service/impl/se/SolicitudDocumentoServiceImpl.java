@@ -68,7 +68,8 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
                 obj.getSolicitudEnsayo(),
                 obj.getPath(),
                 obj.getNombreArchivo(),
-                obj.getOrdenFlujo());
+                obj.getOrdenFlujo(),
+                "");
 
         LOG.info(String.format("Documento a guardar %s", nuevo));
         return repo.save(nuevo);
@@ -109,7 +110,7 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
 						PassFileToRepository.saveLocalFile(path, file);
 
 					File archivoGuradado = new File(path);
-                    SolicitudDocumento documento = guardarDocumento(solicitud, archivoGuradado.getName(), path, dto.getOrden());
+                    SolicitudDocumento documento = guardarDocumento(solicitud, archivoGuradado.getName(), path, dto.getOrden(), tipo);
                     if (dto.getAdjuntoRequeridoId() > 0)
                         solicitud.marcarAdjuntoRequeridoComoCargado(documento.getId(), dto.getAdjuntoRequeridoId());
 
@@ -128,12 +129,13 @@ public class SolicitudDocumentoServiceImpl implements ISolicitudDocumentoService
         }
     }
 
-    private SolicitudDocumento guardarDocumento(SolicitudEnsayo solicitud, String nombreArchivo, String ruta, OrdenFlujo orden) {
+    private SolicitudDocumento guardarDocumento(SolicitudEnsayo solicitud, String nombreArchivo, String ruta, OrdenFlujo orden, String tipo) {
         SolicitudDocumento nuevo = new SolicitudDocumento(
                 solicitud,
                 ruta,
                 nombreArchivo,
-                orden);
+                orden,
+                tipo);
 
         LOG.info(String.format("Documento a guardar %s", nuevo));
         return repo.save(nuevo);

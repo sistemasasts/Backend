@@ -350,7 +350,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             List<SolicitudDocumento> documentosNuevos = new ArrayList<>();
             if (!documentos.isEmpty()) {
                 documentos.forEach(x -> {
-                    documentosNuevos.add(new SolicitudDocumento(x.getSolicitudEnsayo(), x.getPath(), x.getNombreArchivo(), OrdenFlujo.APROBAR_INFORME));
+                    documentosNuevos.add(new SolicitudDocumento(x.getSolicitudEnsayo(), x.getPath(), x.getNombreArchivo(), OrdenFlujo.APROBAR_INFORME, x.getTipo()));
                 });
                 this.repoDocumento.saveAll(documentosNuevos);
             }
