@@ -85,6 +85,9 @@
 		<field name="samplingPlan" class="java.lang.String"/>
 		<field name="viewProperty" class="java.lang.String"/>
 	</subDataset>
+	<parameter name="logo_param" class="java.io.InputStream"/>
+	<parameter name="selloCalidad_param" class="java.io.InputStream"/>
+	<parameter name="fondo_param" class="java.io.InputStream"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -107,7 +110,7 @@
 		<band height="802" splitType="Stretch">
 			<image>
 				<reportElement x="-34" y="81" width="609" height="640" uuid="ced13bd0-de3b-4080-bba3-648a9a177ff1"/>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/marca3.png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{fondo_param}]]></imageExpression>
 			</image>
 		</band>
 	</background>
@@ -137,7 +140,7 @@
 					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<imageExpression><![CDATA["C:/CRIMPTEK/ReporteRolDePagos/imagenes/LOGO-CIMI.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[$P{logo_param}]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="113" y="41" width="347" height="20" uuid="fee93f22-fb7f-4fd1-ad8c-19d726bb7f50">

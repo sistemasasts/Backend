@@ -50,6 +50,9 @@
 		<field name="validez" class="java.math.BigDecimal"/>
 		<field name="unidadDescripcion" class="java.lang.String"/>
 	</subDataset>
+	<parameter name="logo_param" class="java.io.InputStream"/>
+	<parameter name="selloCalidad_param" class="java.io.InputStream"/>
+	<parameter name="fondo_param" class="java.io.InputStream"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -79,7 +82,7 @@
 		<band height="802" splitType="Stretch">
 			<image>
 				<reportElement x="0" y="90" width="555" height="692" uuid="b62629b2-2758-4df2-b0e4-174fa92e796e"/>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/marca3.png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{fondo_param}]]></imageExpression>
 			</image>
 		</band>
 	</background>
@@ -137,7 +140,7 @@
 					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<imageExpression><![CDATA["C:/CRIMPTEK/ReporteRolDePagos/imagenes/LOGO-CIMI.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[$P{logo_param}]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="10" y="63" width="103" height="20" uuid="ea1a559f-c74a-4bb9-85af-550ff60b93b6">
@@ -813,7 +816,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 					<printWhenExpression><![CDATA[$F{fechaAprobacion} != null]]></printWhenExpression>
 				</reportElement>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/Sello de calidad.png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{selloCalidad_param}]]></imageExpression>
 			</image>
 		</band>
 	</detail>

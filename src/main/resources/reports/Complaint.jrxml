@@ -42,6 +42,9 @@
 		<field name="fechaCierre" class="java.time.LocalDateTime"/>
 		<field name="responsableNombreCompleto" class="java.lang.String"/>
 	</subDataset>
+	<parameter name="logo_param" class="java.io.InputStream"/>
+	<parameter name="selloCalidad_param" class="java.io.InputStream"/>
+	<parameter name="fondo_param" class="java.io.InputStream"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -76,7 +79,7 @@
 		<band height="783" splitType="Stretch">
 			<image>
 				<reportElement x="0" y="90" width="555" height="692" uuid="edbcefb3-aa30-4090-8b72-0b099ba6e142"/>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/marca3.png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{fondo_param}]]></imageExpression>
 			</image>
 		</band>
 	</background>
@@ -114,7 +117,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<imageExpression><![CDATA["C:/CRIMPTEK/ReporteRolDePagos/imagenes/LOGO-CIMI.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[$P{logo_param}]]></imageExpression>
 			</image>
 			<staticText>
 				<reportElement x="97" y="70" width="360" height="30" uuid="b873fdba-056b-4690-aed9-4418eca8ee33">
@@ -831,7 +834,6 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 					<property name="com.jaspersoft.studio.unit.width" value="px"/>
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/Sello de calidad.png"]]></imageExpression>
 			</image>
 		</band>
 	</summary>

@@ -14,6 +14,9 @@
 	<property name="com.jaspersoft.studio.unit.rightMargin" value="cm"/>
 	<property name="com.jaspersoft.studio.unit.columnWidth" value="cm"/>
 	<property name="com.jaspersoft.studio.unit.columnSpacing" value="cm"/>
+	<parameter name="logo_param" class="java.io.InputStream"/>
+	<parameter name="selloCalidad_param" class="java.io.InputStream"/>
+	<parameter name="fondo_param" class="java.io.InputStream"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -33,7 +36,7 @@
 		<band height="802" splitType="Stretch">
 			<image>
 				<reportElement x="0" y="90" width="555" height="692" uuid="fcdf457f-580f-46b3-bcd7-9e3aac7aaf59"/>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/marca3.png"]]></imageExpression>
+				<imageExpression><![CDATA[$P{fondo_param}]]></imageExpression>
 			</image>
 		</band>
 	</background>
@@ -71,7 +74,7 @@ Teléfono: (+593)6003450 ext. 1212]]></text>
 					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
 					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
 				</box>
-				<imageExpression><![CDATA["C:/CRIMPTEK/Report Resources/images/LOGO-CIMI.jpg"]]></imageExpression>
+				<imageExpression><![CDATA[$P{logo_param}]]></imageExpression>
 			</image>
 			<staticText>
 				<reportElement x="97" y="60" width="360" height="30" uuid="6dca62ca-fb7d-4947-b98c-0930fbf57cb8">
