@@ -10,7 +10,7 @@
 
 	<name>ISACore</name>
 	<description>Core del BackEnd del Proyecto ISA</description>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

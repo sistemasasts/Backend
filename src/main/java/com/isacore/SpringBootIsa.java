@@ -15,32 +15,26 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.unit.DataSize;
 
 
-
 @SpringBootApplication
 @EnableAsync
 @EnableScheduling
 @EnableTransactionManagement
-public class SpringBootIsa extends SpringBootServletInitializer  {
+public class SpringBootIsa {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringBootIsa.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootIsa.class, args);
+    }
 
-	 @Override
-	    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-	        return application.sources(SpringBootIsa.class);
-	    }
-	 
-	 @Bean
-	    MultipartConfigElement multipartConfigElement() {
-	        MultipartConfigFactory factory = new MultipartConfigFactory();
-	        factory.setMaxFileSize(DataSize.ofBytes(512000000L));
-	        factory.setMaxRequestSize(DataSize.ofBytes(512000000L));
-	        return factory.createMultipartConfig();
-	    }
+    @Bean
+    MultipartConfigElement multipartConfigElement() {
+        MultipartConfigFactory factory = new MultipartConfigFactory();
+        factory.setMaxFileSize(DataSize.ofBytes(512000000L));
+        factory.setMaxRequestSize(DataSize.ofBytes(512000000L));
+        return factory.createMultipartConfig();
+    }
 
-	@Bean
-	public LayoutDialect layoutDialect() {
-		return new LayoutDialect();
-	}
+    @Bean
+    public LayoutDialect layoutDialect() {
+        return new LayoutDialect();
+    }
 }
