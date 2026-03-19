@@ -28,7 +28,7 @@ public class GeneradorJasperReportsImpl implements IGeneradorJasperReports {
 		LOG.info("INICIA creacion de documento JASPER");
 
 		try {
-			final String ruta = prepararReporteRuta(reporteNombre);
+			final InputStream ruta = prepararReporte(reporteNombre);
 			this.cargarParametrosBase(parametrosEspecificos);
 			JasperPrint print = JasperFillManager.fillReport(ruta, parametrosEspecificos,
 					new JRBeanCollectionDataSource(objetos));
@@ -44,12 +44,20 @@ public class GeneradorJasperReportsImpl implements IGeneradorJasperReports {
 
 	}
 
+	//Funciona para cuando se compila un war
 	private String prepararReporteRuta(final String reporteNombre) throws IOException {
 
 		final String ruta = "/reports/" + reporteNombre + ".jasper";
 		final File file = new ClassPathResource(ruta).getFile();
 		LOG.info("Ruta del reporte: " + ruta);
 		return file.getPath();
+	}
+
+	//Funciona para cuando se compila en jar
+	private InputStream prepararReporte(final String reporteNombre) throws IOException {
+		final String ruta = "/reports/" + reporteNombre + ".jasper";
+		LOG.info("Ruta del reporte: " + ruta);
+		return new ClassPathResource(ruta).getInputStream();
 	}
 
 	private void cargarParametrosBase(Map<String, Object> parametrosBase){
