@@ -9,14 +9,14 @@ import javax.persistence.Entity;
 @Getter
 @Setter
 @Entity
-public class TipoDiseno extends EntidadBase {
+public class Agregado extends EntidadBase {
     private String nombre;
     private boolean activo;
 
-    protected TipoDiseno() {
+    protected Agregado() {
     }
 
-    public TipoDiseno(String nombre) {
+    public Agregado(String nombre) {
         this.nombre = nombre;
         this.activo = true;
     }
