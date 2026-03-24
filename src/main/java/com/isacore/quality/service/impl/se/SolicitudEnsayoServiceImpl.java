@@ -1,15 +1,21 @@
 package com.isacore.quality.service.impl.se;
 
+import com.isacore.EntidadBaseId;
 import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudEnsayo;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
+import com.isacore.quality.mapper.disenoPavimento.SolicitudEnsayoMinaAgregadosMapper;
+import com.isacore.quality.mapper.disenoPavimento.SolicitudEnsayoMinaMapper;
 import com.isacore.quality.model.Area;
 import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
 import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
+import com.isacore.quality.model.disenoPavimento.Mina;
 import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionAdjuntoRequeridoRepo;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
+import com.isacore.quality.repository.disenoPavimento.MinaRepo;
+import com.isacore.quality.repository.disenoPavimento.SolicitudEnsayoMinaAgregadoRepo;
 import com.isacore.quality.repository.se.*;
 import com.isacore.quality.service.se.ISolicitudDocumentoService;
 import com.isacore.quality.service.se.ISolicitudEnsayoService;
@@ -57,6 +63,10 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo;
     private IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
     private final ISolicitudDocumentoRepo repoDocumento;
+    private final MinaRepo minaRepo;
+    private final SolicitudEnsayoMinaMapper solicitudEnsayoMinaMapper;
+    private final SolicitudEnsayoMinaAgregadosMapper solicitudEnsayoMinaAgregadosMapper;
+    private final SolicitudEnsayoMinaAgregadoRepo ensayoMinaAgregadoRepo;
 
     @Autowired
     public SolicitudEnsayoServiceImpl(
@@ -72,7 +82,12 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             ISolicitudPruebasProcesoService pruebasProcesoService,
             ServicioNotificacionSolicitudEnsayo servicioNotificacionSolicitudEnsayo,
             IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo,
-            ISolicitudDocumentoRepo repoDocumento) {
+            ISolicitudDocumentoRepo repoDocumento,
+            MinaRepo minaRepo,
+            SolicitudEnsayoMinaMapper solicitudEnsayoMinaMapper,
+            SolicitudEnsayoMinaAgregadosMapper solicitudEnsayoMinaAgregadosMapper,
+            SolicitudEnsayoMinaAgregadoRepo solicitudEnsayoMinaAgregadoRepo
+        ) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -86,6 +101,10 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         this.servicioNotificacionSolicitudEnsayo = servicioNotificacionSolicitudEnsayo;
         this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
         this.repoDocumento = repoDocumento;
+        this.minaRepo = minaRepo;
+        this.solicitudEnsayoMinaMapper = solicitudEnsayoMinaMapper;
+        this.solicitudEnsayoMinaAgregadosMapper = solicitudEnsayoMinaAgregadosMapper;
+        this.ensayoMinaAgregadoRepo = solicitudEnsayoMinaAgregadoRepo;
     }
 
     @Override
@@ -151,6 +170,23 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitud.setNombreComercial(obj.getNombreComercial());
         solicitud.setTipoDiseno(obj.getTipoDiseno());
         solicitud.setTipoDisenoOtro(obj.getTipoDisenoOtro());
+        //Seccion proyecto
+        solicitud.setProyectoNombre(obj.getProyectoNombre());
+        solicitud.setProyectoUbicacion(obj.getProyectoUbicacion());
+        solicitud.setProyectoCanton(obj.getProyectoCanton());
+        solicitud.setProyectoProvincia(obj.getProyectoProvincia());
+        solicitud.setProyectoPais(obj.getProyectoPais());
+        solicitud.setProyectoContratista(obj.getProyectoContratista());
+        solicitud.setProyectoFiscalizador(obj.getProyectoFiscalizador());
+        solicitud.setProyectoPropietario(obj.getProyectoPropietario());
+        solicitud.setProyectoIniciado(obj.isProyectoIniciado());
+        solicitud.setProyectoLatInicial(obj.getProyectoLatInicial());
+        solicitud.setProyectoLatFinal(obj.getProyectoLatFinal());
+        solicitud.setProyectoLngInicial(obj.getProyectoLngInicial());
+        solicitud.setProyectoLngFinal(obj.getProyectoLngFinal());
+        solicitud.setProyectoNumeroCarriles(obj.getProyectoNumeroCarriles());
+        solicitud.setProyectoDimension(obj.getProyectoDimension());
+
         LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
         return solicitud;
     }
@@ -577,6 +613,49 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         }
     }
 
+    @Transactional
+    @Override
+    public List<SolicitudEnsayoMinaDto> agregarMina(long solicitudId, SolicitudEnsayoMinaDto dto) {
+        SolicitudEnsayo solicitud = this.obtenerSolicitudPorId(solicitudId);
+        Mina mina = this.minaRepo.findById(dto.getMina().getId()).orElseThrow(() ->
+                new SolicitudEnsayoErrorException(String.format("Mina con id %s no existe.", dto.getMina().getId())));
+        this.validarUnicaMina(solicitud, mina);
+
+        List<SolicitudEnsayoMinaAgregados> agregados = dto.getAgregados().stream()
+                .map(this.solicitudEnsayoMinaAgregadosMapper::fromDtoToEntity).collect(Collectors.toList());
+
+        SolicitudEnsayoMina minaTmp = new SolicitudEnsayoMina(mina, agregados);
+        solicitud.agregarMina(minaTmp);
+        repo.save(solicitud);
+        LOG.info(String.format("Solicitud ensayo %s, Mina agregada %s", solicitud.getCodigo(), minaTmp));
+        return solicitudEnsayoMinaMapper.fromListToDto(solicitud.getMinas());
+    }
+
+    @Transactional
+    @Override
+    public List<SolicitudEnsayoMinaDto> eliminarMina(long solicitudId, long minaId) {
+        SolicitudEnsayo solicitud = this.obtenerSolicitudPorId(solicitudId);
+        solicitud.getMinas().removeIf(x -> x.getId() == minaId);
+        repo.save(solicitud);
+        LOG.info(String.format("Solicitud ensayo %s, Mina eliminada %s", solicitud.getCodigo(), minaId));
+        return solicitudEnsayoMinaMapper.fromListToDto(solicitud.getMinas());
+    }
+
+    @Transactional
+    @Override
+    public List<SolicitudEnsayoMinaDto> modificarMinaAgregados(long solicitudId, SolicitudEnsayoMinaDto dto) {
+        SolicitudEnsayo solicitud = this.obtenerSolicitudPorId(solicitudId);
+        SolicitudEnsayoMina mina = solicitud.getMinas().stream().filter(x -> x.getId() == dto.getId()).findFirst()
+                .orElseThrow(() -> new SolicitudEnsayoErrorException(String.format("Mina con id %s no existe.", dto.getId())));
+        List<SolicitudEnsayoMinaAgregados> agregados = dto.getAgregados().stream()
+                .map(this.solicitudEnsayoMinaAgregadosMapper::fromDtoToEntity).collect(Collectors.toList());
+        mina.getAgregados().clear();
+        mina.getAgregados().addAll(agregados);
+        repo.save(solicitud);
+        LOG.info(String.format("Solicitud ensayo %s, Mina actualizada %s", solicitud.getCodigo(), mina));
+        return solicitudEnsayoMinaMapper.fromListToDto(solicitud.getMinas());
+    }
+
     private void actualizarSolicitudExtension(SolicitudEnsayo solicitudEnsayo, EstadoExtensionPlazo estadoExtensionPlazo) {
         SolicitudExtensionPlazo solicitudExtensionPlazo = solicitudEnsayo.getExtensionesPlazo().stream()
                 .filter(x -> x.getEstado().equals(EstadoExtensionPlazo.PENDIENTE))
@@ -716,5 +795,14 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         if (!diaMaxEntregaInforme.isPresent())
             throw new SolicitudEnsayoErrorException("Configuración día máximo entrega muestras no existe");
         return Integer.parseInt(diaMaxEntregaInforme.get().getValorConfiguracion());
+    }
+
+    private void validarUnicaMina(SolicitudEnsayo solicitudEnsayo, Mina mina) {
+        boolean minaEncontrada = solicitudEnsayo.getMinas()
+                .stream()
+                .anyMatch(x -> x.getMina().getId() == mina.getId());
+        if (minaEncontrada) {
+            throw new SolicitudEnsayoErrorException(String.format("Mina %s ya se encuentra agregada", mina.getNombre()));
+        }
     }
 }

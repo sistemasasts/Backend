@@ -3,6 +3,7 @@ package com.isacore.quality.model.se;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.UnidadMedida;
+import com.isacore.quality.model.disenoPavimento.Mina;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
 import lombok.*;
@@ -99,9 +100,35 @@ public class SolicitudEnsayo extends SolicitudBase {
     @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
     private List<SolicitudExtensionPlazo> extensionesPlazo = new ArrayList<>();
 
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
+    private List<SolicitudEnsayoMina> minas = new ArrayList<>();
+
     @NotNull
     @Column(columnDefinition = "bit default  0")
     private boolean requiereMateriaPrima;
+
+    private String proyectoNombre;
+    private String proyectoUbicacion;
+    private String proyectoProvincia;
+    private String proyectoCanton;
+    private String proyectoPais;
+    private String proyectoContratista;
+    private String proyectoFiscalizador;
+    private String proyectoPropietario;
+    @NotNull
+    @Column(columnDefinition = "bit default 0")
+    private boolean proyectoIniciado;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLatInicial;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLatFinal;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLngInicial;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLngFinal;
+    private Integer proyectoNumeroCarriles;
+    private BigDecimal proyectoDimension;
 
     @Transient
     private String observacion;
@@ -281,6 +308,10 @@ public class SolicitudEnsayo extends SolicitudBase {
                     .findFirst().orElse(null);
             return extensionPlazo == null ? fechaTentativa: extensionPlazo.getFechaSolicitud();
         }
+    }
+
+    public void agregarMina(SolicitudEnsayoMina solicitudEnsayoMina){
+        this.minas.add(solicitudEnsayoMina);
     }
 
     public String getEstadoTexto(){

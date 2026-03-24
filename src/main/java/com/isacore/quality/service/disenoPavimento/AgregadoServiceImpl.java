@@ -31,7 +31,7 @@ public class AgregadoServiceImpl {
         Agregado Agregado = new Agregado(obj.getNombre());
         this.defectodRepo.save(Agregado);
         log.info(String.format("Agregado registrado %s", Agregado));
-        return this.mapper.fromTipoDisenoToDto(Agregado);
+        return this.mapper.fromEntityToDto(Agregado);
     }
 
     public Agregado findById(Agregado id) {
@@ -47,7 +47,7 @@ public class AgregadoServiceImpl {
         Agregado.get().setNombre(obj.getNombre());
         Agregado.get().setActivo(obj.isActivo());
         log.info(String.format("Agregado Diseno Pavimentos actualizado %s", Agregado.get()));
-        return this.mapper.fromTipoDisenoToDto(Agregado.get());
+        return this.mapper.fromEntityToDto(Agregado.get());
     }
 
 
