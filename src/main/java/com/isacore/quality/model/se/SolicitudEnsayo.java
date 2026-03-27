@@ -3,9 +3,13 @@ package com.isacore.quality.model.se;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.UnidadMedida;
+import com.isacore.quality.model.disenoPavimento.TipoDiseno;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,9 +19,10 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -99,9 +104,39 @@ public class SolicitudEnsayo extends SolicitudBase {
     @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
     private List<SolicitudExtensionPlazo> extensionesPlazo = new ArrayList<>();
 
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
+    private List<SolicitudEnsayoMina> minas = new ArrayList<>();
+
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "solicitud_ensayo_id", nullable = false)
+    private List<SolicitudEnsayoDisenio> disenios = new ArrayList<>();
+
     @NotNull
     @Column(columnDefinition = "bit default  0")
     private boolean requiereMateriaPrima;
+
+    private String proyectoNombre;
+    private String proyectoUbicacion;
+    private String proyectoProvincia;
+    private String proyectoCanton;
+    private String proyectoPais;
+    private String proyectoContratista;
+    private String proyectoFiscalizador;
+    private String proyectoPropietario;
+    @NotNull
+    @Column(columnDefinition = "bit default 0")
+    private boolean proyectoIniciado;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLatInicial;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLatFinal;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLngInicial;
+    @Column(precision = 20, scale = 16)
+    private BigDecimal proyectoLngFinal;
+    private Integer proyectoNumeroCarriles;
+    private BigDecimal proyectoDimension;
 
     @Transient
     private String observacion;
@@ -266,24 +301,39 @@ public class SolicitudEnsayo extends SolicitudBase {
         return "";
     }
 
-    public void agregarExtensionPlazo(SolicitudExtensionPlazo extensionPlazo){
+    public void agregarExtensionPlazo(SolicitudExtensionPlazo extensionPlazo) {
         this.extensionesPlazo.add(extensionPlazo);
     }
 
-    public LocalDate getFechaSolicitudExtension(){
-        LocalDate fechaTentativa = LocalDate.of(1999,1, 1);
-        if(this.extensionesPlazo.isEmpty())
+    public LocalDate getFechaSolicitudExtension() {
+        LocalDate fechaTentativa = LocalDate.of(1999, 1, 1);
+        if (this.extensionesPlazo.isEmpty())
             return fechaTentativa;
-        else{
+        else {
             SolicitudExtensionPlazo extensionPlazo = extensionesPlazo
                     .stream()
                     .filter(x -> x.getEstado().equals(EstadoExtensionPlazo.PENDIENTE))
                     .findFirst().orElse(null);
-            return extensionPlazo == null ? fechaTentativa: extensionPlazo.getFechaSolicitud();
+            return extensionPlazo == null ? fechaTentativa : extensionPlazo.getFechaSolicitud();
         }
     }
 
-    public String getEstadoTexto(){
+    public void agregarMina(SolicitudEnsayoMina solicitudEnsayoMina) {
+        this.minas.add(solicitudEnsayoMina);
+    }
+
+    public String getEstadoTexto() {
         return estado.getDescripcion();
+    }
+
+    public List<TipoDiseno> getTipoDisenios() {
+        if (this.disenios.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return this.getDisenios().stream().map(SolicitudEnsayoDisenio::getTipoDiseno).collect(Collectors.toList());
+    }
+
+    public boolean esDisenioPavimentos() {
+        return !this.getDisenios().isEmpty();
     }
 }

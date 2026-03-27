@@ -1,31 +1,19 @@
 package com.isacore.quality.controller;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
+import com.isacore.quality.service.se.ISolicitudEnsayoService;
+import com.isacore.util.CatalogDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.isacore.quality.model.se.ConsultaSolicitudDTO;
-import com.isacore.quality.model.se.EstadoSolicitud;
-import com.isacore.quality.model.se.PrioridadNivel;
-import com.isacore.quality.model.se.SolicitudDTO;
-import com.isacore.quality.model.se.SolicitudEnsayo;
-import com.isacore.quality.model.se.TipoAprobacionSolicitud;
-import com.isacore.quality.service.se.ISolicitudEnsayoService;
-import com.isacore.util.CatalogDTO;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/solicitudesEnsayo")
@@ -218,5 +206,23 @@ public class SolicitudEnsayoControlador {
     public ResponseEntity<Object> ejecutarAccionExtensionPlazo(@RequestBody SolicitudEnsayo obj) {
         servicio.ejecutarAccionExtensionPlazo(obj);
         return ResponseEntity.ok(Boolean.TRUE);
+    }
+
+    @PostMapping("/agregarMina")
+    public ResponseEntity<List<SolicitudEnsayoMinaDto>> agregarMina(@RequestParam("solicitudId") long solicitudId, @RequestBody SolicitudEnsayoMinaDto dto) {
+        List<SolicitudEnsayoMinaDto> minas = servicio.agregarMina(solicitudId, dto);
+        return ResponseEntity.ok(minas);
+    }
+
+    @GetMapping("/eliminarMina")
+    public ResponseEntity<List<SolicitudEnsayoMinaDto>> eliminarMina(@RequestParam("solicitudId") long solicitudId, @RequestParam("minaId") long minaId) {
+        List<SolicitudEnsayoMinaDto> minas = servicio.eliminarMina(solicitudId, minaId);
+        return ResponseEntity.ok(minas);
+    }
+
+    @PutMapping("/modificarMina")
+    public ResponseEntity<List<SolicitudEnsayoMinaDto>> modificarMina(@RequestParam("solicitudId") long solicitudId, @RequestBody SolicitudEnsayoMinaDto dto) {
+        List<SolicitudEnsayoMinaDto> minas = servicio.modificarMinaAgregados(solicitudId, dto);
+        return ResponseEntity.ok(minas);
     }
 }

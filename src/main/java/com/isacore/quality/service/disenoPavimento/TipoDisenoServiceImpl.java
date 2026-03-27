@@ -4,7 +4,7 @@ import com.isacore.quality.exception.ConfiguracionErrorException;
 import com.isacore.quality.mapper.disenoPavimento.TipoDisenoMapper;
 import com.isacore.quality.model.disenoPavimento.TipoDiseno;
 import com.isacore.quality.model.disenoPavimento.TipoDisenoDto;
-import com.isacore.quality.repository.disenoPavimento.ITipoDisenoRepo;
+import com.isacore.quality.repository.disenoPavimento.TipoDisenoRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -19,15 +19,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TipoDisenoServiceImpl {
 
-    private final ITipoDisenoRepo defectodRepo;
+    private final TipoDisenoRepo defectodRepo;
     private final TipoDisenoMapper mapper;
 
-    public List<TipoDisenoDto> findAll() {
+    public List<TipoDisenoDto> listar() {
         return this.mapper.fromListToDto(this.defectodRepo.findAll(Sort.by(Sort.Direction.ASC, "Nombre")));
     }
 
     @Transactional
-    public TipoDisenoDto create(TipoDisenoDto obj) {
+    public TipoDisenoDto registrar(TipoDisenoDto obj) {
         TipoDiseno TipoDiseno = new TipoDiseno(obj.getNombre());
         this.defectodRepo.save(TipoDiseno);
         log.info(String.format("TipoDiseno registrado %s", TipoDiseno));
@@ -39,7 +39,7 @@ public class TipoDisenoServiceImpl {
     }
 
     @Transactional
-    public TipoDisenoDto update(TipoDisenoDto obj) {
+    public TipoDisenoDto actualizar(TipoDisenoDto obj) {
         Optional<TipoDiseno> TipoDiseno = this.defectodRepo.findById(obj.getId());
         if (!TipoDiseno.isPresent())
             throw new ConfiguracionErrorException("Tipo diseno no encontrada");

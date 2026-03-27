@@ -18,7 +18,7 @@ public class TipoDisenoController {
 
     @GetMapping()
     public ResponseEntity<List<TipoDisenoDto>> listarTodos() {
-        List<TipoDisenoDto> unidades = tipoDisenoService.findAll();
+        List<TipoDisenoDto> unidades = tipoDisenoService.listar();
         return ResponseEntity.ok(unidades);
     }
 
@@ -30,13 +30,13 @@ public class TipoDisenoController {
 
     @PostMapping
     public ResponseEntity<TipoDisenoDto> crear(@RequestBody TipoDisenoDto proveedor) {
-        TipoDisenoDto proveedorCreado = tipoDisenoService.create(proveedor);
+        TipoDisenoDto proveedorCreado = tipoDisenoService.registrar(proveedor);
         return ResponseEntity.ok(proveedorCreado);
     }
 
     @PutMapping
     public ResponseEntity<TipoDisenoDto> modificar(@RequestBody TipoDisenoDto proveedor) {
-        TipoDisenoDto obj = tipoDisenoService.update(proveedor);
+        TipoDisenoDto obj = tipoDisenoService.actualizar(proveedor);
         return ResponseEntity.ok(obj);
     }
 }

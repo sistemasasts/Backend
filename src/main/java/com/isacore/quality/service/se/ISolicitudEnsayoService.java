@@ -2,13 +2,11 @@ package com.isacore.quality.service.se;
 
 import java.util.List;
 
+import com.isacore.quality.model.se.*;
 import com.isacore.quality.model.spp.SolicitudPruebasProceso;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.isacore.quality.model.se.ConsultaSolicitudDTO;
-import com.isacore.quality.model.se.SolicitudDTO;
-import com.isacore.quality.model.se.SolicitudEnsayo;
 import com.isacore.util.CRUD;
 
 public interface ISolicitudEnsayoService extends CRUD<SolicitudEnsayo> {
@@ -62,4 +60,10 @@ public interface ISolicitudEnsayoService extends CRUD<SolicitudEnsayo> {
 	List<SolicitudEnsayo> obtenerSolicitudesPendienteExtensionPlazo();
 
 	void ejecutarAccionExtensionPlazo(SolicitudEnsayo solicitud);
+
+	List<SolicitudEnsayoMinaDto> agregarMina(long solicitudId, SolicitudEnsayoMinaDto dto);
+
+	List<SolicitudEnsayoMinaDto> eliminarMina(long solicitudId, long minaId);
+
+	List<SolicitudEnsayoMinaDto> modificarMinaAgregados(long solicitudId, SolicitudEnsayoMinaDto dto);
 }
