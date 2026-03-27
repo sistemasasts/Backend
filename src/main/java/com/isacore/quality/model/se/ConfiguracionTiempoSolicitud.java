@@ -1,11 +1,6 @@
 package com.isacore.quality.model.se;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,4 +24,7 @@ public class ConfiguracionTiempoSolicitud {
 	private OrdenFlujo orden;
 	
 	private int vigenciaDias;
+
+	@Column(columnDefinition = "INT DEFAULT 1", nullable = false)
+	private int vigenciaDiasDisenioPavimentos;
 }

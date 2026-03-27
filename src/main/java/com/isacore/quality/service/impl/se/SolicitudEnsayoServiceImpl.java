@@ -1,6 +1,5 @@
 package com.isacore.quality.service.impl.se;
 
-import com.isacore.EntidadBaseId;
 import com.isacore.notificacion.servicio.ServicioNotificacionSolicitudEnsayo;
 import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
@@ -87,7 +86,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             SolicitudEnsayoMinaMapper solicitudEnsayoMinaMapper,
             SolicitudEnsayoMinaAgregadosMapper solicitudEnsayoMinaAgregadosMapper,
             SolicitudEnsayoMinaAgregadoRepo solicitudEnsayoMinaAgregadoRepo
-        ) {
+    ) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
         this.repoHistorial = repoHistorial;
@@ -287,7 +286,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         agregarHistorial(solicitudRecargada, OrdenFlujo.VALIDAR_SOLICITUD, observacion);
         int diaMaxEntregaInforme = this.obtenerDiaMaxEntregaInforme();
         LocalDate fechaInicioEntregaInforme = this.obtenerFechaInicioEntregaInforme(diaMaxEntregaInforme);
-        solicitudRecargada.marcarSolicitudComoValidada(solicitud.getUsuarioGestion(), configuracionTiempoOP.get().getVigenciaDias(), fechaInicioEntregaInforme);
+        int vigenciaDias = solicitudRecargada.esDisenioPavimentos() ? configuracionTiempoOP.get().getVigenciaDiasDisenioPavimentos() : configuracionTiempoOP.get().getVigenciaDias();
+        solicitudRecargada.marcarSolicitudComoValidada(solicitud.getUsuarioGestion(), vigenciaDias, fechaInicioEntregaInforme);
         if (solicitud.getExtensionFecha() != null) {
             if (solicitudRecargada.getFechaEntregaInforme().isAfter(solicitud.getExtensionFecha())) {
                 throw new SolicitudEnsayoErrorException("La extensión de fecha debe ser mayor que la fecha de entrega informe: " + solicitudRecargada.getFechaEntregaInforme());
@@ -339,7 +339,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                     solicitudRecargada.getTiempoEntrega()));
         String observacion = esNuloOBlanco(solicitud.getObservacion()) ? "INFORME APROBADO" : solicitud.getObservacion();
         this.agregarHistorial(solicitudRecargada, OrdenFlujo.REVISION_INFORME, observacion);
-        solicitudRecargada.marcarSolicitudComoInformeAprobado(configuracionOP.get().getUsuarioId(), configuracionTiempoOP.get().getVigenciaDias());
+        int vigenciaDias = solicitudRecargada.esDisenioPavimentos() ? configuracionTiempoOP.get().getVigenciaDiasDisenioPavimentos() : configuracionTiempoOP.get().getVigenciaDias();
+        solicitudRecargada.marcarSolicitudComoInformeAprobado(configuracionOP.get().getUsuarioId(), vigenciaDias);
         LOG.info(String.format("Solicitud %s, marcada como informe aprobado", solicitudRecargada.getCodigo()));
         return true;
     }

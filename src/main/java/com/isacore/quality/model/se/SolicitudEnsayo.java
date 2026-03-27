@@ -332,4 +332,8 @@ public class SolicitudEnsayo extends SolicitudBase {
         }
         return this.getDisenios().stream().map(SolicitudEnsayoDisenio::getTipoDiseno).collect(Collectors.toList());
     }
+
+    public boolean esDisenioPavimentos() {
+        return !this.getDisenios().isEmpty();
+    }
 }
