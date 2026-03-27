@@ -186,6 +186,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitud.setProyectoLngFinal(obj.getProyectoLngFinal());
         solicitud.setProyectoNumeroCarriles(obj.getProyectoNumeroCarriles());
         solicitud.setProyectoDimension(obj.getProyectoDimension());
+        solicitud.getDisenios().clear();
+        solicitud.getDisenios().addAll(obj.getDisenios());
 
         LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
         return solicitud;
