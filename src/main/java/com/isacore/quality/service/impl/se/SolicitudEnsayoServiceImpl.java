@@ -5,6 +5,7 @@ import com.isacore.quality.exception.SolicitudEnsayoErrorException;
 import com.isacore.quality.exception.SolicitudPruebaProcesoErrorException;
 import com.isacore.quality.mapper.disenoPavimento.SolicitudEnsayoMinaAgregadosMapper;
 import com.isacore.quality.mapper.disenoPavimento.SolicitudEnsayoMinaMapper;
+import com.isacore.quality.mapper.solicitudEnsayo.SolicitudEnsayoMapper;
 import com.isacore.quality.model.Area;
 import com.isacore.quality.model.configuracionFlujo.ConfiguracionGeneralFlujo;
 import com.isacore.quality.model.configuracionFlujo.NombreConfiguracionFlujo;
@@ -32,10 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -66,6 +64,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private final SolicitudEnsayoMinaMapper solicitudEnsayoMinaMapper;
     private final SolicitudEnsayoMinaAgregadosMapper solicitudEnsayoMinaAgregadosMapper;
     private final SolicitudEnsayoMinaAgregadoRepo ensayoMinaAgregadoRepo;
+    private final SolicitudEnsayoMapper ensayoMapper;
 
     @Autowired
     public SolicitudEnsayoServiceImpl(
@@ -85,7 +84,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             MinaRepo minaRepo,
             SolicitudEnsayoMinaMapper solicitudEnsayoMinaMapper,
             SolicitudEnsayoMinaAgregadosMapper solicitudEnsayoMinaAgregadosMapper,
-            SolicitudEnsayoMinaAgregadoRepo solicitudEnsayoMinaAgregadoRepo
+            SolicitudEnsayoMinaAgregadoRepo solicitudEnsayoMinaAgregadoRepo,
+            SolicitudEnsayoMapper ensayoMapper
     ) {
         this.repo = repo;
         this.repoConfiguracion = repoConfiguracion;
@@ -104,6 +104,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         this.solicitudEnsayoMinaMapper = solicitudEnsayoMinaMapper;
         this.solicitudEnsayoMinaAgregadosMapper = solicitudEnsayoMinaAgregadosMapper;
         this.ensayoMinaAgregadoRepo = solicitudEnsayoMinaAgregadoRepo;
+        this.ensayoMapper = ensayoMapper;
     }
 
     @Override
@@ -471,21 +472,10 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     @Transactional(readOnly = true)
     public Page<SolicitudDTO> consultar(Pageable pageable, ConsultaSolicitudDTO dto) {
         try {
-
-            List<SolicitudDTO> respuesta = new ArrayList<>();
-            respuesta.addAll(obtenerSolicitudesEnsayo(dto));
-            final int sizeTotal = respuesta.size();
-
-            final int start = (int) pageable.getOffset();
-            final int end = (start + pageable.getPageSize()) > respuesta.size() ? respuesta.size()
-                    : (start + pageable.getPageSize());
-
-            respuesta = respuesta.subList(start, end);
-
-            final Page<SolicitudDTO> pageResut = new PageImpl<>(respuesta, pageable, sizeTotal);
-
-            return pageResut;
-
+            List<SolicitudEnsayo> entidades = obtenerSolicitudesEnsayo(dto, pageable);
+            long total = contarTotales(dto);
+            List<SolicitudDTO> dtos = this.ensayoMapper.fromListToDto(entidades);
+            return new PageImpl<>(dtos, pageable, total);
         } catch (Exception e) {
             final Page<SolicitudDTO> pageResult = new PageImpl<SolicitudDTO>(new ArrayList<SolicitudDTO>(), pageable, 0);
             return pageResult;
@@ -667,87 +657,96 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitudExtensionPlazo.marcarAprobacion(estadoExtensionPlazo, solicitudEnsayo.getFechaEntregaInforme());
     }
 
-    private List<SolicitudDTO> obtenerSolicitudesEnsayo(ConsultaSolicitudDTO consulta) {
-        try {
-            final CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
-            final CriteriaQuery<SolicitudEnsayo> query = criteriaBuilder.createQuery(SolicitudEnsayo.class);
+    private List<SolicitudEnsayo> obtenerSolicitudesEnsayo(ConsultaSolicitudDTO consulta, Pageable pageable) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<SolicitudEnsayo> query = cb.createQuery(SolicitudEnsayo.class);
+        Root<SolicitudEnsayo> root = query.from(SolicitudEnsayo.class);
+        // Aplicamos los predicados compartidos
+        List<Predicate> predicados = construirPredicados(cb, root, consulta);
+        query.where(cb.and(predicados.toArray(new Predicate[0])));
+        // Opcional: Agregar ordenamiento por defecto
+        query.orderBy(cb.desc(root.get("fechaCreacion")));
 
-            final Root<SolicitudEnsayo> root = query.from(SolicitudEnsayo.class);
-            final List<Predicate> predicadosConsulta = new ArrayList<>();
+        TypedQuery<SolicitudEnsayo> typedQuery = entityManager.createQuery(query);
+        typedQuery.setFirstResult((int) pageable.getOffset());
+        typedQuery.setMaxResults(pageable.getPageSize());
+        return typedQuery.getResultList();
+    }
 
-            if (consulta.getEstado() != null) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("estado"), EstadoSolicitud.valueOf(consulta.getEstado().toString())));
-            }
-
-            if (consulta.getTipoAprobacion() != null) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("tipoAprobacion"),
-                        TipoAprobacionSolicitud.valueOf(consulta.getTipoAprobacion().toString())));
-            }
-
-            if (noEsNuloNiBlanco(consulta.getCodigo())) {
-                predicadosConsulta.add(criteriaBuilder.like(root.get("codigo"), "%" + consulta.getCodigo() + "%"));
-            }
-
-            if (noEsNuloNiBlanco(consulta.getNombreSolicitante())) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("nombreSolicitante"), consulta.getNombreSolicitante()));
-            }
-
-            if (noEsNuloNiBlanco(consulta.getUsuarioGestion())) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioGestion"), consulta.getUsuarioGestion()));
-            }
-
-            if (noEsNuloNiBlanco(consulta.getUsuarioAprobador())) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioAprobador"), consulta.getUsuarioAprobador()));
-            }
-
-            if (noEsNuloNiBlanco(consulta.getUsuarioValidador())) {
-                predicadosConsulta.add(criteriaBuilder.equal(root.get("validador"), consulta.getUsuarioValidador()));
-            }
-
-            if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
-                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
-                        consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
-                        consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
-            }
-
-            if (consulta.getFechaInicio() != null && consulta.getFechaFin() == null) {
-                predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
-                        consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
-                        consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
-            }
-
-            query.where(predicadosConsulta.toArray(new Predicate[predicadosConsulta.size()]))
-                    .orderBy(criteriaBuilder.desc(root.get("fechaCreacion")));
-
-            final TypedQuery<SolicitudEnsayo> statement = this.entityManager.createQuery(query);
-
-            final List<SolicitudEnsayo> cotizacionesResult = statement.getResultList();
-
-            return cotizacionesResult.stream().map(c -> {
-                return new SolicitudDTO(
-                        c.getId(),
-                        c.getCodigo(),
-                        c.getFechaCreacion(),
-                        c.getFechaAprobacion(),
-                        c.getNombreSolicitante(),
-                        c.getUsuarioGestion(),
-                        c.getUsuarioAprobador(),
-                        c.getEstado(),
-                        c.getProveedorNombre(),
-                        c.getProveedorId(),
-                        c.getMuestraEntrega(),
-                        c.getDetalleMaterial(),
-                        TipoSolicitud.SOLICITUD_ENSAYOS,
-                        c.getTipoAprobacion() == null ? "" : c.getTipoAprobacion().getDescripcion(),
-                        c.getPrioridad(),
-                        c.getExtensionFecha()
-                );
-            }).collect(Collectors.toList());
-
-        } catch (Exception e) {
-            LOG.error(String.format("Error al consultar solicitudes %s", e.getMessage()));
-            return new ArrayList<>();
+    private List<Predicate> construirPredicados(CriteriaBuilder criteriaBuilder, Root<SolicitudEnsayo> root, ConsultaSolicitudDTO consulta) {
+        List<Predicate> predicadosConsulta = new ArrayList<>();
+        if (consulta.getEstado() != null) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("estado"), EstadoSolicitud.valueOf(consulta.getEstado().toString())));
         }
+        if (consulta.getTipoAprobacion() != null) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("tipoAprobacion"),
+                    TipoAprobacionSolicitud.valueOf(consulta.getTipoAprobacion().toString())));
+        }
+        if (noEsNuloNiBlanco(consulta.getCodigo())) {
+            predicadosConsulta.add(criteriaBuilder.like(root.get("codigo"), "%" + consulta.getCodigo() + "%"));
+        }
+        if (noEsNuloNiBlanco(consulta.getNombreSolicitante())) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("nombreSolicitante"), consulta.getNombreSolicitante()));
+        }
+        if (noEsNuloNiBlanco(consulta.getUsuarioGestion())) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioGestion"), consulta.getUsuarioGestion()));
+        }
+        if (noEsNuloNiBlanco(consulta.getUsuarioAprobador())) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("usuarioAprobador"), consulta.getUsuarioAprobador()));
+        }
+        if (noEsNuloNiBlanco(consulta.getUsuarioValidador())) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("validador"), consulta.getUsuarioValidador()));
+        }
+        if (consulta.getFechaInicio() != null && consulta.getFechaFin() != null) {
+            predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
+                    consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
+                    consulta.getFechaFin().withHour(23).withMinute(59).withSecond(59)));
+        }
+        if (consulta.getFechaInicio() != null && consulta.getFechaFin() == null) {
+            predicadosConsulta.add(criteriaBuilder.between(root.get("fechaCreacion"),
+                    consulta.getFechaInicio().withHour(0).withMinute(0).withSecond(0),
+                    consulta.getFechaInicio().withHour(23).withMinute(59).withSecond(59)));
+        }
+//        Filtros Proyecto
+        if (noEsNuloNiBlanco(consulta.getProyectoNombre())) {
+            predicadosConsulta.add(criteriaBuilder.like(root.get("proyectoNombre"), "%" + consulta.getProyectoNombre() + "%"));
+        }
+        if (noEsNuloNiBlanco(consulta.getProyectoPropietario())) {
+            predicadosConsulta.add(criteriaBuilder.like(root.get("proyectoPropietario"), "%" + consulta.getProyectoPropietario() + "%"));
+        }
+        if (consulta.getProyectoIniciado() != null) {
+            predicadosConsulta.add(criteriaBuilder.equal(root.get("proyectoIniciado"), consulta.getProyectoIniciado()));
+        }
+
+//        JOIN con la tabla mina filtros Mina
+        if (consulta.getMinaId() > 0 || noEsNuloNiBlanco(consulta.getCanton()) || noEsNuloNiBlanco(consulta.getProvincia())) {
+            Join<SolicitudEnsayo, SolicitudEnsayoMina> solicitudEnsayoMinaJoin = root.join("minas", JoinType.INNER);
+            Join<SolicitudEnsayoMina, Mina> minaJoin = solicitudEnsayoMinaJoin.join("mina", JoinType.INNER);
+            if (consulta.getMinaId() > 0) {
+                predicadosConsulta.add(criteriaBuilder.equal(minaJoin.get("id"), consulta.getMinaId()));
+            }
+            if (noEsNuloNiBlanco(consulta.getCanton())) {
+                predicadosConsulta.add(criteriaBuilder.equal(minaJoin.get("canton"), consulta.getCanton()));
+            }
+            if (noEsNuloNiBlanco(consulta.getProvincia())) {
+                predicadosConsulta.add(criteriaBuilder.equal(minaJoin.get("provincia"), consulta.getProvincia()));
+            }
+        }
+
+        return predicadosConsulta;
+    }
+
+    private long contarTotales(ConsultaSolicitudDTO consulta) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<SolicitudEnsayo> root = countQuery.from(SolicitudEnsayo.class);
+
+        // Usamos EXACTAMENTE el mismo método de predicados
+        List<Predicate> predicados = construirPredicados(cb, root, consulta);
+
+        countQuery.select(cb.count(root)).where(cb.and(predicados.toArray(new Predicate[0])));
+
+        return entityManager.createQuery(countQuery).getSingleResult();
     }
 
     private List<SolicitudEnsayoAdjuntoRequerido> crearAdjuntosRequeridos() {
