@@ -42,4 +42,14 @@ public class ConsultaSolicitudDTO implements Serializable{
 	private EstadoSolicitud estado;
 	
 	private OrdenFlujoPP ordenPP;
+
+//	campos Minas
+	private String provincia;
+	private String canton;
+	private long minaId;
+
+	//	campos Proyecto
+	private String proyectoNombre;
+	private Boolean proyectoIniciado;
+	private String proyectoPropietario;
 }
