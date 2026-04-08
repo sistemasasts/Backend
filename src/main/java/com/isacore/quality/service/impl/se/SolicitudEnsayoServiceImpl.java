@@ -114,8 +114,13 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     @Override
     public SolicitudEnsayo create(SolicitudEnsayo obj) {
+        Secuencial secuencial = null;
+        if (obj.esDisenioPavimentos()) {
+            secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_DISENIO);
+        } else {
+            secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_ENSAYOS);
+        }
 
-        Secuencial secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_ENSAYOS);
         SolicitudEnsayo nuevo = new SolicitudEnsayo(
                 secuencial.getNumeroSecuencial(),
                 obj.getProveedorNombre(),
@@ -134,7 +139,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                 obj.getNombreComercial(),
                 obj.getTipoDiseno(),
                 obj.getTipoDisenoOtro(),
-                this.crearAdjuntosRequeridos());
+                this.crearAdjuntosRequeridos(),
+                obj.getDisenios());
 
         nuevo.marcarAdjuntoRespaldoComoObligatorio();
         LOG.info(String.format("Solicitud Ensayo a guardar %s", nuevo));
@@ -188,6 +194,11 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitud.setProyectoDimension(obj.getProyectoDimension());
         solicitud.getDisenios().clear();
         solicitud.getDisenios().addAll(obj.getDisenios());
+        solicitud.setProyectoRedVial(obj.getProyectoRedVial());
+        solicitud.setEjesEquivalentes(obj.getEjesEquivalentes());
+        solicitud.setProyectoPorcentajeVehiculosPesados(obj.getProyectoPorcentajeVehiculosPesados());
+        solicitud.setProyectoCategoriaVial(obj.getProyectoCategoriaVial());
+        solicitud.setTipoLigante(obj.getTipoLigante());
 
         LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
         return solicitud;
