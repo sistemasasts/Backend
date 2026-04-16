@@ -33,6 +33,8 @@ public interface ISolicitudEnsayoService extends CRUD<SolicitudEnsayo> {
 
 	boolean aprobarSolicitud(SolicitudEnsayo solicitud);
 
+	boolean confirmarRecepcionInformeSolicitud(SolicitudEnsayo solicitud);
+
 	boolean regresarSolicitud(SolicitudEnsayo solicitud);
 
 	boolean regresarSolicitudForma(SolicitudEnsayo solicitud);

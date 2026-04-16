@@ -7,6 +7,7 @@ import com.isacore.quality.model.se.EstadoExtensionPlazo;
 import com.isacore.quality.model.se.SolicitudEnsayo;
 import com.isacore.quality.model.se.TipoAprobacionSolicitud;
 import com.isacore.quality.model.se.TipoSolicitud;
+import com.isacore.security.model.Usuario;
 import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.util.UtilidadesFecha;
@@ -89,6 +90,29 @@ public class ServicioNotificacionSolicitudEnsayo extends ServicioNotificacionBas
             context.setVariable("prioridad", solicitud.getPrioridad().toString());
             context.setVariable("proveedor", solicitud.getProveedorNombre());
             context.setVariable("nombreComercial", solicitud.getNombreComercial());
+        });
+    }
+
+    public void notificarSolicitudRecepcionInforme(SolicitudEnsayo solicitud, String observacion) throws Exception {
+        String asunto = this.crearAsunto(String.format("SOLICITUD %s %s - ", solicitud.getCodigo(), solicitud.getEstado().toString()), solicitud);
+        UserImptek usuarioSolicitante = this.obtenerUsuario(solicitud.getNombreSolicitante());
+        UserImptek usuarioValidador = this.obtenerUsuario(solicitud.getValidador());
+        UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getUsuarioAprobador());
+        UserImptek usuarioGestion = this.obtenerUsuario(solicitud.getUsuarioGestion());
+        DireccionesDestino destinos = new DireccionesDestino(usuarioValidador.getCorreo());
+        destinos.agregarDireccionCC(usuarioSolicitante.getCorreo());
+        destinos.agregarDireccionCC(usuarioAprobador.getCorreo());
+        destinos.agregarDireccionCC(usuarioGestion.getCorreo());
+        enviarHtml(destinos, asunto, "emailSolicitudEstado", (context) -> {
+            context.setVariable("codigo", solicitud.getCodigo());
+            context.setVariable("tipoSolicitud", TipoSolicitud.SOLICITUD_ENSAYOS.getDescripcion());
+            context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
+            context.setVariable("estado", solicitud.getEstado().toString());
+            context.setVariable("observacion", observacion);
+            context.setVariable("revisadoPor", usuarioSolicitante.getEmployee().getCompleteName());
+            context.setVariable("prioridad", solicitud.getPrioridad().toString());
+            context.setVariable("proveedor", solicitud.getProveedorNombre());
+            context.setVariable("nombreComercial", "");
         });
     }
 
