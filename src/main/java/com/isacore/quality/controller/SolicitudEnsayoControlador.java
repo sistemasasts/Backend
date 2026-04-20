@@ -108,6 +108,12 @@ public class SolicitudEnsayoControlador {
         return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
     }
 
+    @PostMapping("/recepcionInformeSolicitud")
+    public ResponseEntity<Object> recepcionInformeSolicitud(@RequestBody SolicitudEnsayo obj) {
+        boolean respuesta = servicio.confirmarRecepcionInformeSolicitud(obj);
+        return new ResponseEntity<Object>(respuesta, HttpStatus.OK);
+    }
+
     @PostMapping("/anularSolicitud")
     public ResponseEntity<Object> anularSolicitud(@RequestBody SolicitudEnsayo obj) {
         boolean respuesta = servicio.anularSolicitud(obj);

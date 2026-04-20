@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.quality.model.UnidadMedida;
 import com.isacore.quality.model.disenoPavimento.TipoDiseno;
+import com.isacore.quality.model.disenoPavimento.TipoLigante;
 import com.isacore.util.LocalDateDeserializeIsa;
 import com.isacore.util.LocalDateSerializeIsa;
 import lombok.EqualsAndHashCode;
@@ -124,6 +125,10 @@ public class SolicitudEnsayo extends SolicitudBase {
     private String proyectoContratista;
     private String proyectoFiscalizador;
     private String proyectoPropietario;
+    private String proyectoRedVial;
+    private String proyectoTpda;
+    private BigDecimal proyectoPorcentajeVehiculosPesados;
+    private String proyectoCategoriaVial;
     @NotNull
     @Column(columnDefinition = "bit default 0")
     private boolean proyectoIniciado;
@@ -137,6 +142,11 @@ public class SolicitudEnsayo extends SolicitudBase {
     private BigDecimal proyectoLngFinal;
     private Integer proyectoNumeroCarriles;
     private BigDecimal proyectoDimension;
+    @Column(precision = 19, scale = 4)
+    private BigDecimal ejesEquivalentes;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private TipoLigante tipoLigante;
 
     @Transient
     private String observacion;
@@ -147,7 +157,7 @@ public class SolicitudEnsayo extends SolicitudBase {
     public SolicitudEnsayo(String codigo, String proveedorNombre, Integer proveedorId, LocalDate fechaEntrega, String objetivo,
                            PrioridadNivel prioridad, TiempoEntrega tiempoEntrega, String detalleMaterial, String lineaAplicacion, BigDecimal cantidad,
                            UnidadMedida unidad, String nombreSolicitante, LocalDate muestraEntrega, String muestraUbicacion, String nombreComercial,
-                           String tipoDiseno, String tipoDisenoOtro, List<SolicitudEnsayoAdjuntoRequerido> adjuntos) {
+                           String tipoDiseno, String tipoDisenoOtro, List<SolicitudEnsayoAdjuntoRequerido> adjuntos, List<SolicitudEnsayoDisenio> disenios) {
         super(codigo, nombreSolicitante);
         this.proveedorNombre = proveedorNombre;
         this.proveedorId = proveedorId;
@@ -166,6 +176,7 @@ public class SolicitudEnsayo extends SolicitudBase {
         this.nombreComercial = nombreComercial;
         this.tipoDiseno = tipoDiseno;
         this.tipoDisenoOtro = tipoDisenoOtro;
+        this.disenios = disenios;
     }
 
     public void marcarSolicitudComoValidada(String usuarioAsignado, int tiempoRespuesta, LocalDate fechaInicioEntregaInforme) {

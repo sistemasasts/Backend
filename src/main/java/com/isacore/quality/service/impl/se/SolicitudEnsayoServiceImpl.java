@@ -114,8 +114,13 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     @Override
     public SolicitudEnsayo create(SolicitudEnsayo obj) {
+        Secuencial secuencial = null;
+        if (obj.esDisenioPavimentos()) {
+            secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_DISENIO);
+        } else {
+            secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_ENSAYOS);
+        }
 
-        Secuencial secuencial = secuencialService.ObtenerSecuencialPorTipoSolicitud(TipoSolicitud.SOLICITUD_ENSAYOS);
         SolicitudEnsayo nuevo = new SolicitudEnsayo(
                 secuencial.getNumeroSecuencial(),
                 obj.getProveedorNombre(),
@@ -134,7 +139,8 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
                 obj.getNombreComercial(),
                 obj.getTipoDiseno(),
                 obj.getTipoDisenoOtro(),
-                this.crearAdjuntosRequeridos());
+                this.crearAdjuntosRequeridos(),
+                obj.getDisenios());
 
         nuevo.marcarAdjuntoRespaldoComoObligatorio();
         LOG.info(String.format("Solicitud Ensayo a guardar %s", nuevo));
@@ -188,6 +194,11 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         solicitud.setProyectoDimension(obj.getProyectoDimension());
         solicitud.getDisenios().clear();
         solicitud.getDisenios().addAll(obj.getDisenios());
+        solicitud.setProyectoRedVial(obj.getProyectoRedVial());
+        solicitud.setEjesEquivalentes(obj.getEjesEquivalentes());
+        solicitud.setProyectoPorcentajeVehiculosPesados(obj.getProyectoPorcentajeVehiculosPesados());
+        solicitud.setProyectoCategoriaVial(obj.getProyectoCategoriaVial());
+        solicitud.setTipoLigante(obj.getTipoLigante());
 
         LOG.info(String.format("Solicitud ensayo actualizada %s", solicitud));
         return solicitud;
@@ -317,6 +328,13 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         documentoServicio.validarInformeSubido(solicitudRecargada.getId(), solicitudRecargada.getEstado());
         String observacion = esNuloOBlanco(solicitud.getObservacion()) ? "INFORME ENVIADO" : solicitud.getObservacion();
         agregarHistorial(solicitudRecargada, OrdenFlujo.RESPONDER_SOLICITUD, observacion);
+
+        solicitudRecargada.setProyectoTpda(solicitud.getProyectoTpda());
+        solicitudRecargada.setProyectoPorcentajeVehiculosPesados(solicitud.getProyectoPorcentajeVehiculosPesados());
+        solicitudRecargada.setProyectoCategoriaVial(solicitud.getProyectoCategoriaVial());
+        solicitudRecargada.setTipoLigante(solicitud.getTipoLigante());
+        solicitudRecargada.setEjesEquivalentes(solicitud.getEjesEquivalentes());
+
         solicitudRecargada.marcarSolicitudComoRespondida();
 
         LOG.info(String.format("Solicitud id=%s respondida..", solicitudRecargada.getId()));
@@ -374,9 +392,33 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         if (estadosRequierePruebasProceso.contains(solicitud.getTipoAprobacion()) && !solicitud.isRequiereMateriaPrima()) {
             solicitudRecargada.setEstado(EstadoSolicitud.PENDIENTE_PRUEBAS_PROCESO);
         }
+        if (TipoAprobacionSolicitud.APROBADO_DISENIO_VIAL.equals(solicitud.getTipoAprobacion())) {
+            solicitudRecargada.setEstado(EstadoSolicitud.PENDIENTE_RECEPCION_INFORME);
+        }
         LOG.info(String.format("Solicitud id=%s aprobada, tipo aprobacion %s..", solicitudRecargada.getId(), solicitudRecargada.getTipoAprobacion()));
         try {
             this.servicioNotificacionSolicitudEnsayo.notificarSolicitudFinalizada(solicitudRecargada, solicitud.getObservacion());
+        } catch (Exception e) {
+            LOG.error(String.format("Error al notificar Solicitud Finalizada %s", e));
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean confirmarRecepcionInformeSolicitud(SolicitudEnsayo solicitud) {
+        Optional<SolicitudEnsayo> solicitudOP = repo.findById(solicitud.getId());
+        if (!solicitudOP.isPresent())
+            throw new SolicitudEnsayoErrorException(String.format("Solicitud con id %s no existe.", solicitud.getId()));
+        SolicitudEnsayo solicitudRecargada = solicitudOP.get();
+        agregarHistorial(solicitudRecargada, OrdenFlujo.CONFIRMAR_RECEPCION_INFORME, solicitud.getObservacion());
+        solicitudRecargada.setEstado(solicitud.getEstado());
+
+        LOG.info(String.format("Solicitud id=%s recepcion informe con estado  %s..", solicitudRecargada.getId(), solicitudRecargada.getEstado()));
+        try {
+            if (EstadoSolicitud.REGRESADO_NOVEDAD_INFORME.equals(solicitud.getEstado())) {
+                this.servicioNotificacionSolicitudEnsayo.notificarSolicitudRecepcionInforme(solicitudRecargada, solicitud.getObservacion());
+            }
         } catch (Exception e) {
             LOG.error(String.format("Error al notificar Solicitud Finalizada %s", e));
         }

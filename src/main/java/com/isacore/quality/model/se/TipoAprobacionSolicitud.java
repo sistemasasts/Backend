@@ -14,6 +14,7 @@ public enum TipoAprobacionSolicitud {
     LIBRE_USO_GESTION_COMPRA("LIBRE USO GESTIÓN COMPRA", true),
     VALIDACION_NO_APROBADA("VALIDACIÓN NO APROBADA", true),
     REQUIERE_PRUEBA_PROCESO("REQUIERE PRUEBA EN PROCESO", true),
+    APROBADO_DISENIO_VIAL("APROBADO DISEÑO VIAL", true)
     ;
 
     private String descripcion;

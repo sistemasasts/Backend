@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +22,8 @@ public class MinaDto {
     private String propietario;
     private String pais;
     private boolean activo;
+    private boolean tienePermisos;
+    private String numeroPermiso;
+    private List<MinaAgregadoQuimicaDto> agregadosQuimica;
 
 }
