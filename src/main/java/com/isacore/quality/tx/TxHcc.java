@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+import com.isacore.security.model.Usuario;
+import com.isacore.security.service.UsuarioService;
 import com.isacore.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +72,7 @@ public class TxHcc {
     private ITestService serviceTest;
 
     @Autowired
-    private IUserImptekService serviceUI;
+    private UsuarioService serviceUI;
 
     @Autowired
     private IFeatureService serviceFeature;
@@ -230,10 +232,10 @@ public class TxHcc {
             try {
                 logger.info("> mapeando json a la clase: " + HccHead.class);
                 HccHead hh = JSON_MAPPER.readValue(jsonValue, HccHead.class);
-                UserImptek ui = this.serviceUI.findOnlyUserByNickname(hh.getAsUser());
-                hh.setUserName(ui.getEmployee().getCompleteName());
-                hh.setJob(ui.getEmployee().getJob());
-                hh.setWorkArea(ui.getEmployee().getArea().getNameArea());
+                Usuario ui = this.serviceUI.obtenerPorNombreUsuario(hh.getAsUser());
+                hh.setUserName(ui.getNombre());
+                hh.setJob(ui.getTrabajo());
+                hh.setWorkArea(ui.getArea().getNameArea());
                 logger.info("> objeto a guardar: " + hh.toString());
                 hh.setDateCreate(LocalDate.now());
 

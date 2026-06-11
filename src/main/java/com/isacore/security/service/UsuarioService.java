@@ -109,6 +109,11 @@ public class UsuarioService {
         return usuarioPerfilMapper.toDTOList(usuarioPerfils);
     }
 
+    public Usuario obtenerPorNombreUsuario(String nombreUsuario){
+        return usuarioRepositorio.findByNombreUsuario(nombreUsuario)
+                .orElseThrow(() -> new RecursoNotFoundException("Usuario no encontrado",409));
+    }
+
 
     public UsuarioDTO actualizarUsuario(UsuarioDTO userRequestDTO) {
         if (userRequestDTO.getId() == null) {
