@@ -7,8 +7,8 @@ import com.isacore.quality.model.pnc.PncPlanAccion;
 import com.isacore.quality.model.pnc.PncPlanAccionDto;
 import com.isacore.quality.model.pnc.PncSalidaMaterial;
 import com.isacore.quality.service.pnc.IPncPlanAccionService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,30 +25,30 @@ public class ServicioNotificacionPnc extends ServicioNotificacionBase{
 
     private static final Log LOG = LogFactory.getLog(ServicioNotificacionPnc.class);
 
-    private IUserImptekRepo userImptekRepo;
+    private UsuarioRepositorio UsuarioRepo;
 
     @Autowired
     public ServicioNotificacionPnc(
             final ConfiguracionNotificacion configuracionNotificacion,
             final ProveedorCorreoElectronicoOffice365 proveedorCorreoElectronico,
             final SpringTemplateEngine springTemplateEngine,
-            IUserImptekRepo userImptekRepo
+            UsuarioRepositorio UsuarioRepo
             ) {
         super(configuracionNotificacion, LOG, proveedorCorreoElectronico, springTemplateEngine);
-        this.userImptekRepo = userImptekRepo;
+        this.UsuarioRepo = UsuarioRepo;
     }
 
     public void notificarIngresoSalidaMaterial(PncSalidaMaterial salidaMaterial, String observacion, List<PncPlanAccionDto> planes) throws Exception {
         String asunto = String.format("PNC %s - INGRESO SALIDA MATERIAL %s",
                 salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getDestino().getDescripcion());
 
-        UserImptek usuarioAprobador = this.obtenerUsuario(salidaMaterial.getUsuarioAprobador());
-        UserImptek usuarioResponsable = this.obtenerUsuario(salidaMaterial.getUsuario());
-        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getCorreo(), usuarioResponsable.getCorreo());
+        Usuario usuarioAprobador = this.obtenerUsuario(salidaMaterial.getUsuarioAprobador());
+        Usuario usuarioResponsable = this.obtenerUsuario(salidaMaterial.getUsuario());
+        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getEmail(), usuarioResponsable.getEmail());
         enviarHtml(destinos, asunto, "ProductoNoConforme/emailIngresoSalidaMaterial", (context) -> {
             context.setVariable("numero", salidaMaterial.getProductoNoConforme().getNumero());
-            context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
-            context.setVariable("nombreSolicitante", usuarioResponsable.getEmployee().getCompleteName());
+            context.setVariable("nombreUsuario", usuarioAprobador.getNombre());
+            context.setVariable("nombreSolicitante", usuarioResponsable.getNombre());
             context.setVariable("producto", salidaMaterial.getProductoNoConforme().getProducto().getNameProduct());
             context.setVariable("destino", salidaMaterial.getDestino().getDescripcion());
             context.setVariable("cantidad", salidaMaterial.getCantidad());
@@ -63,14 +63,14 @@ public class ServicioNotificacionPnc extends ServicioNotificacionBase{
                 salidaMaterial.getProductoNoConforme().getNumero(), salidaMaterial.getDestino().getDescripcion(),
                 salidaMaterial.getEstado().getDescripcion());
 
-        UserImptek usuarioAprobador = this.obtenerUsuario(salidaMaterial.getUsuarioAprobador());
-        UserImptek usuarioResponsable = this.obtenerUsuario(salidaMaterial.getUsuario());
-        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getCorreo(), usuarioResponsable.getCorreo());
+        Usuario usuarioAprobador = this.obtenerUsuario(salidaMaterial.getUsuarioAprobador());
+        Usuario usuarioResponsable = this.obtenerUsuario(salidaMaterial.getUsuario());
+        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getEmail(), usuarioResponsable.getEmail());
         enviarHtml(destinos, asunto, "ProductoNoConforme/emailEstadoSalidaMaterial", (context) -> {
             context.setVariable("numero", salidaMaterial.getProductoNoConforme().getNumero());
-            context.setVariable("nombreUsuario", usuarioResponsable.getEmployee().getCompleteName());
+            context.setVariable("nombreUsuario", usuarioResponsable.getNombre());
             context.setVariable("estado", salidaMaterial.getEstado().getDescripcion());
-            context.setVariable("nombreResponsable", usuarioAprobador.getEmployee().getCompleteName());
+            context.setVariable("nombreResponsable", usuarioAprobador.getNombre());
             context.setVariable("producto", salidaMaterial.getProductoNoConforme().getProducto().getNameProduct());
             context.setVariable("destino", salidaMaterial.getDestino().getDescripcion());
             context.setVariable("cantidad",salidaMaterial.cantidadConUnidad());
@@ -84,11 +84,11 @@ public class ServicioNotificacionPnc extends ServicioNotificacionBase{
         String asunto = String.format("PNC %s - PLAN DE ACCIÓN ASIGNADO %s",
                 planAccion.getSalidaMaterial().getProductoNoConforme().getNumero(),
                 planAccion.getSalidaMaterial().getProductoNoConforme().getProducto().getNameProduct());
-        UserImptek usuarioResponsable = this.obtenerUsuario(planAccion.getResponsable());
-        DireccionesDestino destinos = new DireccionesDestino(usuarioResponsable.getCorreo(), usuarioResponsable.getCorreo());
+        Usuario usuarioResponsable = this.obtenerUsuario(planAccion.getResponsable());
+        DireccionesDestino destinos = new DireccionesDestino(usuarioResponsable.getEmail(), usuarioResponsable.getEmail());
         enviarHtml(destinos, asunto, "ProductoNoConforme/emailPlanAccionAsignado", (context) -> {
             context.setVariable("numero", planAccion.getSalidaMaterial().getProductoNoConforme().getNumero());
-            context.setVariable("nombreUsuario", usuarioResponsable.getEmployee().getCompleteName());
+            context.setVariable("nombreUsuario", usuarioResponsable.getNombre());
             context.setVariable("producto", planAccion.getSalidaMaterial().getProductoNoConforme().getProducto().getNameProduct());
             context.setVariable("destino", planAccion.getSalidaMaterial().getDestino().getDescripcion());
             context.setVariable("cantidad", planAccion.getSalidaMaterial().getCantidad());
@@ -96,8 +96,8 @@ public class ServicioNotificacionPnc extends ServicioNotificacionBase{
         });
     }
 
-    private UserImptek obtenerUsuario(String usuarioId) throws Exception {
-        UserImptek usuario = this.userImptekRepo.findOneByNickName(usuarioId);
+    private Usuario obtenerUsuario(String usuarioId) throws Exception {
+        Usuario usuario = this.UsuarioRepo.findByNombreUsuario(usuarioId).orElse(null);
         if (usuario == null)
             throw new Exception(String.format("Usuario %s no encontrado", usuarioId));
         return usuario;
@@ -108,3 +108,5 @@ public class ServicioNotificacionPnc extends ServicioNotificacionBase{
         return MensajeTipo.PRODUCTO_NO_CONFORME;
     }
 }
+
+

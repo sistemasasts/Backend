@@ -8,8 +8,8 @@ import com.isacore.quality.model.reclamoMP.ComplaintDto;
 import com.isacore.quality.model.reclamoMP.ComplaintEstado;
 import com.isacore.quality.repository.IProductRepo;
 import com.isacore.quality.repository.IProviderRepo;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.StaticInjector;
 import com.isacore.util.UtilidadesCadena;
 import org.mapstruct.Mapper;
@@ -100,18 +100,18 @@ public interface ReclamoMapper {
     default String aprobadorCalidadNombre(String calidad) {
         if(UtilidadesCadena.esNuloOBlanco(calidad))
             return "";
-        final IUserImptekRepo repo = StaticInjector.getInstance().getBean(IUserImptekRepo.class);
-        UserImptek product = repo.findByIdUser(calidad).orElse(null);
-        return product == null ? "": product.getEmployee().getCompleteName();
+        final UsuarioRepositorio repo = StaticInjector.getInstance().getBean(UsuarioRepositorio.class);
+        Usuario product = repo.findByNombreUsuario(calidad).orElse(null);
+        return product == null ? "": product.getNombre();
     }
 
     @Named("aprobadorComprasNombre")
     default String aprobadorComprasNombre(String compras) {
         if(UtilidadesCadena.esNuloOBlanco(compras))
             return "";
-        final IUserImptekRepo repo = StaticInjector.getInstance().getBean(IUserImptekRepo.class);
-        UserImptek product = repo.findByIdUser(compras).orElse(null);
-        return product == null ? "": product.getEmployee().getCompleteName();
+        final UsuarioRepositorio repo = StaticInjector.getInstance().getBean(UsuarioRepositorio.class);
+        Usuario product = repo.findByNombreUsuario(compras).orElse(null);
+        return product == null ? "": product.getNombre();
     }
 
     @Named("indicador")
@@ -119,3 +119,4 @@ public interface ReclamoMapper {
         return complaint.getKpiTime();
     }
 }
+

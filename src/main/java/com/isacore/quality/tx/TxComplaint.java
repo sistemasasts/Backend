@@ -19,9 +19,8 @@ import com.isacore.quality.model.reclamoMP.Problem;
 import com.isacore.quality.report.GenerateReportQuality;
 import com.isacore.quality.service.reclamoMP.IComplaintService;
 import com.isacore.quality.service.reclamoMP.IProblemService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.service.IUserImptekService;
-
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.PassFileToRepository;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
@@ -49,7 +48,7 @@ public class TxComplaint {
 	private IProblemService problemService;
 
 	@Autowired
-	private IUserImptekService serviceUI;
+	private UsuarioRepositorio serviceUI;
 
 	/**
 	 * TX NAME: SaveComplaint guarda los reclamos de materia prima.
@@ -76,10 +75,12 @@ public class TxComplaint {
 			try {
 				logger.info("> mapeando json a la clase: " + Complaint.class);
 				Complaint complaint = JSON_MAPPER.readValue(jsonValue, Complaint.class);
-				UserImptek ui = this.serviceUI.findOnlyUserByNickname(complaint.getAsUser());
-				complaint.setUserName(ui.getEmployee().getCompleteName());
-				complaint.setJob(ui.getEmployee().getJob());
-				complaint.setWorkArea(ui.getEmployee().getArea().getNameArea());
+				Usuario ui = this.serviceUI.findByNombreUsuario(complaint.getAsUser()).orElse(null);
+				if (ui != null) {
+					complaint.setUserName(ui.getNombre());
+					complaint.setJob(ui.getTrabajo());
+					complaint.setWorkArea(ui.getArea().getNameArea());
+				}
 				logger.info("> objeto a guardar: " + complaint.toString());
 				complaint.setDateCreateComplaint(LocalDateTime.now());
 				for (Problem p : complaint.getListProblems()) {

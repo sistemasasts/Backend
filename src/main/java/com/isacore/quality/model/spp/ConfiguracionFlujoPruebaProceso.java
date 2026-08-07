@@ -2,7 +2,6 @@ package com.isacore.quality.model.spp;
 
 import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.security.model.Usuario;
-import com.isacore.sgc.acta.model.UserImptek;
 import lombok.Data;
 
 import javax.persistence.*;

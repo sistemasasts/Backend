@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.isacore.security.model.Menu;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.service.IUserImptekService;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 
 @RestController
 @RequestMapping(value = "/menus")
 public class Menu2Controller {
 
 	@Autowired
-	private IUserImptekService service;
+	private UsuarioRepositorio service;
 	
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Menu>> listar() {
@@ -32,9 +32,8 @@ public class Menu2Controller {
 	}
 	
 	@PostMapping(value = "/usuario", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserImptek> listar(@RequestBody String nombre) {
-		UserImptek usuario = new UserImptek();
-		usuario = service.findByUserImptek(nombre);
-		return new ResponseEntity<UserImptek>(usuario, HttpStatus.OK);
+	public ResponseEntity<Usuario> listar(@RequestBody String nombre) {
+		Usuario usuario = service.findByNombreUsuario(nombre).orElse(null);
+		return new ResponseEntity<Usuario>(usuario, HttpStatus.OK);
 	}
 }

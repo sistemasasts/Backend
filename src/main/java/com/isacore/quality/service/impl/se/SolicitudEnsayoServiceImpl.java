@@ -20,8 +20,10 @@ import com.isacore.quality.repository.se.*;
 import com.isacore.quality.service.se.ISolicitudDocumentoService;
 import com.isacore.quality.service.se.ISolicitudEnsayoService;
 import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     private ISolicitudEnsayoRepo repo;
     private IConfiguracionUsuarioRolEnsayoRepo repoConfiguracion;
     private ISolicitudHistorialRepo repoHistorial;
-    private IUserImptekRepo repoUsuario;
+    private UsuarioRepositorio repoUsuario;
     private ISolicitudDocumentoService documentoServicio;
     private SecuencialServiceImpl secuencialService;
     private IConfiguracionTiempoSolicitudRepo repoConfiguracionTiempo;
@@ -71,7 +73,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
             ISolicitudEnsayoRepo repo,
             IConfiguracionUsuarioRolEnsayoRepo repoConfiguracion,
             ISolicitudHistorialRepo repoHistorial,
-            IUserImptekRepo repoUsuario,
+            UsuarioRepositorio repoUsuario,
             ISolicitudDocumentoService documentoServicio,
             SecuencialServiceImpl secuencialService,
             IConfiguracionTiempoSolicitudRepo repoConfiguracionTiempo,
@@ -261,7 +263,7 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
 
     private void agregarHistorial(SolicitudEnsayo solicitud, OrdenFlujo orden, String observacion) {
         String usuario = nombreUsuarioEnSesion();
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(usuario);
         SolicitudHistorial historial = new SolicitudHistorial(solicitud, orden, usuarioOp.get(), observacion);
         repoHistorial.save(historial);
         LOG.info(String.format("Historial guardado %s", historial));
@@ -817,10 +819,10 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
     }
 
     private Area obtenerAreaUsuarioEnSesion() {
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(nombreUsuarioEnSesion());
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(nombreUsuarioEnSesion());
         if (!usuarioOp.isPresent())
             throw new SolicitudEnsayoErrorException(String.format("Usuario en sesión no tiene asignado una área"));
-        return usuarioOp.get().getEmployee().getArea();
+        return usuarioOp.get().getArea();
     }
 
     private LocalDate obtenerFechaInicioEntregaInforme(int diaMaxEntregaInforme) {
@@ -850,3 +852,4 @@ public class SolicitudEnsayoServiceImpl implements ISolicitudEnsayoService {
         }
     }
 }
+

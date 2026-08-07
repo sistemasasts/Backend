@@ -6,8 +6,8 @@ import com.isacore.quality.model.pnc.PncSalidaMaterial;
 import com.isacore.quality.repository.pnc.IPncDocumentoRepo;
 import com.isacore.quality.repository.pnc.IPncHistorialRepo;
 import com.isacore.quality.service.pnc.IPncHistorialService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ import static com.isacore.util.UtilidadesSeguridad.nombreUsuarioEnSesion;
 public class PncHistorialServiceImpl implements IPncHistorialService {
 
     private final IPncHistorialRepo historialRepo;
-    private final IUserImptekRepo repoUsuario;
+    private final UsuarioRepositorio repoUsuario;
     private final IPncDocumentoRepo documentoRepo;
 
     @Override
     public void agregar(PncSalidaMaterial salidaMaterial, PncOrdenFlujo ordenFlujo, String observacion) {
         String usuario = nombreUsuarioEnSesion();
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(usuario);
         PncHistorial historial = new PncHistorial(observacion, usuarioOp.get(), salidaMaterial.getId(), null, salidaMaterial.getEstado(), ordenFlujo);
         this.historialRepo.save(historial);
         log.info(String.format("Historial Pnc Salida Material guardado %s", historial));
@@ -46,3 +46,4 @@ public class PncHistorialServiceImpl implements IPncHistorialService {
         }).collect(Collectors.toList());
     }
 }
+

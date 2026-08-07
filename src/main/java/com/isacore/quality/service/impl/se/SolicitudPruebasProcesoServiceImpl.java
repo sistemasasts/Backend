@@ -17,8 +17,8 @@ import com.isacore.quality.service.se.ISolicitudPruebasProcesoService;
 import com.isacore.quality.service.spp.ISolicitudPPInformeService;
 import com.isacore.quality.service.spp.ISolicitudPruebaProcesoDocumentoService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.UtilidadesFecha;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +52,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     private ISolicitudPruebasProcesoRepo repo;
     private IConfiguracionFlujoPuebaProcesoRepo repoConfiguracion;
     private ISolicitudPruebaProcesoHistorialRepo repoHistorial;
-    private IUserImptekRepo repoUsuario;
+    private UsuarioRepositorio repoUsuario;
     private SecuencialServiceImpl secuencialService;
     private EntityManager entityManager;
     private ISolicitudPruebaProcesoResponsableRepo responsableRepo;
@@ -69,7 +69,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     @Autowired
     public SolicitudPruebasProcesoServiceImpl(
             ISolicitudPruebasProcesoRepo repo, IConfiguracionFlujoPuebaProcesoRepo repoConfiguracion,
-            ISolicitudPruebaProcesoHistorialRepo repoHistorial, IUserImptekRepo repoUsuario,
+            ISolicitudPruebaProcesoHistorialRepo repoHistorial, UsuarioRepositorio repoUsuario,
             SecuencialServiceImpl secuencialService, EntityManager entityManager,
             ISolicitudPruebaProcesoResponsableRepo responsableRepo,
             ServicioNotificacionSolicitudPP servicioNotificacion,
@@ -291,7 +291,7 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
 
     private void agregarHistorial(SolicitudPruebasProceso solicitud, OrdenFlujoPP orden, String observacion) {
         String usuario = nombreUsuarioEnSesion();
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(usuario);
         SolicitudPruebaProcesoHistorial historial = new SolicitudPruebaProcesoHistorial(solicitud, orden, usuarioOp.get(), observacion);
         repoHistorial.save(historial);
         LOG.info(String.format("Historial guardado %s", historial));
@@ -753,12 +753,12 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
     }
 
     private ReporteSolicitudPPDTO crearReporteDTO(SolicitudPruebasProceso solicitud) {
-        UserImptek solicitante = this.repoUsuario.findOneByNickName(solicitud.getNombreSolicitante());
-        UserImptek aprobador = this.repoUsuario.findOneByNickName(solicitud.getUsuarioValidador());
+        Usuario solicitante = this.repoUsuario.findByNombreUsuario(solicitud.getNombreSolicitante()).orElse(null);
+        Usuario aprobador = this.repoUsuario.findByNombreUsuario(solicitud.getUsuarioValidador()).orElse(null);
         return new ReporteSolicitudPPDTO(
                 solicitud,
-                solicitante == null ? "" : solicitante.getEmployee().getCompleteName(),
-                aprobador == null ? "" : aprobador.getEmployee().getCompleteName());
+                solicitante == null ? "" : solicitante.getNombre(),
+                aprobador == null ? "" : aprobador.getNombre());
     }
 
     private List<SolicitudPPDTO> obtenerSolicitudesPruebasProceso(ConsultaSolicitudPPDTO consulta) {
@@ -881,3 +881,4 @@ public class SolicitudPruebasProcesoServiceImpl implements ISolicitudPruebasProc
         }
     }
 }
+

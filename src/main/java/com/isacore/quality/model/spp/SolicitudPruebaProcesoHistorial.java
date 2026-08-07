@@ -1,7 +1,7 @@
 package com.isacore.quality.model.spp;
 
 import com.isacore.quality.model.se.SolicitudHistorialBase;
-import com.isacore.sgc.acta.model.UserImptek;
+import com.isacore.security.model.Usuario;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,8 +21,8 @@ public class SolicitudPruebaProcesoHistorial extends SolicitudHistorialBase {
 	@Enumerated(EnumType.STRING)
 	private OrdenFlujoPP orden;
 
-	public SolicitudPruebaProcesoHistorial(SolicitudPruebasProceso solicitudE, OrdenFlujoPP orden, UserImptek usuario, String observacion) {
-		super(observacion, usuario.getIdUser(), usuario.getEmployee().getCompleteName());
+	public SolicitudPruebaProcesoHistorial(SolicitudPruebasProceso solicitudE, OrdenFlujoPP orden, Usuario usuario, String observacion) {
+		super(observacion, usuario.getNombreUsuario(), usuario.getNombre());
 		this.solicitudPruebasProceso = solicitudE;
 		this.estadoSolicitud = solicitudE.getEstado();
 		this.orden = orden;

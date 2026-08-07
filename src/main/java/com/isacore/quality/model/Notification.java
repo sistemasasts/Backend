@@ -16,7 +16,6 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.isacore.sgc.acta.model.UserImptek;
 import com.isacore.util.LocalDateTimeDeserializeIsa;
 import com.isacore.util.LocalDateTimeSerializeIsa;
 

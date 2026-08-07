@@ -14,8 +14,8 @@ import com.isacore.quality.repository.IHccHeadRepo;
 import com.isacore.quality.service.IHccHeadService;
 import com.isacore.quality.service.IReportHeadTService;
 import com.isacore.quality.service.se.ConfiguracionSolicitud;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.PassFileToRepository;
 import com.isacore.util.UtilidadesCadena;
 import com.isacore.util.UtilidadesSeguridad;
@@ -50,7 +50,7 @@ public class HccHeadServiceImpl implements IHccHeadService {
     @Autowired
     private IHccHeadRepo repo;
     @Autowired
-    private IUserImptekRepo repoUsuario;
+    private UsuarioRepositorio repoUsuario;
     @Autowired
     private ConfiguracionSolicitud configuracion;
     @Autowired
@@ -150,10 +150,10 @@ public class HccHeadServiceImpl implements IHccHeadService {
             HccdResultadoDto resultado = new HccdResultadoDto();
             HccHead dto = JSON_MAPPER.readValue(json, HccHead.class);
             if (dto != null) {
-                UserImptek ui = this.obtenerUsuarioSesion();
-                dto.setUserName(ui.getEmployee().getCompleteName());
-                dto.setJob(ui.getEmployee().getJob());
-                dto.setWorkArea(ui.getEmployee().getArea().getNameArea());
+                Usuario ui = this.obtenerUsuarioSesion();
+                dto.setUserName(ui.getNombre());
+                dto.setJob(ui.getTrabajo());
+                dto.setWorkArea(ui.getArea().getNameArea());
                 LOG.info("> objeto a guardar: " + dto.toString());
                 dto.setDateCreate(LocalDate.now());
                 this.repo.save(dto);
@@ -179,9 +179,9 @@ public class HccHeadServiceImpl implements IHccHeadService {
         }
     }
 
-    private UserImptek obtenerUsuarioSesion() {
+    private Usuario obtenerUsuarioSesion() {
         String nombreUsuario = UtilidadesSeguridad.nombreUsuarioEnSesion();
-        Optional<UserImptek> usuario = this.repoUsuario.findByIdUser(nombreUsuario);
+        Optional<Usuario> usuario = this.repoUsuario.findByNombreUsuario(nombreUsuario);
         if (!usuario.isPresent())
             throw new UsuarioErrorException("Usuario en sesión no encontrado");
         return usuario.get();
@@ -241,3 +241,4 @@ public class HccHeadServiceImpl implements IHccHeadService {
     }
 
 }
+

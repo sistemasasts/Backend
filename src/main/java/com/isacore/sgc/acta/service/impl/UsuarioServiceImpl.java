@@ -12,24 +12,25 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.model.UsuarioEstadoEnum;
+import com.isacore.security.repository.UsuarioRepositorio;
 
 @Service
 public class UsuarioServiceImpl implements UserDetailsService {
 
 	@Autowired
-	private IUserImptekRepo repo;
+	private UsuarioRepositorio repo;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserImptek usuario = repo.findOneByNickName(username);
+		Usuario usuario = repo.findByNombreUsuario(username).orElse(null);
 		
 		if(usuario == null) {
 			throw new UsernameNotFoundException(String.format("Usuario no existe", username));
 		}
 		
-		if(!usuario.getEmployee().getState()) {
+		if(usuario.getEstado() != UsuarioEstadoEnum.ACTIVO) {
 			 //TODO: falta validar si el usuario esta habilitado para ingresar a la plataforma
 		}
 		
@@ -40,7 +41,7 @@ public class UsuarioServiceImpl implements UserDetailsService {
 			roles.add(new SimpleGrantedAuthority(rol.getNombre()));
 		});*/
 		
-		UserDetails ud = new User(usuario.getNickName(), usuario.getUserPass(), roles);
+		UserDetails ud = new User(usuario.getNombreUsuario(), usuario.getContrasena(), roles);
 		return ud;
 		
 	}

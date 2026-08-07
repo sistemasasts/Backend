@@ -36,8 +36,6 @@ import com.isacore.quality.service.IPropertyService;
 import com.isacore.quality.service.IProviderService;
 import com.isacore.quality.service.IReportHeadTService;
 import com.isacore.quality.service.ITestService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.service.IUserImptekService;
 
 import javassist.expr.NewArray;
 

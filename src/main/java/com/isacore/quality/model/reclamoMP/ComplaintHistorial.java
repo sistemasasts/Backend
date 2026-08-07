@@ -1,7 +1,7 @@
 package com.isacore.quality.model.reclamoMP;
 
 import com.isacore.quality.model.se.SolicitudHistorialBase;
-import com.isacore.sgc.acta.model.UserImptek;
+import com.isacore.security.model.Usuario;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,15 +27,15 @@ public class ComplaintHistorial extends SolicitudHistorialBase {
 
     protected ComplaintHistorial (){}
 
-    public ComplaintHistorial(String observacion, UserImptek usuario, ComplaintOrdenFlujo orden, String estado, long solicitudId) {
-        super(observacion, usuario.getIdUser(), usuario.getEmployee().getCompleteName());
+    public ComplaintHistorial(String observacion, Usuario usuario, ComplaintOrdenFlujo orden, String estado, long solicitudId) {
+        super(observacion, usuario.getNombreUsuario(), usuario.getNombre());
         this.orden = orden;
         this.estado = estado;
         this.solicitudId = solicitudId;
     }
 
-    public ComplaintHistorial(String observacion, UserImptek usuario, ComplaintOrdenFlujo orden, String estado, long solicitudId, long planAccionId) {
-        super(observacion, usuario.getIdUser(), usuario.getEmployee().getCompleteName());
+    public ComplaintHistorial(String observacion, Usuario usuario, ComplaintOrdenFlujo orden, String estado, long solicitudId, long planAccionId) {
+        super(observacion, usuario.getNombreUsuario(), usuario.getNombre());
         this.orden = orden;
         this.estado = estado;
         this.solicitudId = solicitudId;

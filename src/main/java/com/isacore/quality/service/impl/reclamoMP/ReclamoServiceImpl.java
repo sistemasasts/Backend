@@ -28,8 +28,8 @@ import com.isacore.quality.service.reclamoMP.IComplaintHistorialService;
 import com.isacore.quality.service.reclamoMP.IComplaintService;
 import com.isacore.quality.service.se.ConfiguracionSolicitud;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.PassFileToRepository;
 import com.isacore.util.UtilidadesArchivo;
 import com.isacore.util.UtilidadesCadena;
@@ -63,7 +63,7 @@ public class ReclamoServiceImpl implements IComplaintService {
     private final IProviderRepo providerRepo;
     private final ReclamoMapper reclamoMapper;
     private final EntityManager entityManager;
-    private final IUserImptekRepo usuarioRepo;
+    private final UsuarioRepositorio usuarioRepo;
     private final IUnidadMedidadRepo unidadMedidadRepo;
     private final ConfiguracionSolicitud configuracion;
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
@@ -538,8 +538,8 @@ public class ReclamoServiceImpl implements IComplaintService {
         return providerRepo.findById(id).orElseThrow(() -> new PncErrorException("Proveedor no encontrado"));
     }
 
-    private UserImptek consultarUsuario(String usuario) {
-        return usuarioRepo.findOneByNickName(usuario);
+    private Usuario consultarUsuario(String usuario) {
+        return usuarioRepo.findByNombreUsuario(usuario).orElse(null);
     }
 
     private UnidadMedida obtenerUnidadMedida(long id) {
@@ -598,3 +598,4 @@ public class ReclamoServiceImpl implements IComplaintService {
         return aprobador.getValorConfiguracion();
     }
 }
+

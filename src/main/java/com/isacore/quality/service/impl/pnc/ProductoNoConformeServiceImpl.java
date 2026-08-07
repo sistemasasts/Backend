@@ -19,8 +19,8 @@ import com.isacore.quality.service.pnc.IPncPlanAccionService;
 import com.isacore.quality.service.pnc.IPncSalidaMaterialService;
 import com.isacore.quality.service.pnc.IProductoNoConformeService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.UtilidadesCadena;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +56,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     private final IPncDefectoRepo defectoRepositorio;
     private final IUnidadMedidadRepo unidadMedidadRepo;
     private final IGeneradorJasperReports reporteServicio;
-    private final IUserImptekRepo usuarioRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
     private final IPncSalidaMaterialService pncSalidaMaterialService;
     private final IPncSalidaMaterialRepo salidaMaterialRepositorio;
     private final IPncPlanAccionService planAccionService;
@@ -447,7 +447,7 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
     }
 
     private PncReporteDto crearReporteDTO(ProductoNoConforme pnc) {
-        UserImptek solicitante = this.usuarioRepositorio.findOneByNickName(pnc.getUsuario());
+        Usuario solicitante = this.usuarioRepositorio.findByNombreUsuario(pnc.getUsuario()).orElse(null);
         List<PncSalidaMaterialDto> salidaMaterialDtos = this.pncSalidaMaterialService.listarPorPncId(pnc.getId());
         List<TipoDestino> destinos = Arrays.asList(TipoDestino.REPROCESO, TipoDestino.RETRABAJO);
         salidaMaterialDtos.forEach(x -> {
@@ -462,12 +462,12 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         if (!salidaMaterialDtos.isEmpty()) {
             Optional<String> aprobador = salidaMaterialDtos.stream().map(PncSalidaMaterialDto::getUsuarioAprobador).filter(usuarioAprobador -> usuarioAprobador != null).findFirst();
             if (aprobador.isPresent()) {
-                UserImptek aprobadorUsuario = this.usuarioRepositorio.findOneByNickName(aprobador.get());
-                aprobadoPor = aprobadorUsuario != null ? aprobadorUsuario.getEmployee().getCompleteName() : "";
+                Usuario aprobadorUsuario = this.usuarioRepositorio.findByNombreUsuario(aprobador.get()).orElse(null);
+                aprobadoPor = aprobadorUsuario != null ? aprobadorUsuario.getNombre() : "";
             }
         }
 
-        return new PncReporteDto(pnc, solicitante.getEmployee().getCompleteName(), salidaMaterialDtos, fechaAprobacion != null ? fechaAprobacion.toLocalDate() : null, aprobadoPor);
+        return new PncReporteDto(pnc, solicitante.getNombre(), salidaMaterialDtos, fechaAprobacion != null ? fechaAprobacion.toLocalDate() : null, aprobadoPor);
     }
 
     private ProductoNoConforme buscarPorId(long id) {
@@ -516,3 +516,4 @@ public class ProductoNoConformeServiceImpl implements IProductoNoConformeService
         }
     }
 }
+

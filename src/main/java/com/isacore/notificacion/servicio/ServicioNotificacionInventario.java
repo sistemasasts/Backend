@@ -11,8 +11,8 @@ import com.isacore.quality.model.pnc.PncPlanAccionDto;
 import com.isacore.quality.model.pnc.PncSalidaMaterial;
 import com.isacore.quality.model.se.TipoSolicitud;
 import com.isacore.quality.repository.configuracionFlujo.IConfiguracionGeneralFlujoRepo;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.UtilidadesCadena;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +30,7 @@ public class ServicioNotificacionInventario extends ServicioNotificacionBase {
 
     private static final Log LOG = LogFactory.getLog(ServicioNotificacionInventario.class);
 
-    private IUserImptekRepo userImptekRepo;
+    private UsuarioRepositorio UsuarioRepo;
     private IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo;
 
     @Autowired
@@ -38,22 +38,22 @@ public class ServicioNotificacionInventario extends ServicioNotificacionBase {
             final ConfiguracionNotificacion configuracionNotificacion,
             final ProveedorCorreoElectronicoOffice365 proveedorCorreoElectronico,
             final SpringTemplateEngine springTemplateEngine,
-            IUserImptekRepo userImptekRepo,
+            UsuarioRepositorio UsuarioRepo,
             IConfiguracionGeneralFlujoRepo configuracionGeneralFlujoRepo
     ) {
         super(configuracionNotificacion, LOG, proveedorCorreoElectronico, springTemplateEngine);
-        this.userImptekRepo = userImptekRepo;
+        this.UsuarioRepo = UsuarioRepo;
         this.configuracionGeneralFlujoRepo = configuracionGeneralFlujoRepo;
     }
 
     public void notificarNecesitaCompra(InventarioProducto inventarioProducto) throws Exception {
         String asunto = String.format("%s - STOCK EN EL LÍMITE",
                 inventarioProducto.getProducto().getNameProduct());
-        UserImptek usuarioAprobador = this.obtenerDestinatarios();
+        Usuario usuarioAprobador = this.obtenerDestinatarios();
         if(usuarioAprobador != null){
-            DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getCorreo());
+            DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getEmail());
             enviarHtml(destinos, asunto, "InventarioProducto/emailCompraProducto", (context) -> {
-                context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
+                context.setVariable("nombreUsuario", usuarioAprobador.getNombre());
                 context.setVariable("producto", inventarioProducto.getProducto().getNameProduct());
             });
         }else{
@@ -62,7 +62,7 @@ public class ServicioNotificacionInventario extends ServicioNotificacionBase {
     }
 
 
-    private UserImptek obtenerDestinatarios() throws Exception {
+    private Usuario obtenerDestinatarios() throws Exception {
         ConfiguracionGeneralFlujo configuracion = configuracionGeneralFlujoRepo.findByTipoSolicitudAndNombreConfiguracionFlujo(
                 TipoSolicitud.INVENTARIO_PRODUCTO, NombreConfiguracionFlujo.NOTIFICAR_COMPRA_PRODUCTOS).orElse(null);
         if (configuracion != null) {
@@ -73,8 +73,8 @@ public class ServicioNotificacionInventario extends ServicioNotificacionBase {
         return null;
     }
 
-    private UserImptek obtenerUsuario(String usuarioId) throws Exception {
-        UserImptek usuario = this.userImptekRepo.findOneByNickName(usuarioId);
+    private Usuario obtenerUsuario(String usuarioId) throws Exception {
+        Usuario usuario = this.UsuarioRepo.findByNombreUsuario(usuarioId).orElse(null);
         if (usuario == null)
             throw new Exception(String.format("Usuario %s no encontrado", usuarioId));
         return usuario;
@@ -85,3 +85,5 @@ public class ServicioNotificacionInventario extends ServicioNotificacionBase {
         return MensajeTipo.INVENTARIO_PRODUCTO;
     }
 }
+
+

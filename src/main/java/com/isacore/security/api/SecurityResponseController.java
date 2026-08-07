@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.isacore.security.tx.TxSecurity;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
 import com.isacore.util.WebResponseMessage;
@@ -32,12 +30,6 @@ public class SecurityResponseController {
 	
 	@Autowired
 	private TxSecurity txSecurity;
-	
-
-	
-	@Autowired
-	private IUserImptekRepo userImptekRepo;
-
 
 	@RequestMapping(value = "/api", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> txQuickResponse(@RequestBody WebRequestIsa wri) {
@@ -55,15 +47,5 @@ public class SecurityResponseController {
 			return new ResponseEntity<Object>(wrei, HttpStatus.OK);
 		}
 	}
-	
-//	@RequestMapping(value = "/seteoPassword", method = RequestMethod.GET)
-//	public void varios() {
-//		List<UserImptek> usuarios=this.userImptekRepo.findAll();
-//		usuarios.forEach(usuario ->{
-//			usuario.setUserPass(bcrypt.encode("123"));
-//		});
-//
-//
-//	}
 
 }

@@ -4,8 +4,8 @@ import com.isacore.quality.model.reclamoMP.*;
 import com.isacore.quality.repository.reclamoMP.ComplainDocumentoRepo;
 import com.isacore.quality.repository.reclamoMP.ComplaintHistorialRepo;
 import com.isacore.quality.service.reclamoMP.IComplaintHistorialService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,13 +23,13 @@ import static com.isacore.util.UtilidadesSeguridad.nombreUsuarioEnSesion;
 public class ComplaintHistorialServiceImpl implements IComplaintHistorialService {
 
     private final ComplaintHistorialRepo historialRepo;
-    private final IUserImptekRepo repoUsuario;
+    private final UsuarioRepositorio repoUsuario;
     private final ComplainDocumentoRepo documentoRepo;
 
     @Override
     public void agregar(Complaint salidaMaterial, ComplaintEstado estado, ComplaintOrdenFlujo ordenFlujo, String observacion) {
         String usuario = nombreUsuarioEnSesion();
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(usuario);
         ComplaintHistorial historial = new ComplaintHistorial(observacion, usuarioOp.get(), ordenFlujo, estado.toString(), salidaMaterial.getId());
         this.historialRepo.save(historial);
         log.info(String.format("Historial Pnc Salida Material guardado %s", historial));
@@ -38,7 +38,7 @@ public class ComplaintHistorialServiceImpl implements IComplaintHistorialService
     @Override
     public void agregar(Complaint salidaMaterial, ComplaintEstado estado, ComplaintOrdenFlujo ordenFlujo, String observacion, ProviderActionPlan planAccion) {
         String usuario = nombreUsuarioEnSesion();
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(usuario);
         ComplaintHistorial historial = new ComplaintHistorial(observacion, usuarioOp.get(), ordenFlujo, estado.toString(), salidaMaterial.getId(),planAccion.getId());
         this.historialRepo.save(historial);
         log.info(String.format("Historial Pnc Salida Material guardado %s", historial));
@@ -53,3 +53,4 @@ public class ComplaintHistorialServiceImpl implements IComplaintHistorialService
         }).collect(Collectors.toList());
     }
 }
+

@@ -2,8 +2,8 @@ package com.isacore.quality.mapper.pnc;
 
 import com.isacore.quality.model.pnc.PncPlanAccion;
 import com.isacore.quality.model.pnc.PncPlanAccionDto;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Service
 public class PncPlanAccionMapper {
 
-    private final IUserImptekRepo usuarioRepo;
+    private final UsuarioRepositorio usuarioRepo;
 
     public PncPlanAccionDto mapToDto(PncPlanAccion valor) {
         return PncPlanAccionDto.builder()
@@ -61,7 +61,8 @@ public class PncPlanAccionMapper {
     }
 
     private String nombreUsuario(String usuario) {
-        Optional<UserImptek> usuarioOP = this.usuarioRepo.findByIdUser(usuario);
-        return usuarioOP.isPresent() ? usuarioOP.get().getEmployee().getCompleteName() : usuario;
+        Optional<Usuario> usuarioOP = this.usuarioRepo.findByNombreUsuario(usuario);
+        return usuarioOP.isPresent() ? usuarioOP.get().getNombre() : usuario;
     }
 }
+

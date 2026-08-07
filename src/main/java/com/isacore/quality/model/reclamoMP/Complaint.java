@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.isacore.EntidadBase;
 import com.isacore.quality.model.*;
-import com.isacore.sgc.acta.model.UserImptek;
+import com.isacore.security.model.Usuario;
 import com.isacore.util.LocalDateTimeDeserializeIsa;
 import com.isacore.util.LocalDateTimeSerializeIsa;
 import com.isacore.util.date.MoreDates;
@@ -136,7 +136,7 @@ public class Complaint extends EntidadBase {
 
 	public Complaint(Integer idProduct, Integer idProvider, String batchProvider, String palletNumber, String affectedProduct,
 					 Double affectedAmount, Double totalAmount, String place, LocalDateTime dateComplaint, Boolean applyReturn,
-					 Double porcentComplaint, String detailNCP, UnidadMedida unit, String otherProvider, UserImptek usuario, String ordenCompra) {
+					 Double porcentComplaint, String detailNCP, UnidadMedida unit, String otherProvider, Usuario usuario, String ordenCompra) {
 		this.idProduct = idProduct;
 		this.idProvider = idProvider;
 		this.batchProvider = batchProvider;
@@ -149,10 +149,10 @@ public class Complaint extends EntidadBase {
 		this.applyReturn = applyReturn;
 		this.porcentComplaint = porcentComplaint;
 		this.detailNCP = detailNCP;
-		this.job = usuario.getEmployee().getJob();
-		this.workArea = usuario.getEmployee().getArea().getNameArea();
-		this.userName = usuario.getEmployee().getCompleteName();
-		this.asUser = usuario.getIdUser();
+		this.job = usuario.getTrabajo();
+		this.workArea = usuario.getArea().getNameArea();
+		this.userName = usuario.getNombre();
+		this.asUser = usuario.getNombreUsuario();
 		this.unitP = unit.getAbreviatura();
 		this.unit = unit;
 		this.otherProvider = otherProvider;

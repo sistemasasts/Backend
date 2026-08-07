@@ -18,8 +18,8 @@ import com.isacore.quality.model.NonconformingProduct;
 import com.isacore.quality.report.GenerateReportQuality;
 import com.isacore.quality.service.IExitMaterialHistoryService;
 import com.isacore.quality.service.INonconformingProductService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.service.IUserImptekService;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
 import com.isacore.util.WebResponseMessage;
@@ -51,7 +51,7 @@ public class TxNonConformingProduct {
 	private IExitMaterialHistoryService exitMaterialService;
 
 	@Autowired
-	private IUserImptekService serviceUI;
+	private UsuarioRepositorio serviceUI;
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -179,11 +179,13 @@ public class TxNonConformingProduct {
 				NonconformingProduct ncp = JSON_MAPPER.readValue(jsonValue, NonconformingProduct.class);
 				logger.info("> objeto a guardar: " + ncp.toString());
 
-				UserImptek ui = this.serviceUI.findOnlyUserByNickname(ncp.getAsUser());
+				Usuario ui = this.serviceUI.findByNombreUsuario(ncp.getAsUser()).orElse(null);
 				ncp.setDateUpdate(LocalDateTime.now());
-				ncp.setUserName(ui.getEmployee().getCompleteName());
-				ncp.setJob(ui.getEmployee().getJob());
-				ncp.setWorkArea(ui.getEmployee().getArea().getNameArea());
+				if (ui != null) {
+					ncp.setUserName(ui.getNombre());
+					ncp.setJob(ui.getTrabajo());
+					ncp.setWorkArea(ui.getArea().getNameArea());
+				}
 				ncp.setState("Abierto");
 				if(ncp.getIdNCP()== null) {
 					ncp.setExistingMaterial(ncp.getAmountNonConforming());
@@ -257,12 +259,14 @@ public class TxNonConformingProduct {
 						wrei.setMessage("PNC::" + ncp.getIdNCP() + "::: cerrado correctamente");
 						ncp.setState("Cerrado");
 
-						UserImptek ui = this.serviceUI.findOnlyUserByNickname(ncp.getAsUser());
+						Usuario ui = this.serviceUI.findByNombreUsuario(ncp.getAsUser()).orElse(null);
 
 						ncp.setDateUpdate(LocalDateTime.now());
-						ncp.setUserName(ui.getEmployee().getCompleteName());
-						ncp.setJob(ui.getEmployee().getJob());
-						ncp.setWorkArea(ui.getEmployee().getArea().getNameArea());
+						if (ui != null) {
+							ncp.setUserName(ui.getNombre());
+							ncp.setJob(ui.getTrabajo());
+							ncp.setWorkArea(ui.getArea().getNameArea());
+						}
 						this.service.update(ncp);
 						wrei.setStatus(WebResponseMessage.STATUS_OK);
 						return new ResponseEntity<Object>(wrei, HttpStatus.OK);
@@ -309,11 +313,13 @@ public class TxNonConformingProduct {
 				ExitMaterialHistory emh = JSON_MAPPER.readValue(jsonValue, ExitMaterialHistory.class);
 				logger.info("> objeto a guardar: " + emh.toString());
 
-				UserImptek ui = this.serviceUI.findOnlyUserByNickname(emh.getAsUser());
+				Usuario ui = this.serviceUI.findByNombreUsuario(emh.getAsUser()).orElse(null);
 				emh.setDate(LocalDate.now());
-				emh.setNameUser(ui.getEmployee().getCompleteName());
-				emh.setJob(ui.getEmployee().getJob());
-				emh.setWorkArea(ui.getEmployee().getArea().getNameArea());
+				if (ui != null) {
+					emh.setNameUser(ui.getNombre());
+					emh.setJob(ui.getTrabajo());
+					emh.setWorkArea(ui.getArea().getNameArea());
+				}
 				if (emh.getConcessionRequest() != null) {
 					emh.getConcessionRequest().setDate(LocalDate.now());
 					emh.getConcessionRequest().setQuantity(emh.getQuantity());

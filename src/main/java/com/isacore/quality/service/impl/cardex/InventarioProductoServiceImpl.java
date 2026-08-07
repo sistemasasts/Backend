@@ -11,8 +11,8 @@ import com.isacore.quality.repository.IProductRepo;
 import com.isacore.quality.repository.cardex.IInventarioProductoDetalleRepo;
 import com.isacore.quality.repository.cardex.IInventarioProductoRepo;
 import com.isacore.quality.service.cardex.IInventarioProductoService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.UtilidadesSeguridad;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
     private final IInventarioProductoRepo repositorio;
     private final IInventarioProductoDetalleRepo repositorioDetalle;
     private final IProductRepo productoRepositorio;
-    private final IUserImptekRepo usuarioRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
     private final InventarioProductoMapper mapper;
     private final InventarioProductoDetalleMapper mapperDetalle;
     private final EntityManager entityManager;
@@ -102,11 +102,11 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
             throw new CardexErrorException("Inventario producto no encontrado");
 
         this.validarPuedeRegistrarConsumo(inventarioProducto, dto.getCantidad(), dto.getTipoMovimiento());
-        UserImptek usuario = this.obtenerUsuario();
+        Usuario usuario = this.obtenerUsuario();
         BigDecimal stockActualizado = this.calcularStock(dto.getTipoMovimiento(), inventarioProducto.getStock(), dto.getCantidad());
         InventarioProductoDetalle detalle = new InventarioProductoDetalle(
-                usuario.getIdUser(),
-                usuario.getEmployee().getCompleteName(),
+                usuario.getNombreUsuario(),
+                usuario.getNombre(),
                 dto.getCantidad(),
                 dto.getFechaEnsayo(),
                 dto.getNumeroEnsayo(),
@@ -209,11 +209,12 @@ public class InventarioProductoServiceImpl implements IInventarioProductoService
         return producto.get();
     }
 
-    private UserImptek obtenerUsuario() {
+    private Usuario obtenerUsuario() {
         String nombreUsuario = UtilidadesSeguridad.nombreUsuarioEnSesion();
-        UserImptek usuario = this.usuarioRepositorio.findOneByNickName(nombreUsuario);
+        Usuario usuario = this.usuarioRepositorio.findByNombreUsuario(nombreUsuario).orElse(null);
         if (usuario == null)
             throw new UsuarioErrorException(String.format("Usuario %s no encontrado", nombreUsuario));
         return usuario;
     }
 }
+

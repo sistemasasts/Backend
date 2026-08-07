@@ -31,9 +31,8 @@ import com.isacore.quality.service.IActionProcessService;
 import com.isacore.quality.service.INotificationService;
 import com.isacore.quality.service.IProcessFlowService;
 import com.isacore.quality.service.se.IConfiguracionUsuarioRolEnsayo;
-import com.isacore.sgc.acta.model.Employee;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.service.IUserImptekService;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.PassFileToRepository;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
@@ -72,7 +71,7 @@ public class TxProcess {
 	TxNotification txNoti;
 
 	@Autowired
-	IUserImptekService userImptekService;
+	UsuarioRepositorio usuarioRepositorio;
 
 	@Autowired
 	IActionProcessService apService;
@@ -136,11 +135,9 @@ public class TxProcess {
 					n = this.notiService.create(notiTmp2);
 
 					// Verificamos el area al que pertenece el usuario
-					UserImptek useToFind = new UserImptek();
-					useToFind.setIdUser(pp.getTestRequest().getAsUser());
-					UserImptek user = this.userImptekService.findById(useToFind);
+					Usuario user = this.usuarioRepositorio.findByNombreUsuario(pp.getTestRequest().getAsUser()).orElse(null);
 
-					if (!user.getEmployee().getArea().getNameArea().equalsIgnoreCase("Calidad")) {
+					if (user != null && !user.getArea().getNameArea().equalsIgnoreCase("Calidad")) {
 						Notification notiTmp = new Notification();
 						notiTmp.setTitle("DDP " + pp.getTestRequest().getMaterialDetail() + " "
 								+ pp.getTestRequest().getProviderName());
@@ -254,13 +251,16 @@ public class TxProcess {
 			try {
 				logger.info("> mapeando json a la clase: " + TrayDto.class);
 				TrayDto tU = JSON_MAPPER.readValue(jsonValue, TrayDto.class);
-				UserImptek u = new UserImptek();
-				u.setIdUser(tU.getUser());
-				UserImptek ui = this.userImptekService.findById(u);
-				Employee emp = ui.getEmployee();
+				Usuario ui = this.usuarioRepositorio.findByNombreUsuario(tU.getUser()).orElse(null);
+				if (ui == null) {
+					logger.info("> no se encontro el usuario");
+					wrei.setMessage(WebResponseMessage.OBJECT_NOT_FOUND);
+					wrei.setStatus(WebResponseMessage.STATUS_INFO);
+					return new ResponseEntity<Object>(wrei, HttpStatus.INTERNAL_SERVER_ERROR);
+				}
 				List<TrayDto> bandeja = new ArrayList<>();
 
-				switch (emp.getArea().getNameArea().toUpperCase()) {
+				switch (ui.getArea().getNameArea().toUpperCase()) {
 				case "CALIDAD":
 					List<Notification> listNoti = this.notiService.findbyIdUserAndState(tU.getUser(), "Pendiente");
 
@@ -273,12 +273,12 @@ public class TxProcess {
 						ActionProcess act = new ActionProcess();
 						act.setIdactionProcess(noti.getIdActionProcess());
 						td.setActionProcess(this.apService.findById(act));
-						UserImptek uTmp = new UserImptek();
-						uTmp.setIdUser(td.getActionProcess().getUserImptek());
-						UserImptek uiTmp = this.userImptekService.findById(uTmp);
-						String[] name = uiTmp.getEmployee().getName().split(" ");
-						String[] lastName = uiTmp.getEmployee().getLastName().split(" ");
-						td.setUser(name[0] + " " + lastName[0]);
+						Usuario uiTmp = this.usuarioRepositorio.findByNombreUsuario(td.getActionProcess().getUserImptek()).orElse(null);
+						if (uiTmp != null) {
+							String[] nameParts = uiTmp.getNombre().split(" ");
+							String formattedName = nameParts[0] + (nameParts.length > 1 ? " " + nameParts[nameParts.length - 1] : "");
+							td.setUser(formattedName);
+						}
 						bandeja.add(td);
 					}
 					logger.info("> objeto a enviar: " + bandeja.toString());
@@ -309,12 +309,12 @@ public class TxProcess {
 						ActionProcess act = new ActionProcess();
 						act.setIdactionProcess(noti.getIdActionProcess());
 						td.setActionProcess(this.apService.findById(act));
-						UserImptek uTmp = new UserImptek();
-						uTmp.setIdUser(td.getActionProcess().getUserImptek());
-						UserImptek uiTmp = this.userImptekService.findById(uTmp);
-						String[] name = uiTmp.getEmployee().getName().split(" ");
-						String[] lastName = uiTmp.getEmployee().getLastName().split(" ");
-						td.setUser(name[0] + " " + lastName[0]);
+						Usuario uiTmp = this.usuarioRepositorio.findByNombreUsuario(td.getActionProcess().getUserImptek()).orElse(null);
+						if (uiTmp != null) {
+							String[] nameParts = uiTmp.getNombre().split(" ");
+							String formattedName = nameParts[0] + (nameParts.length > 1 ? " " + nameParts[nameParts.length - 1] : "");
+							td.setUser(formattedName);
+						}
 						bandeja.add(td);
 					}
 					logger.info("> objeto a enviar: " + bandeja.toString());

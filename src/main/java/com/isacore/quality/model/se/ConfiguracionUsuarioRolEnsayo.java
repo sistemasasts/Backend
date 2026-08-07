@@ -11,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import com.isacore.security.model.Usuario;
-import com.isacore.sgc.acta.model.UserImptek;
 
 import lombok.Data;
 

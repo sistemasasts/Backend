@@ -13,8 +13,8 @@ import com.isacore.quality.repository.IExitMaterialHistoryRepo;
 import com.isacore.quality.repository.INonconformingProduct;
 import com.isacore.quality.service.IExitMaterialHistoryService;
 import com.isacore.quality.service.INonconformingProductService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 
 @Service
 public class ExitMaterialHistoryServiceImpl implements IExitMaterialHistoryService {
@@ -23,7 +23,7 @@ public class ExitMaterialHistoryServiceImpl implements IExitMaterialHistoryServi
 	private IExitMaterialHistoryRepo repo;
 	
 	@Autowired
-	private IUserImptekRepo repoUser;
+	private UsuarioRepositorio repoUser;
 	
 	@Autowired
 	private INonconformingProduct repoPNC;
@@ -40,11 +40,11 @@ public class ExitMaterialHistoryServiceImpl implements IExitMaterialHistoryServi
 	@Override
 	public ExitMaterialHistory create(ExitMaterialHistory obj) {
 		
-		Optional<UserImptek> user = repoUser.findById(obj.getAsUser());
+		Optional<Usuario> user = repoUser.findByNombreUsuario(obj.getAsUser());
 		if(user.isPresent()) {
-			obj.setNameUser(user.get().getEmployee().getCompleteName());
-			obj.setJob(user.get().getEmployee().getJob());
-			obj.setWorkArea(user.get().getEmployee().getArea().getNameArea());
+			obj.setNameUser(user.get().getNombre());
+			obj.setJob(user.get().getTrabajo());
+			obj.setWorkArea(user.get().getArea().getNameArea());
 		}
 		
 		ExitMaterialHistory objCreated = this.repo.save(obj);
@@ -66,11 +66,11 @@ public class ExitMaterialHistoryServiceImpl implements IExitMaterialHistoryServi
 
 	@Override
 	public ExitMaterialHistory update(ExitMaterialHistory obj) {
-		Optional<UserImptek> user = repoUser.findById(obj.getAsUser());
+		Optional<Usuario> user = repoUser.findByNombreUsuario(obj.getAsUser());
 		if(user.isPresent()) {
-			obj.setNameUser(user.get().getEmployee().getCompleteName());
-			obj.setJob(user.get().getEmployee().getJob());
-			obj.setWorkArea(user.get().getEmployee().getArea().getNameArea());
+			obj.setNameUser(user.get().getNombre());
+			obj.setJob(user.get().getTrabajo());
+			obj.setWorkArea(user.get().getArea().getNameArea());
 		}
 		return this.repo.save(obj);
 	}
@@ -108,3 +108,4 @@ public class ExitMaterialHistoryServiceImpl implements IExitMaterialHistoryServi
 	}
 
 }
+

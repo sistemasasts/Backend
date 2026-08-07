@@ -23,8 +23,8 @@ import com.isacore.quality.repository.pnc.IDefectoRepo;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoHistorialService;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoService;
 import com.isacore.servicio.reporte.IGeneradorJasperReports;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.UtilidadesCadena;
 import com.isacore.util.UtilidadesSeguridad;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     private final ServicioNotificacionDesviacion servicioNotificacionDesviacion;
     private final MatrizAprobacionAdicionalRepo matrizAprobacionAdicionalRepo;
     private final SolicitudAprobacionAdicionalRepo solicitudAprobacionAdicionalRepo;
-    private final IUserImptekRepo usuarioRepo;
+    private final UsuarioRepositorio usuarioRepo;
 
     @Override
     public List<DesviacionRequisito> findAll() {
@@ -470,7 +470,8 @@ public class DesviacionRequisitoServiceImpl implements IDesviacionRequisitoServi
     }
 
     private String obtenerNombreUsuario(String usuario){
-        UserImptek usuarioI = this.usuarioRepo.findOneByNickName(usuario);
-        return usuarioI == null ? usuario: usuarioI.getEmployee().getCompleteName();
+        Usuario usuarioI = this.usuarioRepo.findByNombreUsuario(usuario).orElse(null);
+        return usuarioI == null ? usuario: usuarioI.getNombre();
     }
 }
+

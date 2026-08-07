@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 public class Menu extends EntidadBase {
 
-    @Column(name = "padre_id", nullable = false)
+    @Column(name = "padre_id")
     private Long padreId;
 
     @ManyToOne

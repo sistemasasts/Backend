@@ -6,8 +6,8 @@ import com.isacore.quality.model.desviacionRequisito.DesviacionRequisitoOrdenFlu
 import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoDocumentoRepo;
 import com.isacore.quality.repository.desviacionRequisito.IDesviacionRequisitoHistorialRepo;
 import com.isacore.quality.service.desviacionRequisito.IDesviacionRequisitoHistorialService;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,13 @@ import static com.isacore.util.UtilidadesSeguridad.nombreUsuarioEnSesion;
 public class DesviacionRequisitoHistorialServiceImpl implements IDesviacionRequisitoHistorialService {
 
     private final IDesviacionRequisitoHistorialRepo historialRepo;
-    private final IUserImptekRepo repoUsuario;
+    private final UsuarioRepositorio repoUsuario;
     private final IDesviacionRequisitoDocumentoRepo documentoRepo;
 
     @Override
     public void agregar(DesviacionRequisito salidaMaterial, DesviacionRequisitoOrdenFlujo ordenFlujo, String observacion) {
         String usuario = nombreUsuarioEnSesion();
-        Optional<UserImptek> usuarioOp = repoUsuario.findById(usuario);
+        Optional<Usuario> usuarioOp = repoUsuario.findByNombreUsuario(usuario);
         DesviacionRequisitoHistorial historial = new DesviacionRequisitoHistorial(observacion, usuarioOp.get(),
                 salidaMaterial, ordenFlujo, salidaMaterial.getEstado());
         this.historialRepo.save(historial);
@@ -47,3 +47,4 @@ public class DesviacionRequisitoHistorialServiceImpl implements IDesviacionRequi
         }).collect(Collectors.toList());
     }
 }
+

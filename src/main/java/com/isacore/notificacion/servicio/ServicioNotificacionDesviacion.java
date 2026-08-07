@@ -12,8 +12,8 @@ import com.isacore.quality.model.pnc.PncPlanAccion;
 import com.isacore.quality.model.pnc.PncPlanAccionDto;
 import com.isacore.quality.model.pnc.PncSalidaMaterial;
 import com.isacore.quality.repository.desviacionRequisito.ILoteRepo;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.repository.IUserImptekRepo;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.UtilidadesSeguridad;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +34,7 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
 
     private static final Log LOG = LogFactory.getLog(ServicioNotificacionDesviacion.class);
 
-    private IUserImptekRepo userImptekRepo;
+    private UsuarioRepositorio UsuarioRepo;
     private ILoteRepo loteRepo;
 
     @Value("${APROBACION_URL_BASE}")
@@ -45,24 +45,24 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
             final ConfiguracionNotificacion configuracionNotificacion,
             final ProveedorCorreoElectronicoOffice365 proveedorCorreoElectronico,
             final SpringTemplateEngine springTemplateEngine,
-            IUserImptekRepo userImptekRepo,
+            UsuarioRepositorio UsuarioRepo,
             ILoteRepo loteRepo
             ) {
         super(configuracionNotificacion, LOG, proveedorCorreoElectronico, springTemplateEngine);
-        this.userImptekRepo = userImptekRepo;
+        this.UsuarioRepo = UsuarioRepo;
         this.loteRepo = loteRepo;
     }
 
     public void notificarIngreso(DesviacionRequisito salidaMaterial, String observacion, String usuario) throws Exception {
         String asunto = String.format("DESVIACIÓN REQUISITO %s POR APROBAR", salidaMaterial.getSecuencial());
 
-        UserImptek usuarioAprobador = this.obtenerUsuario(salidaMaterial.getUsuarioAprobador());
-        UserImptek usuarioResponsable = this.obtenerUsuario(usuario);
-        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getCorreo(), usuarioResponsable.getCorreo());
+        Usuario usuarioAprobador = this.obtenerUsuario(salidaMaterial.getUsuarioAprobador());
+        Usuario usuarioResponsable = this.obtenerUsuario(usuario);
+        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getEmail(), usuarioResponsable.getEmail());
         enviarHtml(destinos, asunto, "ProductoNoConforme/emailIngresoDesviacionRequisito", (context) -> {
             context.setVariable("numero", salidaMaterial.getSecuencial());
-            context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
-            context.setVariable("nombreSolicitante", usuarioResponsable.getEmployee().getCompleteName());
+            context.setVariable("nombreUsuario", usuarioAprobador.getNombre());
+            context.setVariable("nombreSolicitante", usuarioResponsable.getNombre());
             context.setVariable("producto", salidaMaterial.getProduct().getNameProduct());
             context.setVariable("tipo", salidaMaterial.getProduct().getTypeProductTxt());
             context.setVariable("cantidad", recuperarCantidadYUnidad(salidaMaterial));
@@ -73,16 +73,16 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
     public void notificarAprobacionUrl(DesviacionRequisito desviacionRequisito, String observacion, SolicitudAprobacionAdicional solicitud, List<Adjunto> adjuntoCorreo) throws Exception {
         String asunto = String.format("DESVIACIÓN REQUISITO %s POR APROBAR", desviacionRequisito.getSecuencial());
 
-        UserImptek usuarioAprobador = this.obtenerUsuario(solicitud.getDesviacionAprobacionAdicional().getUsuario());
-        UserImptek usuarioResponsable = this.obtenerUsuario(solicitud.getCreadoPor());
-        UserImptek usuarioAprobadorPrincipal = this.obtenerUsuario((desviacionRequisito.getUsuarioAprobador()));
-        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getCorreo(), usuarioResponsable.getCorreo());
-        destinos.agregarDireccionCC(usuarioAprobadorPrincipal.getCorreo());
+        Usuario usuarioAprobador = this.obtenerUsuario(solicitud.getDesviacionAprobacionAdicional().getUsuario());
+        Usuario usuarioResponsable = this.obtenerUsuario(solicitud.getCreadoPor());
+        Usuario usuarioAprobadorPrincipal = this.obtenerUsuario((desviacionRequisito.getUsuarioAprobador()));
+        DireccionesDestino destinos = new DireccionesDestino(usuarioAprobador.getEmail(), usuarioResponsable.getEmail());
+        destinos.agregarDireccionCC(usuarioAprobadorPrincipal.getEmail());
         boolean enviarUrl = !solicitud.getDesviacionAprobacionAdicional().getTipoAprobacion().equals(TipoAprobacion.GERENCIA_GERENCIAL);
         enviarHtml(destinos, asunto, "ProductoNoConforme/emailAprobacionDesviacionRequisito", adjuntoCorreo,(context) -> {
             context.setVariable("numero", desviacionRequisito.getSecuencial());
-            context.setVariable("nombreUsuario", usuarioAprobador.getEmployee().getCompleteName());
-            context.setVariable("nombreAprobador", usuarioAprobadorPrincipal.getEmployee().getCompleteName());
+            context.setVariable("nombreUsuario", usuarioAprobador.getNombre());
+            context.setVariable("nombreAprobador", usuarioAprobadorPrincipal.getNombre());
             context.setVariable("producto", desviacionRequisito.getProduct().getNameProduct());
             context.setVariable("lote", obtenerLotes(desviacionRequisito));
             context.setVariable("cantidad", recuperarCantidadYUnidad(desviacionRequisito));
@@ -94,8 +94,8 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
     }
 
 
-    private UserImptek obtenerUsuario(String usuarioId) throws Exception {
-        UserImptek usuario = this.userImptekRepo.findOneByNickName(usuarioId);
+    private Usuario obtenerUsuario(String usuarioId) throws Exception {
+        Usuario usuario = this.UsuarioRepo.findByNombreUsuario(usuarioId).orElse(null);
         if (usuario == null)
             throw new Exception(String.format("Usuario %s no encontrado", usuarioId));
         return usuario;
@@ -127,3 +127,5 @@ public class ServicioNotificacionDesviacion extends ServicioNotificacionBase{
         return MensajeTipo.PRODUCTO_NO_CONFORME;
     }
 }
+
+

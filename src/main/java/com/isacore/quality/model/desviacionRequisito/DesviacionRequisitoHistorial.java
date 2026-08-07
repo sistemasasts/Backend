@@ -1,7 +1,7 @@
 package com.isacore.quality.model.desviacionRequisito;
 
 import com.isacore.quality.model.se.SolicitudHistorialBase;
-import com.isacore.sgc.acta.model.UserImptek;
+import com.isacore.security.model.Usuario;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,10 +24,10 @@ public class DesviacionRequisitoHistorial extends SolicitudHistorialBase {
 
     protected DesviacionRequisitoHistorial(){}
 
-    public DesviacionRequisitoHistorial(String observacion, UserImptek usuario,
+    public DesviacionRequisitoHistorial(String observacion, Usuario usuario,
                                         DesviacionRequisito desviacionRequisito, DesviacionRequisitoOrdenFlujo orden,
                                         EstadoDesviacion estado) {
-        super(observacion, usuario.getIdUser(), usuario.getEmployee().getCompleteName());
+        super(observacion, usuario.getNombreUsuario(), usuario.getNombre());
         this.desviacionRequisito = desviacionRequisito;
         this.orden = orden;
         this.estado = estado;

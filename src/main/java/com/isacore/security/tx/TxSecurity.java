@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.isacore.sgc.acta.model.UserImptek;
-import com.isacore.sgc.acta.service.IUserImptekService;
+import com.isacore.security.model.Usuario;
+import com.isacore.security.repository.UsuarioRepositorio;
 import com.isacore.util.WebRequestIsa;
 import com.isacore.util.WebResponseIsa;
 import com.isacore.util.WebResponseMessage;
@@ -26,7 +26,7 @@ public class TxSecurity {
 	public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
 	@Autowired
-	private IUserImptekService userImptekService;
+	private UsuarioRepositorio usuarioRepositorio;
 
 	public ResponseEntity<Object> AAS(WebRequestIsa wri) {
 
@@ -43,15 +43,15 @@ public class TxSecurity {
 				ObjectMapper mapper = new ObjectMapper();
 				LoginIsa li = mapper.readValue(jsonValue, LoginIsa.class);
 				logger.info("> Login ISA::: " + li.getUserName());
-				UserImptek ui = this.userImptekService.findByUserImptek(li.getUserName());
+				Usuario ui = this.usuarioRepositorio.findByNombreUsuario(li.getUserName()).orElse(null);
 
 				if (ui == null) {
-					logger.info("> UserImptek not found");
+					logger.info("> Usuario not found");
 					wrei.setMessage("Usuario no encontrado");
 					wrei.setStatus(WebResponseMessage.STATUS_ERROR);
 					return new ResponseEntity<Object>(wrei, HttpStatus.NOT_FOUND);
 				} else {
-					if (ui.getUserPass().equals(li.getPass())) {
+					if (ui.getContrasena().equals(li.getPass())) {
 						String json = JSON_MAPPER.writeValueAsString(ui);
 						//String jsonCryp = Crypto.encrypt(json);
 							wrei.setMessage(WebResponseMessage.SEARCHING_OK);
