@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public class ConfiguracionFlujoPruebaProcesoServiceImpl implements IConfiguracio
 		return repo.findById(id.getId()).orElse(null);
 	}
 
+	@Transactional
 	@Override
 	public ConfiguracionFlujoPruebaProceso update(ConfiguracionFlujoPruebaProceso obj) {
 		ConfiguracionFlujoPruebaProceso configuracionSolicitudPP = this.repo.findById(obj.getId()).orElseThrow(() -> new SolicitudEnsayoErrorException("configuración no encontrada"));

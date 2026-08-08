@@ -156,7 +156,6 @@ public class HccHeadServiceImpl implements IHccHeadService {
                 dto.setWorkArea(ui.getArea().getNameArea());
                 LOG.info("> objeto a guardar: " + dto.toString());
                 dto.setDateCreate(LocalDate.now());
-                this.repo.save(dto);
                 if (file.length > 0) {
                     try {
                         final String path = crearPathArchivo(dto, nombreArchivo);
