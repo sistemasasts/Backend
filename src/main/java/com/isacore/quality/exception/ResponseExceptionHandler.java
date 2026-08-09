@@ -3,6 +3,7 @@ package com.isacore.quality.exception;
 import java.time.LocalDate;
 
 import com.isacore.security.exception.CrearUsuarioException;
+import com.isacore.security.exception.UsuarioUnicoException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,14 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler{
 
 	@ExceptionHandler(QualityException.class)
 	public final ResponseEntity<ExceptionResponse> manejarModeloExceptionUsuario(QualityException ex, WebRequest request){
+
+		ExceptionResponse er = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<ExceptionResponse>(er, HttpStatus.CONFLICT);
+
+	}
+
+	@ExceptionHandler(UsuarioUnicoException.class)
+	public final ResponseEntity<ExceptionResponse> manejarUsuarioUnicoException(UsuarioUnicoException ex, WebRequest request){
 
 		ExceptionResponse er = new ExceptionResponse(LocalDate.now(), ex.getMessage(), request.getDescription(false));
 		return new ResponseEntity<ExceptionResponse>(er, HttpStatus.CONFLICT);
