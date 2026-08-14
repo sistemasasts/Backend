@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +27,8 @@ import com.isacore.util.PassFileToRepository;
 @Service
 public class InformationAditionalServiceImpl implements IInformationAditionalService {
 
-	//private static String BASE_PATH ="D:/ISA/FilesRepository/productos/";
-	private static String BASE_PATH ="C:/Users/dalpala/Documents/ISADATOS/";
+	@Value("${archivos.rutaBase}")
+	private String BASE_PATH;
 	
 	private static final Log LOG = LogFactory.getLog(InformationAditionalServiceImpl.class);
 	public static final ObjectMapper JSON_MAPPER = new ObjectMapper();
