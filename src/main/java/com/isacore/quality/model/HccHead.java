@@ -132,6 +132,17 @@ public class HccHead {
 		this.analysis = analysis;
 	}
 
+	public HccHead(Long id, String sapCode, String productName, ProductType productType, LocalDate dateCreate, String periodicity, String hcchBatch, String analysis) {
+		super();
+		this.id = id;
+		this.sapCode = sapCode;
+		this.product = new Product(productName, productType);
+		this.dateCreate = dateCreate;
+		this.periodicity = periodicity;
+		this.hcchBatch = hcchBatch;
+		this.analysis = analysis;
+	}
+
 	
 	public long getId() {
 		return id;

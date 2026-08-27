@@ -153,6 +153,12 @@ public class Product {
 		super();
 	}
 
+	public Product(String nameProduct, ProductType typeProduct) {
+		super();
+		this.nameProduct = nameProduct;
+		this.typeProduct = typeProduct;
+	}
+
 	public Product(Integer idProduct, String sapCode, String nameProduct, String genericName, String descProduct,
 			String itcdq, ProductType typeProduct, Feature feature, List<Property> properties,
 			Family family, LineProduction lineProduction) {

@@ -28,6 +28,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import com.isacore.quality.dto.HccFilterDto;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +61,8 @@ public class HccHeadServiceImpl implements IHccHeadService {
     private ConfiguracionSolicitud configuracion;
     @Autowired
     private IReportHeadTService serviceRH;
+    @Autowired
+    private EntityManager entityManager;
     @Value("${reporteRutaBase}")
     private String reporteRutaBase;
 
@@ -236,6 +244,84 @@ public class HccHeadServiceImpl implements IHccHeadService {
                 LOG.error(">> El reporte de la HCC" + hh.getSapCode() + "no se a podido crear");
                 throw new HCCErrorException("El reporte de la HCC" + hh.getSapCode() + "no se a podido crear");
             }
+        }
+    }
+
+    public Page<HccHead> listarPorCriterios(Pageable pageable, HccFilterDto filters) {
+        try {
+            CriteriaBuilder cb = this.entityManager.getCriteriaBuilder();
+            
+            // 1. Consulta de conteo (totalCount)
+            CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+            Root<HccHead> countRoot = countQuery.from(HccHead.class);
+            List<Predicate> countPredicates = new ArrayList<>();
+            buildPredicates(cb, countRoot, filters, countPredicates);
+            countQuery.select(cb.count(countRoot));
+            countQuery.where(countPredicates.toArray(new Predicate[0]));
+            Long totalCount = this.entityManager.createQuery(countQuery).getSingleResult();
+            
+            if (totalCount == 0 && countPredicates.size() > 0 ) {
+                return new PageImpl<>(new ArrayList<>(), pageable, 0);
+            }
+            
+            // 2. Consulta de resultados paginados
+            CriteriaQuery<HccHead> query = cb.createQuery(HccHead.class);
+            Root<HccHead> root = query.from(HccHead.class);
+            List<Predicate> predicates = new ArrayList<>();
+            buildPredicates(cb, root, filters, predicates);
+            
+            // Usar proyección de constructor para evitar cargar la colección detail (fetch eager)
+            // y seleccionar únicamente el nombre y tipo del producto de forma plana (evitando construct anidado incompatible con Hibernate 5)
+            query.select(cb.construct(
+                HccHead.class,
+                root.get("id"),
+                root.get("sapCode"),
+                root.get("product").get("nameProduct"),
+                root.get("product").get("typeProduct"),
+                root.get("dateCreate"),
+                root.get("periodicity"),
+                root.get("hcchBatch"),
+                root.get("analysis")
+            ));
+            
+            query.where(predicates.toArray(new Predicate[0]));
+            
+            // Aplicar ordenación por fecha de creación desc, y luego por id desc
+            query.orderBy(cb.desc(root.get("dateCreate")), cb.desc(root.get("id")));
+            
+            List<HccHead> resultList = this.entityManager.createQuery(query)
+                    .setFirstResult((int) pageable.getOffset())
+                    .setMaxResults(pageable.getPageSize())
+                    .getResultList();
+            
+            return new PageImpl<>(resultList, pageable, totalCount);
+        } catch (Exception e) {
+            LOG.error("Error al momento de consultar HCC paginado", e);
+            return new PageImpl<>(new ArrayList<>(), pageable, 0);
+        }
+    }
+
+    private void buildPredicates(CriteriaBuilder cb, Root<HccHead> root, HccFilterDto filters, List<Predicate> predicates) {
+        if (filters.getLote() != null && !filters.getLote().trim().isEmpty()) {
+            predicates.add(cb.like(cb.lower(root.get("hcchBatch")), "%" + filters.getLote().toLowerCase().trim() + "%"));
+        }
+        if (filters.getProducto() != null && !filters.getProducto().trim().isEmpty()) {
+            predicates.add(cb.like(cb.lower(root.get("product").get("nameProduct")), "%" + filters.getProducto().toLowerCase().trim() + "%"));
+        }
+        if (filters.getHcc() != null && !filters.getHcc().trim().isEmpty()) {
+            predicates.add(cb.like(cb.lower(root.get("sapCode")), "%" + filters.getHcc().toLowerCase().trim() + "%"));
+        }
+        if (filters.getFechaInicio() != null && !filters.getFechaInicio().trim().isEmpty()) {
+            LocalDate start = LocalDate.parse(filters.getFechaInicio().trim());
+            predicates.add(cb.greaterThanOrEqualTo(root.get("dateCreate"), start));
+        }
+        if (filters.getFechaFin() != null && !filters.getFechaFin().trim().isEmpty()) {
+            LocalDate end = LocalDate.parse(filters.getFechaFin().trim());
+            predicates.add(cb.lessThanOrEqualTo(root.get("dateCreate"), end));
+        }
+        if (filters.getTipoProducto() != null && !filters.getTipoProducto().trim().isEmpty()) {
+            ProductType type = ProductType.valueOf(filters.getTipoProducto().trim());
+            predicates.add(cb.equal(root.get("product").get("typeProduct"), type));
         }
     }
 
